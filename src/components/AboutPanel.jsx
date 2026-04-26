@@ -34,7 +34,7 @@ export default function AboutPanel() {
 
       <div className="panel p-6 space-y-3">
         <div className="label">Abstract</div>
-        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+        <p className="text-sm text-slate-900 dark:text-slate-100 leading-relaxed">
           We construct real-time monthly term structures of Japan's inflation expectations from 2002
           to early 2026 by synthesizing information from household surveys, firm surveys, professional
           forecasters, and market-implied breakeven inflation rates. To do so, we develop a dynamic
@@ -44,7 +44,7 @@ export default function AboutPanel() {
           2-percent target since 2022, with the target falling within the 95 percent confidence band
           for long-term expectations by late 2024.
         </p>
-        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+        <p className="text-sm text-slate-900 dark:text-slate-100 leading-relaxed">
           Using our composite, we compare long-term inflation expectations in Japan with those in
           the US and find substantially stronger sensitivity to short-term inflation surprises. We
           also construct term structures of ex-ante real interest rates and decompose movements in

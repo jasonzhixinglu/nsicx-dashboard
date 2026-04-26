@@ -116,12 +116,12 @@ export default function NSFactorsChart({ data }) {
             type="category"
             tickFormatter={d => d.slice(0, 4)}
             ticks={ticks}
-            tick={{ fontSize: 9, fill: theme.ui.tickLabel }}
+            tick={{ fontSize: theme.ui.tickFontSize, fill: theme.ui.tickLabel }}
             axisLine={{ stroke: theme.ui.axis }}
             tickLine={false}
           />
           <YAxis
-            tick={{ fontSize: 9, fill: theme.ui.tickLabel }}
+            tick={{ fontSize: theme.ui.tickFontSize, fill: theme.ui.tickLabel }}
             axisLine={false}
             tickLine={false}
             tickFormatter={v => `${v.toFixed(1)}%`}

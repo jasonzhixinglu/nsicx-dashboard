@@ -19,7 +19,8 @@ export const DARK_THEME = {
   ui: {
     grid:          'rgba(51,65,85,0.4)',
     axis:          'rgba(51,65,85,0.6)',
-    tickLabel:     'rgba(148,163,184,1.0)',
+    tickLabel:     '#cbd5e1',
+    tickFontSize:  12,
     tooltipBg:     '#0f172a',
     tooltipBorder: 'rgba(51,65,85,0.6)',
     tooltipText:   '#cbd5e1',
@@ -41,7 +42,8 @@ export const LIGHT_THEME = {
   ui: {
     grid:          'rgba(203,213,225,0.6)',
     axis:          'rgba(203,213,225,0.8)',
-    tickLabel:     'rgba(71,85,105,1.0)',
+    tickLabel:     '#1e293b',
+    tickFontSize:  12,
     tooltipBg:     '#ffffff',
     tooltipBorder: 'rgba(203,213,225,0.8)',
     tooltipText:   '#1e293b',

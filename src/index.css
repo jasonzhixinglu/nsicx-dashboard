@@ -12,15 +12,15 @@
 
 @layer components {
   .panel {
-    @apply bg-white border border-slate-200/80 rounded-xl dark:bg-slate-900 dark:border-slate-700/50;
+    @apply bg-white border border-slate-300/80 rounded-xl dark:bg-slate-900 dark:border-slate-600/60;
   }
 
   .card {
-    @apply bg-slate-100/60 border border-slate-200/60 rounded-lg dark:bg-slate-800/60 dark:border-slate-700/40;
+    @apply bg-slate-100/60 border border-slate-300/60 rounded-lg dark:bg-slate-800/60 dark:border-slate-600/50;
   }
 
   .label {
-    @apply text-xs font-medium tracking-wide text-slate-500 uppercase dark:text-slate-400;
+    @apply text-sm font-medium tracking-wide text-slate-500 uppercase dark:text-slate-400;
   }
 
   .val-positive {

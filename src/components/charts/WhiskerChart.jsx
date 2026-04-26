@@ -183,7 +183,7 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
 
         {/* Y axis ticks */}
         {yTicks.map(t => (
-          <text key={t.y} x={-6} y={t.y + 3} fontSize={9}
+          <text key={t.y} x={-6} y={t.y + 3} fontSize={theme.ui.tickFontSize}
             fill={theme.ui.tickLabel} textAnchor="end">{t.label}</text>
         ))}
 
@@ -191,7 +191,7 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
         {yearTicks.map(t => (
           <g key={t.x}>
             <line x1={t.x} x2={t.x} y1={innerH} y2={innerH + 4} stroke={theme.ui.axis} />
-            <text x={t.x} y={innerH + 14} fontSize={9} fill={theme.ui.tickLabel} textAnchor="middle">{t.label}</text>
+            <text x={t.x} y={innerH + 14} fontSize={theme.ui.tickFontSize} fill={theme.ui.tickLabel} textAnchor="middle">{t.label}</text>
           </g>
         ))}
 

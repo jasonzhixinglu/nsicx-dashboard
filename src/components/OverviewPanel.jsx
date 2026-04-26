@@ -64,6 +64,20 @@ function formatVintage(yyyymm) {
   return `23 ${MONTH_NAMES[m - 1]} ${y}`
 }
 
+function formatMonthYear(yyyymm) {
+  if (!yyyymm) return '—'
+  const [y, m] = yyyymm.split('-').map(Number)
+  return `${MONTH_NAMES[m - 1]} ${y}`
+}
+
+function prevMonthYear(yyyymm) {
+  if (!yyyymm) return '—'
+  const [y, m] = yyyymm.split('-').map(Number)
+  const pm = m === 1 ? 12 : m - 1
+  const py = m === 1 ? y - 1 : y
+  return `${MONTH_NAMES[pm - 1]} ${py}`
+}
+
 export default function OverviewPanel() {
   const [whiskerData, setWhiskerData] = useState(null)
   const [selectedDate, setSelectedDate] = useState(null)
@@ -266,9 +280,15 @@ function KeyResults({ state, date, lam }) {
       {/* Mobile: single merged card */}
       <div className="lg:hidden">
         <div className="card p-3">
-          <div className="flex items-baseline justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800">
-            <span className="text-xs text-slate-500">Data vintage</span>
-            <span className="font-mono text-sm font-semibold text-indigo-600 dark:text-indigo-300">{date}</span>
+          <div className="pb-2 mb-2 border-b border-slate-200 dark:border-slate-800 space-y-0.5">
+            <div className="flex items-baseline justify-between">
+              <span className="text-xs text-slate-500">Survey</span>
+              <span className="text-xs font-medium text-indigo-600 dark:text-indigo-300">{formatMonthYear(date)}</span>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-xs text-slate-500">CPI</span>
+              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{prevMonthYear(date)}</span>
+            </div>
           </div>
           <div className="text-xs text-slate-500 mb-1.5">Avg annualized (%)</div>
           <div className="grid grid-cols-5 gap-x-2">
@@ -287,9 +307,15 @@ function KeyResults({ state, date, lam }) {
       {/* Desktop: single merged card */}
       <div className="hidden lg:block">
         <div className="card p-4">
-          <div className="flex items-baseline justify-between pb-2.5 mb-3 border-b border-slate-200 dark:border-slate-800">
-            <span className="text-xs text-slate-500">Snapshot</span>
-            <span className="font-mono text-base font-semibold text-indigo-600 dark:text-indigo-300">{date}</span>
+          <div className="pb-2.5 mb-3 border-b border-slate-200 dark:border-slate-800 space-y-0.5">
+            <div className="flex items-baseline justify-between">
+              <span className="text-xs text-slate-500">Survey</span>
+              <span className="text-sm font-medium text-indigo-600 dark:text-indigo-300">{formatMonthYear(date)}</span>
+            </div>
+            <div className="flex items-baseline justify-between">
+              <span className="text-xs text-slate-500">CPI</span>
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{prevMonthYear(date)}</span>
+            </div>
           </div>
           <div className="text-xs text-slate-500 mb-2">Avg annualized (%)</div>
           <div className="space-y-2">

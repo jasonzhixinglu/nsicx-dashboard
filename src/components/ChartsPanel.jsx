@@ -74,13 +74,13 @@ function ChartRow({ row, data, last }) {
     <div className={`flex flex-col md:flex-row gap-4 md:gap-6 ${!last ? 'pb-6 border-b border-slate-200/60 dark:border-slate-800/60' : ''}`}>
 
       {/* Chart */}
-      <div className="flex-1 min-w-0 panel p-4 flex flex-col gap-2" style={{ minHeight: '300px' }}>
+      <div className="flex-1 min-w-0 panel p-4 flex flex-col gap-2">
         <div className="flex items-baseline gap-2">
           <span className="label">{row.section}</span>
           <span className="text-xs text-slate-300 dark:text-slate-600">·</span>
-          <span className="text-xs text-slate-600 dark:text-slate-400">{row.title}</span>
+          <span className="text-xs text-slate-700 dark:text-slate-300">{row.title}</span>
         </div>
-        <div className="flex-1">
+        <div style={{ height: '260px' }}>
           {row.id === 'nsfactors' && <NSFactorsChart data={data} />}
           {row.id === 'realrates' && <RealRatesChart data={data} />}
           {row.id === 'bei'       && <BEIChart data={data} />}

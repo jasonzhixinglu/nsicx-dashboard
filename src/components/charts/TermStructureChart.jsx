@@ -80,14 +80,14 @@ export default function TermStructureChart({ state, lam }) {
           domain={[1, 120]}
           ticks={[12, 24, 36, 60, 84, 120]}
           tickFormatter={h => `${h}m`}
-          tick={{ fontSize: 9, fill: theme.ui.tickLabel }}
+          tick={{ fontSize: theme.ui.tickFontSize, fill: theme.ui.tickLabel }}
           axisLine={{ stroke: theme.ui.axis }}
           tickLine={false}
-          label={{ value: 'Horizon (months)', position: 'insideBottom', offset: -12, fontSize: 9, fill: theme.ui.tickLabel }}
+          label={{ value: 'Horizon (months)', position: 'insideBottom', offset: -12, fontSize: theme.ui.tickFontSize, fill: theme.ui.tickLabel }}
         />
         <YAxis
           domain={['auto', 'auto']}
-          tick={{ fontSize: 9, fill: theme.ui.tickLabel }}
+          tick={{ fontSize: theme.ui.tickFontSize, fill: theme.ui.tickLabel }}
           axisLine={false}
           tickLine={false}
           tickFormatter={v => `${v.toFixed(1)}%`}
@@ -104,7 +104,7 @@ export default function TermStructureChart({ state, lam }) {
             key={r.h} x={r.h}
             stroke={theme.ui.grid}
             strokeDasharray="3 3"
-            label={{ value: r.label, position: 'top', fontSize: 8, fill: theme.ui.tickLabel }}
+            label={{ value: r.label, position: 'top', fontSize: theme.ui.tickFontSize - 2, fill: theme.ui.tickLabel }}
           />
         ))}
         <Line

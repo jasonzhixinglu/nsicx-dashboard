@@ -2,9 +2,9 @@
 
 **Live dashboard:** https://jasonzhixinglu.github.io/nsicx-dashboard/
 
-An interactive dashboard for visualising outputs from a Dynamic Nelson–Siegel (DNS) state-space model of Japanese inflation expectations. The app displays:
+An interactive dashboard for visualizing outputs from a Dynamic Nelson–Siegel (DNS) state-space model of Japanese inflation expectations. The app displays:
 
-- **Overview** — Chart A (whisker plot of DNS instantaneous forward expectations vs realised CPI YoY, selectable by vintage) and Chart B (term structure snapshot for the selected vintage)
+- **Overview** — Chart A (whisker plot of DNS instantaneous forward expectations vs realized CPI YoY, selectable by vintage) and Chart B (term structure snapshot for the selected vintage)
 - **Charts** — NS factor paths with credible intervals, ex-ante real interest rates, and BEI vs model-implied expectations
 - **About** — paper abstract and author details
 

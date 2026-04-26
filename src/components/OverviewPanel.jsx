@@ -217,7 +217,7 @@ export default function OverviewPanel() {
         {/* Upper: whisker chart */}
         <div className="panel p-3 flex flex-col gap-1 overflow-hidden md:flex-3 md:min-h-[180px]">
           <div className="flex items-baseline justify-between">
-            <span className="label">Chart A: DNS instantaneous forward inflation expectations vs realised CPI YoY</span>
+            <span className="label">Chart A: Realized CPI YoY vs real-time forward rate inflation expectations</span>
             <span className="text-xs text-slate-400 dark:text-slate-600">Click or drag to select snapshot</span>
           </div>
           <div className="flex-1 min-h-0">

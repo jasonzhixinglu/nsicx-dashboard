@@ -16,7 +16,7 @@ const CHART_ROWS = [
     id: 'realrates',
     section: 'Ex-ante real rates',
     title: 'JGB nominal yield minus DNS-implied inflation expectations',
-    finding: 'Real rates turned persistently negative under YCC and have only recently normalised following the 2024 rate hike.',
+    finding: 'Real rates turned persistently negative under YCC and have only recently normalized following the 2024 rate hike.',
     body: 'Nominal JGB yields minus DNS-implied inflation expectations at each horizon. Vertical markers indicate major BoJ policy shifts. Toggle horizons to isolate the term structure of real rates.',
     dataKey: 'realRates',
   },

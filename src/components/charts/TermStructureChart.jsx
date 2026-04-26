@@ -63,13 +63,6 @@ export default function TermStructureChart({ state, lam }) {
     fwd: fwdCurve[i].v,
   }))
 
-  const REFS = [
-    { h: 12,  label: '1Y' },
-    { h: 24,  label: '2Y' },
-    { h: 60,  label: '5Y' },
-    { h: 120, label: '10Y' },
-  ]
-
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={data} margin={{ top: 8, right: 16, bottom: 20, left: 8 }}>
@@ -99,14 +92,6 @@ export default function TermStructureChart({ state, lam }) {
           labelFormatter={(h) => `Horizon: ${h}m`}
         />
         <ReferenceLine y={2} stroke={theme.colors.target} strokeDasharray="4 3" label={<TargetLabel isDark={isDark} />} />
-        {REFS.map(r => (
-          <ReferenceLine
-            key={r.h} x={r.h}
-            stroke={theme.ui.grid}
-            strokeDasharray="3 3"
-            label={{ value: r.label, position: 'top', fontSize: theme.ui.tickFontSize - 2, fill: theme.ui.tickLabel }}
-          />
-        ))}
         <Line
           type="monotone"
           dataKey="avg"

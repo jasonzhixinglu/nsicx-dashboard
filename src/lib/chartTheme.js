@@ -50,8 +50,6 @@ export const LIGHT_THEME = {
   },
 }
 
-export const CHART_THEME = DARK_THEME
-
 export function getTheme(isDark) {
   return isDark ? DARK_THEME : LIGHT_THEME
 }
@@ -67,10 +65,3 @@ export function getTooltipStyle(isDark) {
   }
 }
 
-export const TOOLTIP_STYLE = {
-  backgroundColor: DARK_THEME.ui.tooltipBg,
-  border:          `1px solid ${DARK_THEME.ui.tooltipBorder}`,
-  borderRadius:    '6px',
-  fontSize:        '11px',
-  color:           DARK_THEME.ui.tooltipText,
-}

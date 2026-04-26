@@ -1,6 +1,6 @@
 export const DARK_THEME = {
   colors: {
-    cpi:             '#f8fafc',
+    cpi:             '#cbd5e1',
     dnsFwd:          '#22d3ee',
     avg:             '#6366f1',
     slope:           '#22d3ee',

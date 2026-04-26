@@ -163,7 +163,7 @@ export default function OverviewPanel() {
         <div className="border-t border-slate-200 dark:border-slate-800" />
 
         <div className="space-y-1.5">
-          <div className="label mb-2">Upper chart</div>
+          <div className="label mb-2">Chart A: Whisker Chart</div>
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <span className="inline-block w-4 h-px bg-slate-700 dark:bg-slate-100" />
             CPI YoY
@@ -181,7 +181,7 @@ export default function OverviewPanel() {
         <div className="border-t border-slate-200 dark:border-slate-800" />
 
         <div className="space-y-1.5">
-          <div className="label mb-2">Term structure</div>
+          <div className="label mb-2">Chart B: Term Structure</div>
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <svg width="16" height="8"><line x1="0" y1="4" x2="16" y2="4" stroke="#6366f1" strokeWidth="2" /></svg>
             Avg annualized
@@ -209,7 +209,7 @@ export default function OverviewPanel() {
         {/* Upper: whisker chart */}
         <div className="panel p-3 flex flex-col gap-1 overflow-hidden md:flex-3 md:min-h-[180px]">
           <div className="flex items-baseline justify-between">
-            <span className="label">DNS instantaneous forward inflation expectations vs realised CPI YoY</span>
+            <span className="label">Chart A: DNS instantaneous forward inflation expectations vs realised CPI YoY</span>
             <span className="text-xs text-slate-400 dark:text-slate-600">Click or drag to select snapshot</span>
           </div>
           <div className="flex-1 min-h-0">
@@ -225,7 +225,7 @@ export default function OverviewPanel() {
         <div className="panel p-3 flex flex-col gap-1 overflow-hidden md:flex-2 md:min-h-[180px]">
           <div className="flex items-baseline justify-between">
             <span className="label">
-              Term structure of inflation expectations
+              Chart B: Term structure of inflation expectations
               {selectedDate && <span className="text-indigo-600 dark:text-indigo-400 ml-2 normal-case">{selectedDate}</span>}
             </span>
           </div>

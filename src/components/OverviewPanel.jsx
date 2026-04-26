@@ -233,7 +233,7 @@ export default function OverviewPanel() {
         <div className="panel p-3 flex flex-col gap-1 overflow-hidden md:flex-2 md:min-h-[180px]">
           <div className="flex items-baseline justify-between">
             <span className="label">
-              Chart B:{selectedDate && <span className="text-indigo-600 dark:text-indigo-400 normal-case"> {formatMonthYear(selectedDate)} —</span>} Term structure of inflation expectations
+              Chart B:{selectedDate && ` ${formatMonthYear(selectedDate)} —`} Term structure of inflation expectations
             </span>
           </div>
           <div className="md:flex-1 md:min-h-0" style={{ height: '200px' }}>

@@ -13,6 +13,11 @@ function buildAndDownloadCSV(whiskerData) {
     return L + L2 * S + L3 * C
   }
 
+  const nsFwd = (h, L, S, C) => {
+    const eL = Math.exp(-lam * h)
+    return L + eL * S + lam * h * eL * C
+  }
+
   const cpiMap = Object.fromEntries(whiskerData.cpi.map(p => [p.d, p.v]))
   const stateMap = Object.fromEntries(whiskerData.states.map(s => [s.d, s]))
 
@@ -22,12 +27,14 @@ function buildAndDownloadCSV(whiskerData) {
     ...whiskerData.states.map(s => s.d),
   ])].sort().filter(d => d >= '2002-01')
 
-  const HORIZONS = [12, 24, 60, 120]
+  const AVG_HORIZONS = [3, 12, 24, 60, 120]
+  const FWD_HORIZONS = [3, 12, 24, 60, 120]
 
   const header = [
     'date', 'cpi_yoy',
     'dns_L', 'dns_S', 'dns_C',
-    'avg_1Y', 'avg_2Y', 'avg_5Y', 'avg_10Y',
+    'avg_3M', 'avg_1Y', 'avg_2Y', 'avg_5Y', 'avg_10Y',
+    'fwd_3M', 'fwd_1Y', 'fwd_2Y', 'fwd_5Y', 'fwd_10Y',
   ].join(',')
 
   const rows = dates.map(d => {
@@ -39,7 +46,8 @@ function buildAndDownloadCSV(whiskerData) {
       s ? s.L.toFixed(4) : '',
       s ? s.S.toFixed(4) : '',
       s ? s.C.toFixed(4) : '',
-      ...HORIZONS.map(h => s ? nsAvg(h, s.L, s.S, s.C).toFixed(4) : ''),
+      ...AVG_HORIZONS.map(h => s ? nsAvg(h, s.L, s.S, s.C).toFixed(4) : ''),
+      ...FWD_HORIZONS.map(h => s ? nsFwd(h, s.L, s.S, s.C).toFixed(4) : ''),
     ]
     return cols.join(',')
   })

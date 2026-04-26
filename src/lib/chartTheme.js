@@ -10,7 +10,7 @@ export const DARK_THEME = {
     whiskerSelected: '#6366f1',
   },
   strokeWidths: {
-    cpiLine:         2,
+    cpiLine:         1.5,
     dnsLine:         1.5,
     whiskerLine:     1,
     whiskerSelected: 1.5,

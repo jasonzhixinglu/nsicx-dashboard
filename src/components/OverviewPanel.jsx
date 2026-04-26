@@ -69,7 +69,7 @@ const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'
 function formatVintage(yyyymm) {
   if (!yyyymm) return '—'
   const [y, m] = yyyymm.split('-').map(Number)
-  return `23 ${MONTH_NAMES[m - 1]} ${y}`
+  return `${MONTH_NAMES[m - 1]} ${y}`
 }
 
 function formatMonthYear(yyyymm) {

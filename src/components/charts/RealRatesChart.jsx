@@ -3,12 +3,13 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ReferenceLine, ResponsiveContainer,
 } from 'recharts'
-import { CHART_THEME, TOOLTIP_STYLE } from '../../lib/chartTheme.js'
+import { getTheme, getTooltipStyle } from '../../lib/chartTheme.js'
+import { useDarkMode } from '../../lib/useDarkMode.jsx'
 
-const LINES = [
-  { key: 'rr_1Y',  label: '1Y',  color: CHART_THEME.colors.avg },
-  { key: 'rr_2Y',  label: '2Y',  color: CHART_THEME.colors.dnsFwd },
-  { key: 'rr_5Y',  label: '5Y',  color: CHART_THEME.colors.curvature },
+const LINE_CONFIGS = [
+  { key: 'rr_1Y',  label: '1Y',  colorKey: 'avg' },
+  { key: 'rr_2Y',  label: '2Y',  colorKey: 'dnsFwd' },
+  { key: 'rr_5Y',  label: '5Y',  colorKey: 'curvature' },
   { key: 'rr_10Y', label: '10Y', color: '#fb923c' },
 ]
 
@@ -46,9 +47,11 @@ function downloadCSV(series) {
 }
 
 export default function RealRatesChart({ data }) {
-  const [active, setActive] = useState(new Set(LINES.map(l => l.key)))
+  const [active, setActive] = useState(new Set(LINE_CONFIGS.map(l => l.key)))
+  const { isDark } = useDarkMode()
+  const theme = getTheme(isDark)
 
-  if (!data) return <div className="flex items-center justify-center h-full text-xs text-slate-600">Loading…</div>
+  if (!data) return <div className="flex items-center justify-center h-full text-xs text-slate-500">Loading…</div>
 
   const toggle = (key) =>
     setActive(prev => {
@@ -64,21 +67,24 @@ export default function RealRatesChart({ data }) {
   return (
     <div className="flex flex-col h-full gap-2">
       <div className="flex flex-wrap gap-1.5 items-center">
-        {LINES.map(l => (
-          <button
-            key={l.key}
-            onClick={() => toggle(l.key)}
-            className={`text-xs px-2 py-0.5 rounded-md font-medium transition-all border ${
-              active.has(l.key)
-                ? 'border-transparent text-white'
-                : 'border-slate-700 text-slate-500 bg-transparent'
-            }`}
-            style={active.has(l.key) ? { backgroundColor: l.color } : {}}
-          >{l.label}</button>
-        ))}
+        {LINE_CONFIGS.map(l => {
+          const lColor = l.colorKey ? theme.colors[l.colorKey] : l.color
+          return (
+            <button
+              key={l.key}
+              onClick={() => toggle(l.key)}
+              className={`text-xs px-2 py-0.5 rounded-md font-medium transition-all border ${
+                active.has(l.key)
+                  ? 'border-transparent text-white'
+                  : 'border-slate-300 dark:border-slate-700 text-slate-500 bg-transparent'
+              }`}
+              style={active.has(l.key) ? { backgroundColor: lColor } : {}}
+            >{l.label}</button>
+          )
+        })}
         <button
           onClick={() => downloadCSV(series)}
-          className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 text-xs transition-all"
+          className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 text-xs transition-all"
           title="Download ex-ante real rates as CSV"
         >
           <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
@@ -90,28 +96,28 @@ export default function RealRatesChart({ data }) {
 
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={series} margin={{ top: 4, right: 12, bottom: 4, left: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.ui.grid} vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke={theme.ui.grid} vertical={false} />
           <XAxis
             dataKey="d"
             type="category"
             tickFormatter={d => d.slice(0, 4)}
             ticks={ticks}
-            tick={{ fontSize: 9, fill: CHART_THEME.ui.tickLabel }}
-            axisLine={{ stroke: CHART_THEME.ui.axis }}
+            tick={{ fontSize: 9, fill: theme.ui.tickLabel }}
+            axisLine={{ stroke: theme.ui.axis }}
             tickLine={false}
           />
           <YAxis
-            tick={{ fontSize: 9, fill: CHART_THEME.ui.tickLabel }}
+            tick={{ fontSize: 9, fill: theme.ui.tickLabel }}
             axisLine={false}
             tickLine={false}
             tickFormatter={v => `${v.toFixed(1)}%`}
             width={38}
           />
           <Tooltip
-            contentStyle={TOOLTIP_STYLE}
+            contentStyle={getTooltipStyle(isDark)}
             formatter={(v, name) => [v != null ? `${v.toFixed(2)}%` : 'n/a', name]}
           />
-          <ReferenceLine y={0} stroke="rgba(248,250,252,0.2)" strokeWidth={1} />
+          <ReferenceLine y={0} stroke={isDark ? 'rgba(248,250,252,0.2)' : 'rgba(15,23,42,0.15)'} strokeWidth={1} />
           {data.events
             .filter(ev => ev.d >= COMMON_START)
             .map(ev => (
@@ -121,19 +127,22 @@ export default function RealRatesChart({ data }) {
                 label={<EventLabel label={ev.label} />}
               />
             ))}
-          {LINES.filter(l => active.has(l.key)).map(l => (
-            <Line
-              key={l.key}
-              type="monotone"
-              dataKey={l.key}
-              name={l.label}
-              stroke={l.color}
-              strokeWidth={1.5}
-              dot={false}
-              activeDot={{ r: 3 }}
-              connectNulls={false}
-            />
-          ))}
+          {LINE_CONFIGS.filter(l => active.has(l.key)).map(l => {
+            const lColor = l.colorKey ? theme.colors[l.colorKey] : l.color
+            return (
+              <Line
+                key={l.key}
+                type="monotone"
+                dataKey={l.key}
+                name={l.label}
+                stroke={lColor}
+                strokeWidth={1.5}
+                dot={false}
+                activeDot={{ r: 3 }}
+                connectNulls={false}
+              />
+            )
+          })}
         </LineChart>
       </ResponsiveContainer>
     </div>

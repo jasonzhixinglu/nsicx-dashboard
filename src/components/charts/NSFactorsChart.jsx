@@ -3,12 +3,13 @@ import {
   ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine,
 } from 'recharts'
-import { CHART_THEME, TOOLTIP_STYLE } from '../../lib/chartTheme.js'
+import { getTheme, getTooltipStyle } from '../../lib/chartTheme.js'
+import { useDarkMode } from '../../lib/useDarkMode.jsx'
 
-const FACTORS = [
-  { key: 'L', label: 'Level',     color: CHART_THEME.colors.avg,       desc: 'Long-run inflation trend' },
-  { key: 'S', label: 'Slope',     color: CHART_THEME.colors.slope,     desc: 'Short-run deviation from trend' },
-  { key: 'C', label: 'Curvature', color: CHART_THEME.colors.curvature, desc: 'Medium-term hump' },
+const FACTOR_CONFIGS = [
+  { key: 'L', label: 'Level',     colorKey: 'avg',       desc: 'Long-run inflation trend' },
+  { key: 'S', label: 'Slope',     colorKey: 'slope',     desc: 'Short-run deviation from trend' },
+  { key: 'C', label: 'Curvature', colorKey: 'curvature', desc: 'Medium-term hump' },
 ]
 
 function downloadFactorCSV(data) {
@@ -40,11 +41,13 @@ function downloadFactorCSV(data) {
 
 export default function NSFactorsChart({ data }) {
   const [factor, setFactor] = useState('L')
+  const { isDark } = useDarkMode()
+  const theme = getTheme(isDark)
 
-  if (!data) return <div className="flex items-center justify-center h-full text-xs text-slate-600">Loading…</div>
+  if (!data) return <div className="flex items-center justify-center h-full text-xs text-slate-500">Loading…</div>
 
-  const cfg   = FACTORS.find(f => f.key === factor)
-  const color = cfg.color
+  const cfg   = FACTOR_CONFIGS.find(f => f.key === factor)
+  const color = theme.colors[cfg.colorKey]
 
   const series = data.series.map(pt => ({
     d:    pt.d,
@@ -63,21 +66,24 @@ export default function NSFactorsChart({ data }) {
     <div className="flex flex-col h-full gap-2">
 
       <div className="flex flex-wrap gap-1.5 items-center">
-        {FACTORS.map(f => (
-          <button
-            key={f.key}
-            onClick={() => setFactor(f.key)}
-            className={`text-xs px-3 py-0.5 rounded-md font-medium transition-all border ${
-              factor === f.key
-                ? 'border-transparent text-white'
-                : 'border-slate-700 text-slate-500 bg-transparent hover:text-slate-300'
-            }`}
-            style={factor === f.key ? { backgroundColor: f.color } : {}}
-          >{f.label}</button>
-        ))}
-        <span className="text-xs text-slate-600 ml-1">{cfg.desc}</span>
+        {FACTOR_CONFIGS.map(f => {
+          const fColor = theme.colors[f.colorKey]
+          return (
+            <button
+              key={f.key}
+              onClick={() => setFactor(f.key)}
+              className={`text-xs px-3 py-0.5 rounded-md font-medium transition-all border ${
+                factor === f.key
+                  ? 'border-transparent text-white'
+                  : 'border-slate-300 dark:border-slate-700 text-slate-500 bg-transparent hover:text-slate-700 dark:hover:text-slate-300'
+              }`}
+              style={factor === f.key ? { backgroundColor: fColor } : {}}
+            >{f.label}</button>
+          )
+        })}
+        <span className="text-xs text-slate-500 dark:text-slate-600 ml-1">{cfg.desc}</span>
 
-        <span className="ml-auto flex items-center gap-3 text-xs text-slate-600">
+        <span className="ml-auto flex items-center gap-3 text-xs text-slate-500 dark:text-slate-600">
           <span className="flex items-center gap-1">
             <svg width="28" height="8">
               <rect x="0" y="1" width="28" height="6" rx="1" fill={color} opacity="0.12"/>
@@ -91,7 +97,7 @@ export default function NSFactorsChart({ data }) {
           </span>
           <button
             onClick={() => downloadFactorCSV(data)}
-            className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 transition-all"
+            className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-all"
             title="Download DNS factors with CIs as CSV"
           >
             <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
@@ -104,29 +110,29 @@ export default function NSFactorsChart({ data }) {
 
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={series} margin={{ top: 4, right: 12, bottom: 4, left: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.ui.grid} vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke={theme.ui.grid} vertical={false} />
           <XAxis
             dataKey="d"
             type="category"
             tickFormatter={d => d.slice(0, 4)}
             ticks={ticks}
-            tick={{ fontSize: 9, fill: CHART_THEME.ui.tickLabel }}
-            axisLine={{ stroke: CHART_THEME.ui.axis }}
+            tick={{ fontSize: 9, fill: theme.ui.tickLabel }}
+            axisLine={{ stroke: theme.ui.axis }}
             tickLine={false}
           />
           <YAxis
-            tick={{ fontSize: 9, fill: CHART_THEME.ui.tickLabel }}
+            tick={{ fontSize: 9, fill: theme.ui.tickLabel }}
             axisLine={false}
             tickLine={false}
             tickFormatter={v => `${v.toFixed(1)}%`}
             width={38}
           />
           <Tooltip
-            contentStyle={TOOLTIP_STYLE}
+            contentStyle={getTooltipStyle(isDark)}
             formatter={(v, name) => name === 'smo' ? [`${v.toFixed(3)}%`, 'Smoothed'] : null}
             labelFormatter={d => d}
           />
-          <ReferenceLine y={0} stroke="rgba(248,250,252,0.15)" strokeWidth={1} />
+          <ReferenceLine y={0} stroke={isDark ? 'rgba(248,250,252,0.15)' : 'rgba(15,23,42,0.15)'} strokeWidth={1} />
 
           {/* 95% band */}
           <Area type="monotone" dataKey="lo95" stroke="none" fill="transparent"

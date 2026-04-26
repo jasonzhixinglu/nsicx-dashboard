@@ -61,11 +61,7 @@ const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'
 function formatVintage(yyyymm) {
   if (!yyyymm) return '—'
   const [y, m] = yyyymm.split('-').map(Number)
-  // CPI for month m is released ~mid month m+1, so the data vintage is end of m+1
-  const vy = m === 12 ? y + 1 : y
-  const vm = m === 12 ? 1 : m + 1
-  const lastDay = new Date(vy, vm, 0).getDate()
-  return `${lastDay} ${MONTH_NAMES[vm - 1]} ${vy}`
+  return `23 ${MONTH_NAMES[m - 1]} ${y}`
 }
 
 export default function OverviewPanel() {
@@ -111,10 +107,10 @@ export default function OverviewPanel() {
 
         {/* Mobile: collapsed toggle header */}
         <button
-          className="lg:hidden w-full flex items-center justify-between px-4 py-3 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+          className="lg:hidden w-full flex items-center justify-between px-4 py-3 text-xs text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
           onClick={() => setSidebarOpen(o => !o)}
         >
-          <span className="font-medium text-slate-300">Controls &amp; Legend</span>
+          <span className="font-medium text-slate-700 dark:text-slate-300">Controls &amp; Legend</span>
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
             className={`transition-transform shrink-0 ${sidebarOpen ? 'rotate-180' : ''}`}>
             <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -126,36 +122,36 @@ export default function OverviewPanel() {
 
         <div>
           <div className="label mb-2">Data vintage</div>
-          <div className="text-sm font-medium text-indigo-300">{formatVintage(selectedDate)}</div>
-          <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+          <div className="text-sm font-medium text-indigo-600 dark:text-indigo-300">{formatVintage(selectedDate)}</div>
+          <p className="text-xs text-slate-500 dark:text-slate-600 mt-1 leading-relaxed">
             Click or drag the upper chart to select a vintage.
           </p>
         </div>
 
-        <div className="border-t border-slate-800" />
+        <div className="border-t border-slate-200 dark:border-slate-800" />
 
         <div>
           <div className="label mb-2">Model estimates</div>
           <button
             onClick={handleDownload}
-            className="w-full text-xs py-1.5 px-2 rounded-md font-medium text-left transition-all bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700 flex items-center gap-1.5"
+            className="w-full text-xs py-1.5 px-2 rounded-md font-medium text-left transition-all bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-700 flex items-center gap-1.5"
           >
             <svg width="11" height="11" viewBox="0 0 12 12" fill="none" className="shrink-0">
               <path d="M6 1v7M3.5 5.5 6 8l2.5-2.5M2 10h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             Download CSV
           </button>
-          <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
+          <p className="text-xs text-slate-500 dark:text-slate-600 mt-1.5 leading-relaxed">
             CPI, DNS factors, avg annualized term structure.
           </p>
         </div>
 
-        <div className="border-t border-slate-800" />
+        <div className="border-t border-slate-200 dark:border-slate-800" />
 
         <div className="space-y-1.5">
           <div className="label mb-2">Upper chart</div>
           <div className="flex items-center gap-2 text-xs text-slate-500">
-            <span className="inline-block w-4 h-px bg-slate-100" />
+            <span className="inline-block w-4 h-px bg-slate-700 dark:bg-slate-100" />
             CPI YoY
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-500">
@@ -168,7 +164,7 @@ export default function OverviewPanel() {
           </div>
         </div>
 
-        <div className="border-t border-slate-800" />
+        <div className="border-t border-slate-200 dark:border-slate-800" />
 
         <div className="space-y-1.5">
           <div className="label mb-2">Term structure</div>
@@ -186,7 +182,7 @@ export default function OverviewPanel() {
           </div>
         </div>
 
-        <div className="border-t border-slate-800" />
+        <div className="border-t border-slate-200 dark:border-slate-800" />
 
         <NSEquations lam={lam} />
 
@@ -200,7 +196,7 @@ export default function OverviewPanel() {
         <div className="panel p-3 flex flex-col gap-1 overflow-hidden md:flex-3 md:min-h-[180px]">
           <div className="flex items-baseline justify-between">
             <span className="label">DNS instantaneous forward inflation expectations vs realised CPI YoY</span>
-            <span className="text-xs text-slate-600">Click or drag to select snapshot</span>
+            <span className="text-xs text-slate-400 dark:text-slate-600">Click or drag to select snapshot</span>
           </div>
           <div className="flex-1 min-h-0">
             <WhiskerChart
@@ -216,7 +212,7 @@ export default function OverviewPanel() {
           <div className="flex items-baseline justify-between">
             <span className="label">
               Term structure of inflation expectations
-              {selectedDate && <span className="text-indigo-400 ml-2 normal-case">{selectedDate}</span>}
+              {selectedDate && <span className="text-indigo-600 dark:text-indigo-400 ml-2 normal-case">{selectedDate}</span>}
             </span>
           </div>
           <div className="flex-1 min-h-0">
@@ -240,7 +236,7 @@ export default function OverviewPanel() {
 
 function KeyResults({ state, date, lam }) {
   if (!state) return (
-    <div className="card p-4 text-xs text-slate-600">Select a date to see key readings.</div>
+    <div className="card p-4 text-xs text-slate-500 dark:text-slate-600">Select a date to see key readings.</div>
   )
 
   const avgAt = (h) => {
@@ -259,18 +255,22 @@ function KeyResults({ state, date, lam }) {
     { label: 'Trend', value: state.L },
   ]
 
-  const color = (v) => v >= 2 ? 'text-amber-400' : v > 0 ? 'text-slate-200' : 'text-sky-400'
+  const color = (v) => v >= 2
+    ? 'text-amber-500 dark:text-amber-400'
+    : v > 0
+      ? 'text-slate-700 dark:text-slate-200'
+      : 'text-sky-600 dark:text-sky-400'
 
   return (
     <>
       {/* Mobile: single merged card */}
       <div className="lg:hidden">
         <div className="card p-3">
-          <div className="flex items-baseline justify-between pb-2 mb-2 border-b border-slate-800">
+          <div className="flex items-baseline justify-between pb-2 mb-2 border-b border-slate-200 dark:border-slate-800">
             <span className="text-xs text-slate-500">Data vintage</span>
-            <span className="font-mono text-sm font-semibold text-indigo-300">{date}</span>
+            <span className="font-mono text-sm font-semibold text-indigo-600 dark:text-indigo-300">{date}</span>
           </div>
-          <div className="text-xs text-slate-600 mb-1.5">Avg annualized (%)</div>
+          <div className="text-xs text-slate-500 mb-1.5">Avg annualized (%)</div>
           <div className="grid grid-cols-5 gap-x-2">
             {readings.map(r => (
               <div key={r.label} className="text-center">
@@ -287,17 +287,17 @@ function KeyResults({ state, date, lam }) {
       {/* Desktop: single merged card */}
       <div className="hidden lg:block">
         <div className="card p-4">
-          <div className="flex items-baseline justify-between pb-2.5 mb-3 border-b border-slate-800">
+          <div className="flex items-baseline justify-between pb-2.5 mb-3 border-b border-slate-200 dark:border-slate-800">
             <span className="text-xs text-slate-500">Snapshot</span>
-            <span className="font-mono text-base font-semibold text-indigo-300">{date}</span>
+            <span className="font-mono text-base font-semibold text-indigo-600 dark:text-indigo-300">{date}</span>
           </div>
-          <div className="text-xs text-slate-600 mb-2">Avg annualized (%)</div>
+          <div className="text-xs text-slate-500 mb-2">Avg annualized (%)</div>
           <div className="space-y-2">
             {readings.map(r => (
               <div key={r.label} className="flex items-baseline justify-between">
                 <span className="text-xs text-slate-500 w-10 shrink-0">{r.label}</span>
                 <span className={`text-base font-mono font-semibold tabular-nums ${color(r.value)}`}>
-                  {r.value.toFixed(2)}<span className="text-xs text-slate-600 ml-0.5">%</span>
+                  {r.value.toFixed(2)}<span className="text-xs text-slate-400 dark:text-slate-600 ml-0.5">%</span>
                 </span>
               </div>
             ))}
@@ -319,13 +319,13 @@ function NSEquations({ lam }) {
       >
         <span className="label">NS equations</span>
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
-          className={`transition-transform shrink-0 text-slate-500 ${open ? 'rotate-180' : ''}`}>
+          className={`transition-transform shrink-0 text-slate-400 dark:text-slate-500 ${open ? 'rotate-180' : ''}`}>
           <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </button>
 
       {open && (
-        <div className="mt-2 space-y-3 text-xs font-mono text-slate-400">
+        <div className="mt-2 space-y-3 text-xs font-mono text-slate-600 dark:text-slate-400">
 
           <div className="space-y-0.5">
             <div className="text-slate-500 font-sans mb-1">Inst. forward</div>
@@ -339,12 +339,12 @@ function NSEquations({ lam }) {
             <div>π(h) = L</div>
             <div className="pl-3">+ A(h) · S</div>
             <div className="pl-3">+ [A(h)−exp(−λh)] · C</div>
-            <div className="text-slate-600 mt-1">A(h) = (1−exp(−λh))/(λh)</div>
+            <div className="text-slate-500 dark:text-slate-600 mt-1">A(h) = (1−exp(−λh))/(λh)</div>
           </div>
 
-          <div className="flex items-baseline justify-between border-t border-slate-800/60 pt-2">
+          <div className="flex items-baseline justify-between border-t border-slate-200/60 dark:border-slate-800/60 pt-2">
             <span className="text-slate-500 font-sans">λ̂</span>
-            <span className="text-indigo-300">{lam.toFixed(4)}</span>
+            <span className="text-indigo-600 dark:text-indigo-300">{lam.toFixed(4)}</span>
           </div>
 
         </div>

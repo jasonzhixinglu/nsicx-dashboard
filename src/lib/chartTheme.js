@@ -1,6 +1,6 @@
-export const CHART_THEME = {
+export const DARK_THEME = {
   colors: {
-    cpi:             '#fef3c7',
+    cpi:             '#f8fafc',
     dnsFwd:          '#22d3ee',
     avg:             '#6366f1',
     slope:           '#22d3ee',
@@ -26,10 +26,49 @@ export const CHART_THEME = {
   },
 }
 
+export const LIGHT_THEME = {
+  colors: {
+    cpi:             '#334155',
+    dnsFwd:          '#0891b2',
+    avg:             '#4f46e5',
+    slope:           '#0891b2',
+    curvature:       '#059669',
+    target:          'rgba(217,119,6,0.45)',
+    whisker:         'rgba(100,116,139,0.30)',
+    whiskerSelected: '#4f46e5',
+  },
+  strokeWidths: DARK_THEME.strokeWidths,
+  ui: {
+    grid:          'rgba(203,213,225,0.6)',
+    axis:          'rgba(203,213,225,0.8)',
+    tickLabel:     'rgba(71,85,105,1.0)',
+    tooltipBg:     '#ffffff',
+    tooltipBorder: 'rgba(203,213,225,0.8)',
+    tooltipText:   '#1e293b',
+  },
+}
+
+export const CHART_THEME = DARK_THEME
+
+export function getTheme(isDark) {
+  return isDark ? DARK_THEME : LIGHT_THEME
+}
+
+export function getTooltipStyle(isDark) {
+  const ui = isDark ? DARK_THEME.ui : LIGHT_THEME.ui
+  return {
+    backgroundColor: ui.tooltipBg,
+    border:          `1px solid ${ui.tooltipBorder}`,
+    borderRadius:    '6px',
+    fontSize:        '11px',
+    color:           ui.tooltipText,
+  }
+}
+
 export const TOOLTIP_STYLE = {
-  backgroundColor: CHART_THEME.ui.tooltipBg,
-  border:          `1px solid ${CHART_THEME.ui.tooltipBorder}`,
+  backgroundColor: DARK_THEME.ui.tooltipBg,
+  border:          `1px solid ${DARK_THEME.ui.tooltipBorder}`,
   borderRadius:    '6px',
   fontSize:        '11px',
-  color:           CHART_THEME.ui.tooltipText,
+  color:           DARK_THEME.ui.tooltipText,
 }

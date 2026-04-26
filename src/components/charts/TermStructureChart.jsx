@@ -2,7 +2,8 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ReferenceLine, ResponsiveContainer,
 } from 'recharts'
-import { CHART_THEME, TOOLTIP_STYLE } from '../../lib/chartTheme.js'
+import { getTheme, getTooltipStyle } from '../../lib/chartTheme.js'
+import { useDarkMode } from '../../lib/useDarkMode.jsx'
 
 function nsAvg(h, lam) {
   if (h < 1e-6) return [1, 1, 0]
@@ -29,13 +30,13 @@ export function computeCurve(state, lam, mode, maxH = 120) {
 }
 
 
-function TargetLabel({ viewBox }) {
+function TargetLabel({ viewBox, isDark }) {
   return (
     <text
       x={viewBox.x + viewBox.width - 4}
       y={viewBox.y - 4}
       fontSize={8}
-      fill="rgba(251,191,36,0.7)"
+      fill={isDark ? 'rgba(251,191,36,0.7)' : 'rgba(161,80,0,0.8)'}
       textAnchor="end"
     >
       BoJ target
@@ -44,8 +45,11 @@ function TargetLabel({ viewBox }) {
 }
 
 export default function TermStructureChart({ state, lam }) {
+  const { isDark } = useDarkMode()
+  const theme = getTheme(isDark)
+
   if (!state) return (
-    <div className="flex items-center justify-center h-full text-xs text-slate-600">
+    <div className="flex items-center justify-center h-full text-xs text-slate-500">
       Select a date above
     </div>
   )
@@ -69,58 +73,58 @@ export default function TermStructureChart({ state, lam }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={data} margin={{ top: 8, right: 16, bottom: 20, left: 8 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.ui.grid} vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke={theme.ui.grid} vertical={false} />
         <XAxis
           dataKey="h"
           type="number"
           domain={[1, 120]}
           ticks={[12, 24, 36, 60, 84, 120]}
           tickFormatter={h => `${h}m`}
-          tick={{ fontSize: 9, fill: CHART_THEME.ui.tickLabel }}
-          axisLine={{ stroke: CHART_THEME.ui.axis }}
+          tick={{ fontSize: 9, fill: theme.ui.tickLabel }}
+          axisLine={{ stroke: theme.ui.axis }}
           tickLine={false}
-          label={{ value: 'Horizon (months)', position: 'insideBottom', offset: -12, fontSize: 9, fill: 'rgba(148,163,184,0.6)' }}
+          label={{ value: 'Horizon (months)', position: 'insideBottom', offset: -12, fontSize: 9, fill: theme.ui.tickLabel }}
         />
         <YAxis
           domain={['auto', 'auto']}
-          tick={{ fontSize: 9, fill: CHART_THEME.ui.tickLabel }}
+          tick={{ fontSize: 9, fill: theme.ui.tickLabel }}
           axisLine={false}
           tickLine={false}
           tickFormatter={v => `${v.toFixed(1)}%`}
           width={38}
         />
         <Tooltip
-          contentStyle={TOOLTIP_STYLE}
+          contentStyle={getTooltipStyle(isDark)}
           formatter={(v, name) => [`${v.toFixed(3)}%`, name === 'avg' ? 'Avg annualized' : 'Inst. forward']}
           labelFormatter={(h) => `Horizon: ${h}m`}
         />
-        <ReferenceLine y={2} stroke={CHART_THEME.colors.target} strokeDasharray="4 3" label={<TargetLabel />} />
+        <ReferenceLine y={2} stroke={theme.colors.target} strokeDasharray="4 3" label={<TargetLabel isDark={isDark} />} />
         {REFS.map(r => (
           <ReferenceLine
             key={r.h} x={r.h}
-            stroke="rgba(51,65,85,0.5)"
+            stroke={theme.ui.grid}
             strokeDasharray="3 3"
-            label={{ value: r.label, position: 'top', fontSize: 8, fill: 'rgba(148,163,184,0.5)' }}
+            label={{ value: r.label, position: 'top', fontSize: 8, fill: theme.ui.tickLabel }}
           />
         ))}
         <Line
           type="monotone"
           dataKey="avg"
           name="avg"
-          stroke={CHART_THEME.colors.avg}
+          stroke={theme.colors.avg}
           strokeWidth={2}
           dot={false}
-          activeDot={{ r: 3, fill: '#818cf8' }}
+          activeDot={{ r: 3, fill: isDark ? '#818cf8' : '#6366f1' }}
         />
         <Line
           type="monotone"
           dataKey="fwd"
           name="fwd"
-          stroke={CHART_THEME.colors.dnsFwd}
-          strokeWidth={CHART_THEME.strokeWidths.dnsLine}
+          stroke={theme.colors.dnsFwd}
+          strokeWidth={theme.strokeWidths.dnsLine}
           strokeDasharray="5 3"
           dot={false}
-          activeDot={{ r: 3, fill: '#67e8f9' }}
+          activeDot={{ r: 3, fill: isDark ? '#67e8f9' : '#22d3ee' }}
         />
       </LineChart>
     </ResponsiveContainer>

@@ -71,14 +71,14 @@ export default function ChartsPanel() {
 
 function ChartRow({ row, data, last }) {
   return (
-    <div className={`flex flex-col md:flex-row gap-4 md:gap-6 ${!last ? 'pb-6 border-b border-slate-800/60' : ''}`}>
+    <div className={`flex flex-col md:flex-row gap-4 md:gap-6 ${!last ? 'pb-6 border-b border-slate-200/60 dark:border-slate-800/60' : ''}`}>
 
       {/* Chart */}
       <div className="flex-1 min-w-0 panel p-4 flex flex-col gap-2" style={{ minHeight: '300px' }}>
         <div className="flex items-baseline gap-2">
           <span className="label">{row.section}</span>
-          <span className="text-xs text-slate-600">·</span>
-          <span className="text-xs text-slate-400">{row.title}</span>
+          <span className="text-xs text-slate-300 dark:text-slate-600">·</span>
+          <span className="text-xs text-slate-600 dark:text-slate-400">{row.title}</span>
         </div>
         <div className="flex-1">
           {row.id === 'nsfactors' && <NSFactorsChart data={data} />}
@@ -90,7 +90,7 @@ function ChartRow({ row, data, last }) {
       {/* Annotation */}
       <div className="md:w-64 lg:w-72 md:shrink-0 flex flex-col justify-center gap-3">
         <div className="card p-4 border-l-2 border-indigo-600/60 rounded-l-none">
-          <p className="text-sm font-medium text-slate-200 leading-snug">{row.finding}</p>
+          <p className="text-sm font-medium text-slate-800 dark:text-slate-200 leading-snug">{row.finding}</p>
         </div>
         <p className="text-xs text-slate-500 leading-relaxed px-1">{row.body}</p>
       </div>

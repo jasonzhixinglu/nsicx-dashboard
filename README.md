@@ -1,8 +1,10 @@
 # NSICX Japan Inflation Expectations Dashboard
 
+**Live dashboard:** https://jasonzhixinglu.github.io/nsicx-dashboard/
+
 An interactive dashboard for visualising outputs from a Dynamic Nelson–Siegel (DNS) state-space model of Japanese inflation expectations. The app displays estimated DNS factors (level, slope, and curvature), break-even inflation (BEI) decompositions into inflation-risk and liquidity premia, real interest rates derived from the JGB nominal curve, and forecast-error whisker plots that summarise model fit across maturities and horizons.
 
-> Model code and the full estimation pipeline live in a private repository. [PAPER LINK]
+> IMF Working Paper forthcoming. [PAPER LINK]
 
 ## Data
 

@@ -1,10 +1,11 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
+import { CHART_THEME } from '../../lib/chartTheme.js'
 
 const MARGIN = { top: 16, right: 16, bottom: 36, left: 44 }
-const WHISKER_COLOR = 'rgba(148,163,184,0.45)'   // slate-400 faint
-const WHISKER_SELECTED = '#6366f1'                // indigo-500
-const CPI_COLOR = '#f8fafc'                       // slate-50
-const TARGET_COLOR = 'rgba(251,191,36,0.5)'       // amber-400 faint
+const WHISKER_COLOR    = CHART_THEME.colors.whisker
+const WHISKER_SELECTED = CHART_THEME.colors.whiskerSelected
+const CPI_COLOR        = CHART_THEME.colors.cpi
+const TARGET_COLOR     = CHART_THEME.colors.target
 
 // Parse "YYYY-MM" → Date (first of month)
 function parseDate(s) {
@@ -142,7 +143,7 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
         {/* Grid lines */}
         {yTicks.map(t => (
           <line key={t.y} x1={0} x2={innerW} y1={t.y} y2={t.y}
-            stroke="rgba(51,65,85,0.4)" strokeWidth={0.5} />
+            stroke={CHART_THEME.ui.grid} strokeWidth={0.5} />
         ))}
 
         {/* 2% target line */}
@@ -161,7 +162,7 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
               key={w.origin}
               d={path}
               stroke={isSelected ? WHISKER_SELECTED : WHISKER_COLOR}
-              strokeWidth={isSelected ? 2 : 1}
+              strokeWidth={isSelected ? CHART_THEME.strokeWidths.selectedWhisker : CHART_THEME.strokeWidths.whiskerLine}
               fill="none"
               opacity={isSelected ? 1 : 0.7}
             />
@@ -169,33 +170,33 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
         })}
 
         {/* CPI line */}
-        <path d={cpiPath} stroke={CPI_COLOR} strokeWidth={1.5} fill="none" />
+        <path d={cpiPath} stroke={CPI_COLOR} strokeWidth={CHART_THEME.strokeWidths.cpiLine} fill="none" />
 
         {/* Selected vertical line */}
         {selectedX !== null && (
           <line
             x1={selectedX} x2={selectedX} y1={0} y2={innerH}
-            stroke={WHISKER_SELECTED} strokeWidth={1.5} strokeDasharray="5 3"
+            stroke={WHISKER_SELECTED} strokeWidth={CHART_THEME.strokeWidths.whiskerSelected} strokeDasharray="5 3"
           />
         )}
 
         {/* Y axis ticks */}
         {yTicks.map(t => (
           <text key={t.y} x={-6} y={t.y + 3} fontSize={9}
-            fill="rgba(148,163,184,0.8)" textAnchor="end">{t.label}</text>
+            fill={CHART_THEME.ui.tickLabel} textAnchor="end">{t.label}</text>
         ))}
 
         {/* X axis ticks */}
         {yearTicks.map(t => (
           <g key={t.x}>
             <line x1={t.x} x2={t.x} y1={innerH} y2={innerH + 4} stroke="rgba(148,163,184,0.5)" />
-            <text x={t.x} y={innerH + 14} fontSize={9} fill="rgba(148,163,184,0.8)" textAnchor="middle">{t.label}</text>
+            <text x={t.x} y={innerH + 14} fontSize={9} fill={CHART_THEME.ui.tickLabel} textAnchor="middle">{t.label}</text>
           </g>
         ))}
 
         {/* Axis lines */}
-        <line x1={0} x2={innerW} y1={innerH} y2={innerH} stroke="rgba(51,65,85,0.6)" />
-        <line x1={0} x2={0} y1={0} y2={innerH} stroke="rgba(51,65,85,0.6)" />
+        <line x1={0} x2={innerW} y1={innerH} y2={innerH} stroke={CHART_THEME.ui.axis} />
+        <line x1={0} x2={0} y1={0} y2={innerH} stroke={CHART_THEME.ui.axis} />
 
       </g>
     </svg>

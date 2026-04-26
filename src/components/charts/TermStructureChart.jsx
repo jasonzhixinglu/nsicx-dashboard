@@ -2,6 +2,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ReferenceLine, ResponsiveContainer,
 } from 'recharts'
+import { CHART_THEME, TOOLTIP_STYLE } from '../../lib/chartTheme.js'
 
 function nsAvg(h, lam) {
   if (h < 1e-6) return [1, 1, 0]
@@ -27,13 +28,6 @@ export function computeCurve(state, lam, mode, maxH = 120) {
   return pts
 }
 
-const TOOLTIP_STYLE = {
-  backgroundColor: '#0f172a',
-  border: '1px solid rgba(51,65,85,0.6)',
-  borderRadius: '6px',
-  fontSize: '11px',
-  color: '#cbd5e1',
-}
 
 function TargetLabel({ viewBox }) {
   return (
@@ -75,21 +69,21 @@ export default function TermStructureChart({ state, lam }) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={data} margin={{ top: 8, right: 16, bottom: 20, left: 8 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(51,65,85,0.4)" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.ui.grid} vertical={false} />
         <XAxis
           dataKey="h"
           type="number"
           domain={[1, 120]}
           ticks={[12, 24, 36, 60, 84, 120]}
           tickFormatter={h => `${h}m`}
-          tick={{ fontSize: 9, fill: 'rgba(148,163,184,0.8)' }}
-          axisLine={{ stroke: 'rgba(51,65,85,0.6)' }}
+          tick={{ fontSize: 9, fill: CHART_THEME.ui.tickLabel }}
+          axisLine={{ stroke: CHART_THEME.ui.axis }}
           tickLine={false}
           label={{ value: 'Horizon (months)', position: 'insideBottom', offset: -12, fontSize: 9, fill: 'rgba(148,163,184,0.6)' }}
         />
         <YAxis
           domain={['auto', 'auto']}
-          tick={{ fontSize: 9, fill: 'rgba(148,163,184,0.8)' }}
+          tick={{ fontSize: 9, fill: CHART_THEME.ui.tickLabel }}
           axisLine={false}
           tickLine={false}
           tickFormatter={v => `${v.toFixed(1)}%`}
@@ -100,7 +94,7 @@ export default function TermStructureChart({ state, lam }) {
           formatter={(v, name) => [`${v.toFixed(3)}%`, name === 'avg' ? 'Avg annualized' : 'Inst. forward']}
           labelFormatter={(h) => `Horizon: ${h}m`}
         />
-        <ReferenceLine y={2} stroke="rgba(251,191,36,0.45)" strokeDasharray="4 3" label={<TargetLabel />} />
+        <ReferenceLine y={2} stroke={CHART_THEME.colors.target} strokeDasharray="4 3" label={<TargetLabel />} />
         {REFS.map(r => (
           <ReferenceLine
             key={r.h} x={r.h}
@@ -113,7 +107,7 @@ export default function TermStructureChart({ state, lam }) {
           type="monotone"
           dataKey="avg"
           name="avg"
-          stroke="#6366f1"
+          stroke={CHART_THEME.colors.avg}
           strokeWidth={2}
           dot={false}
           activeDot={{ r: 3, fill: '#818cf8' }}
@@ -122,8 +116,8 @@ export default function TermStructureChart({ state, lam }) {
           type="monotone"
           dataKey="fwd"
           name="fwd"
-          stroke="#22d3ee"
-          strokeWidth={1.5}
+          stroke={CHART_THEME.colors.dnsFwd}
+          strokeWidth={CHART_THEME.strokeWidths.dnsLine}
           strokeDasharray="5 3"
           dot={false}
           activeDot={{ r: 3, fill: '#67e8f9' }}

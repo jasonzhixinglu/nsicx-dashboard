@@ -217,6 +217,9 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
+# Keep src/lib (overrides the Python lib/ rule above)
+!src/lib/
+
 # Node / Vite / React
 node_modules/
 dist/

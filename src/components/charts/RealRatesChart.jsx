@@ -3,24 +3,17 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ReferenceLine, ResponsiveContainer,
 } from 'recharts'
+import { CHART_THEME, TOOLTIP_STYLE } from '../../lib/chartTheme.js'
 
 const LINES = [
-  { key: 'rr_1Y',  label: '1Y',  color: '#6366f1' },
-  { key: 'rr_2Y',  label: '2Y',  color: '#22d3ee' },
-  { key: 'rr_5Y',  label: '5Y',  color: '#34d399' },
+  { key: 'rr_1Y',  label: '1Y',  color: CHART_THEME.colors.avg },
+  { key: 'rr_2Y',  label: '2Y',  color: CHART_THEME.colors.dnsFwd },
+  { key: 'rr_5Y',  label: '5Y',  color: CHART_THEME.colors.curvature },
   { key: 'rr_10Y', label: '10Y', color: '#fb923c' },
 ]
 
 // First month where all four horizons have nominal yield data
 const COMMON_START = '2006-03'
-
-const TOOLTIP_STYLE = {
-  backgroundColor: '#0f172a',
-  border: '1px solid rgba(51,65,85,0.6)',
-  borderRadius: '6px',
-  fontSize: '11px',
-  color: '#cbd5e1',
-}
 
 function EventLabel({ viewBox, label }) {
   return (
@@ -97,18 +90,18 @@ export default function RealRatesChart({ data }) {
 
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={series} margin={{ top: 4, right: 12, bottom: 4, left: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(51,65,85,0.4)" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.ui.grid} vertical={false} />
           <XAxis
             dataKey="d"
             type="category"
             tickFormatter={d => d.slice(0, 4)}
             ticks={ticks}
-            tick={{ fontSize: 9, fill: 'rgba(148,163,184,0.8)' }}
-            axisLine={{ stroke: 'rgba(51,65,85,0.6)' }}
+            tick={{ fontSize: 9, fill: CHART_THEME.ui.tickLabel }}
+            axisLine={{ stroke: CHART_THEME.ui.axis }}
             tickLine={false}
           />
           <YAxis
-            tick={{ fontSize: 9, fill: 'rgba(148,163,184,0.8)' }}
+            tick={{ fontSize: 9, fill: CHART_THEME.ui.tickLabel }}
             axisLine={false}
             tickLine={false}
             tickFormatter={v => `${v.toFixed(1)}%`}

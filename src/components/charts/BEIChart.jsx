@@ -3,18 +3,11 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine,
 } from 'recharts'
+import { CHART_THEME, TOOLTIP_STYLE } from '../../lib/chartTheme.js'
 
 const HORIZON_CONFIG = {
-  '5Y':  { dns: 'dns_60',  bei: 'bei_60',  dnsColor: '#6366f1', beiColor: '#22d3ee' },
-  '10Y': { dns: 'dns_120', bei: 'bei_120', dnsColor: '#a78bfa', beiColor: '#34d399' },
-}
-
-const TOOLTIP_STYLE = {
-  backgroundColor: '#0f172a',
-  border: '1px solid rgba(51,65,85,0.6)',
-  borderRadius: '6px',
-  fontSize: '11px',
-  color: '#cbd5e1',
+  '5Y':  { dns: 'dns_60',  bei: 'bei_60',  dnsColor: CHART_THEME.colors.avg,       beiColor: CHART_THEME.colors.dnsFwd },
+  '10Y': { dns: 'dns_120', bei: 'bei_120', dnsColor: '#a78bfa',                     beiColor: CHART_THEME.colors.curvature },
 }
 
 function downloadCSV(allSeries) {
@@ -73,18 +66,18 @@ export default function BEIChart({ data }) {
 
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={series} margin={{ top: 4, right: 12, bottom: 4, left: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(51,65,85,0.4)" vertical={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke={CHART_THEME.ui.grid} vertical={false} />
           <XAxis
             dataKey="d"
             type="category"
             tickFormatter={d => d.slice(0, 4)}
             ticks={series.filter(s => s.d.endsWith('-01') && +s.d.slice(0, 4) % 4 === 0).map(s => s.d)}
-            tick={{ fontSize: 9, fill: 'rgba(148,163,184,0.8)' }}
-            axisLine={{ stroke: 'rgba(51,65,85,0.6)' }}
+            tick={{ fontSize: 9, fill: CHART_THEME.ui.tickLabel }}
+            axisLine={{ stroke: CHART_THEME.ui.axis }}
             tickLine={false}
           />
           <YAxis
-            tick={{ fontSize: 9, fill: 'rgba(148,163,184,0.8)' }}
+            tick={{ fontSize: 9, fill: CHART_THEME.ui.tickLabel }}
             axisLine={false}
             tickLine={false}
             tickFormatter={v => `${v.toFixed(1)}%`}

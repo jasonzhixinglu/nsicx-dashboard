@@ -11,9 +11,10 @@ const TABS = [
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview')
+  const isOverview = activeTab === 'overview'
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className={`flex flex-col ${isOverview ? 'min-h-screen md:h-screen md:overflow-hidden' : 'min-h-screen'}`}>
 
       <header className="border-b border-slate-800 px-4 sm:px-6 py-3 sm:py-4">
         <div className="max-w-screen-2xl mx-auto flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-6">
@@ -42,8 +43,8 @@ export default function App() {
         </div>
       </header>
 
-      <main className="flex-1 px-4 sm:px-6 py-4 sm:py-5">
-        <div className="max-w-screen-2xl mx-auto">
+      <main className={`flex-1 px-4 sm:px-6 py-4 sm:py-5${isOverview ? ' md:overflow-hidden md:flex md:flex-col' : ''}`}>
+        <div className={`max-w-screen-2xl mx-auto${isOverview ? ' w-full md:flex-1 md:overflow-hidden md:flex md:flex-col' : ''}`}>
           {activeTab === 'overview' && <OverviewPanel />}
           {activeTab === 'charts'   && <ChartsPanel />}
           {activeTab === 'about'    && <AboutPanel />}

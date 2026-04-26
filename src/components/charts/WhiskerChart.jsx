@@ -40,8 +40,11 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
   useEffect(() => {
     if (!svgRef.current) return
     const ro = new ResizeObserver(([e]) => {
-      const w = e.contentRect.width
-      if (w > 0) setDims({ width: w, height: Math.round(w * 0.54) })
+      const { width: w, height: cH } = e.contentRect
+      if (w > 0) {
+        const aspectH = Math.round(w * 0.54)
+        setDims({ width: w, height: cH > 64 ? Math.min(aspectH, cH) : aspectH })
+      }
     })
     ro.observe(svgRef.current.parentElement)
     return () => ro.disconnect()

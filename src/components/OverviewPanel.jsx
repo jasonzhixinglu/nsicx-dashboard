@@ -104,7 +104,7 @@ export default function OverviewPanel() {
   )
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4">
+    <div className="flex flex-col lg:flex-row gap-4 md:h-full md:overflow-hidden">
 
       {/* Left sidebar */}
       <div className="panel lg:w-[200px] xl:w-[220px] lg:shrink-0">
@@ -194,30 +194,32 @@ export default function OverviewPanel() {
       </div>
 
       {/* Center — split panel */}
-      <div className="flex-1 min-w-0 flex flex-col gap-3">
+      <div className="flex-1 min-w-0 flex flex-col gap-3 md:overflow-hidden md:min-h-0">
 
         {/* Upper: whisker chart */}
-        <div className="panel p-3 flex flex-col gap-1">
+        <div className="panel p-3 flex flex-col gap-1 overflow-hidden md:flex-3 md:min-h-[180px]">
           <div className="flex items-baseline justify-between">
             <span className="label">DNS instantaneous forward inflation expectations vs realised CPI YoY</span>
             <span className="text-xs text-slate-600">Click or drag to select snapshot</span>
           </div>
-          <WhiskerChart
-            data={whiskerData}
-            selectedDate={selectedDate}
-            onSelectDate={setSelectedDate}
-          />
+          <div className="flex-1 min-h-0">
+            <WhiskerChart
+              data={whiskerData}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+            />
+          </div>
         </div>
 
         {/* Lower: term structure snapshot */}
-        <div className="panel p-3 flex flex-col gap-1" style={{ minHeight: '300px', flex: '0 0 380px' }}>
+        <div className="panel p-3 flex flex-col gap-1 overflow-hidden md:flex-2 md:min-h-[180px]">
           <div className="flex items-baseline justify-between">
             <span className="label">
               Term structure of inflation expectations
               {selectedDate && <span className="text-indigo-400 ml-2 normal-case">{selectedDate}</span>}
             </span>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 min-h-0">
             <TermStructureChart
               state={selectedState}
               lam={lam}

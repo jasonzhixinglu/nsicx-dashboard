@@ -216,3 +216,13 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Node / Vite / React
+node_modules/
+dist/
+.vite/
+.env.*
+!.env.example
+
+# Regenerated standalone bundle
+standalone.html

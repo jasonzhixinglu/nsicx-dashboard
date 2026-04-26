@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-100 antialiased;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-slate-900 border border-slate-700/50 rounded-xl;
+  }
+
+  .card {
+    @apply bg-slate-800/60 border border-slate-700/40 rounded-lg;
+  }
+
+  .label {
+    @apply text-xs font-medium tracking-wide text-slate-400 uppercase;
+  }
+
+  .val-positive {
+    @apply text-amber-400;
+  }
+
+  .val-negative {
+    @apply text-sky-400;
+  }
+
+  .val-neutral {
+    @apply text-slate-300;
+  }
+
+  .tab-btn {
+    @apply px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-150;
+  }
+
+  .tab-btn-active {
+    @apply bg-indigo-600 text-white shadow-lg shadow-indigo-900/40;
+  }
+
+  .tab-btn-inactive {
+    @apply text-slate-400 hover:text-slate-200 hover:bg-slate-800;
+  }
+}

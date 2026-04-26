@@ -45,7 +45,7 @@ export default function App() {
       <header className="border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 sm:py-4">
         <div className="max-w-screen-2xl mx-auto flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-6">
           <div className="min-w-0">
-            <h1 className="text-base font-semibold text-slate-900 dark:text-slate-100 leading-tight">
+            <h1 className="text-base font-semibold text-slate-900 dark:text-white leading-tight">
               A Composite Term Structure of Japan's Inflation Expectations
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">Lu &amp; Teoh · IMF Working Paper · Results Dashboard</p>

@@ -90,7 +90,7 @@ function ChartRow({ row, data, last }) {
       {/* Annotation */}
       <div className="md:w-64 lg:w-72 md:shrink-0 flex flex-col justify-center gap-3">
         <div className="card p-4 border-l-2 border-indigo-600/60 rounded-l-none">
-          <p className="text-sm font-medium text-slate-800 dark:text-slate-200 leading-snug">{row.finding}</p>
+          <p className="text-sm font-medium text-slate-800 dark:text-slate-100 leading-snug">{row.finding}</p>
         </div>
         <p className="text-xs text-slate-500 leading-relaxed px-1">{row.body}</p>
       </div>

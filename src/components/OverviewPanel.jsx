@@ -272,7 +272,7 @@ function KeyResults({ state, date, lam }) {
   const color = (v) => v >= 2
     ? 'text-amber-500 dark:text-amber-400'
     : v > 0
-      ? 'text-slate-700 dark:text-slate-200'
+      ? 'text-slate-700 dark:text-slate-100'
       : 'text-sky-600 dark:text-sky-400'
 
   return (

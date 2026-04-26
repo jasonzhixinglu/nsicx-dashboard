@@ -86,7 +86,7 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
   // Year tick positions
   const yearTicks = []
   for (let yr = xMin.getFullYear() + 1; yr <= xMax.getFullYear(); yr++) {
-    if (yr % 4 === 0 || yr === xMin.getFullYear() + 1) {
+    if (yr % 4 === 0) {
       const x = X(new Date(yr, 0, 1))
       if (x > 0 && x < innerW) yearTicks.push({ x, label: String(yr) })
     }

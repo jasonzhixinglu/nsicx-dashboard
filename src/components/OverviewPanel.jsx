@@ -229,7 +229,7 @@ export default function OverviewPanel() {
               {selectedDate && <span className="text-indigo-600 dark:text-indigo-400 ml-2 normal-case">{selectedDate}</span>}
             </span>
           </div>
-          <div className="flex-1 min-h-0">
+          <div className="md:flex-1 md:min-h-0" style={{ height: '200px' }}>
             <TermStructureChart
               state={selectedState}
               lam={lam}

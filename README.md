@@ -22,6 +22,7 @@ Four JSON files are required in `public/data/`:
 | `ns_factors_data.json` | Smoothed NS factor paths with 68/95% credible intervals |
 | `real_rates_data.json` | Ex-ante real rate series and BoJ event markers |
 | `bei_data.json` | Break-even inflation vs DNS model expectations |
+| `rmse_data.json` | Model RMSE diagnostics — present for reference, not rendered in the dashboard |
 
 Regenerate by running `export_data.py` in the private repo and copying the output files here before building or deploying.
 

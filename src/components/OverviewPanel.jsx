@@ -376,7 +376,7 @@ function NSEquations({ lam }) {
           </div>
 
           <div className="flex items-baseline justify-between border-t border-slate-200/60 dark:border-slate-800/60 pt-2">
-            <span className="text-slate-500 font-sans">λ̂</span>
+            <span className="text-slate-500 font-sans">est. λ</span>
             <span className="text-indigo-600 dark:text-indigo-300">{lam.toFixed(4)}</span>
           </div>
 

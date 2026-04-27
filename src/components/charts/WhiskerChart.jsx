@@ -3,6 +3,7 @@ import { getTheme } from '../../lib/chartTheme.js'
 import { useDarkMode } from '../../lib/useDarkMode.jsx'
 
 const MARGIN = { top: 16, right: 16, bottom: 36, left: 44 }
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
 // Parse "YYYY-MM" → Date (first of month)
 function parseDate(s) {
@@ -30,9 +31,20 @@ function nearestOrigin(px, whiskers, xMin, xMax, width) {
   return best
 }
 
+function nearestCpi(px, cpi, xMin, xMax, width) {
+  let best = null, bestDx = Infinity
+  for (const pt of cpi) {
+    const x = dateToX(parseDate(pt.d), xMin, xMax, width)
+    const dx = Math.abs(x - px)
+    if (dx < bestDx) { bestDx = dx; best = { d: pt.d, v: pt.v, x } }
+  }
+  return best
+}
+
 export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
   const svgRef = useRef(null)
   const [dims, setDims] = useState({ width: 600, height: 220 })
+  const [hoverCpi, setHoverCpi] = useState(null)
   const dragging = useRef(false)
   const { isDark } = useDarkMode()
   const theme = getTheme(isDark)
@@ -113,13 +125,20 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
   }, [data, xMin, xMax, innerW, onSelectDate, getSvgX])
 
   const handleMouseMove = useCallback((e) => {
-    if (!dragging.current) return
     const px = getSvgX(e)
+    const cpt = nearestCpi(px, data.cpi, xMin, xMax, innerW)
+    setHoverCpi(cpt ?? null)
+    if (!dragging.current) return
     const origin = nearestOrigin(px, data.whiskers, xMin, xMax, innerW)
     if (origin) onSelectDate(origin)
   }, [data, xMin, xMax, innerW, onSelectDate, getSvgX])
 
   const handleMouseUp = useCallback(() => { dragging.current = false }, [])
+
+  const handleMouseLeave = useCallback(() => {
+    dragging.current = false
+    setHoverCpi(null)
+  }, [])
 
   // Selected line x position
   const selectedX = selectedDate
@@ -137,7 +156,7 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
     >
       <g transform={`translate(${MARGIN.left},${MARGIN.top})`}>
 
@@ -198,6 +217,25 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
         {/* Axis lines */}
         <line x1={0} x2={innerW} y1={innerH} y2={innerH} stroke={theme.ui.axis} />
         <line x1={0} x2={0} y1={0} y2={innerH} stroke={theme.ui.axis} />
+
+        {/* CPI hover indicator */}
+        {hoverCpi && (() => {
+          const cx = hoverCpi.x
+          const cy = Y(hoverCpi.v)
+          const [hy, hm] = hoverCpi.d.split('-').map(Number)
+          const label = `${MONTH_NAMES[hm - 1]} ${hy}  ${hoverCpi.v.toFixed(2)}%`
+          const LW = 84, LH = 14
+          const lx = cx > innerW * 0.75 ? cx - LW - 8 : cx + 8
+          const ly = cy < LH + 4 ? cy + 4 : cy - LH - 2
+          return (
+            <g>
+              <circle cx={cx} cy={cy} r={3} fill={theme.colors.cpi} />
+              <rect x={lx} y={ly} width={LW} height={LH} rx={2}
+                fill={isDark ? '#1e293b' : '#ffffff'} opacity={0.9} />
+              <text x={lx + 4} y={ly + 10} fontSize={9} fill={theme.ui.tickLabel}>{label}</text>
+            </g>
+          )
+        })()}
 
       </g>
     </svg>

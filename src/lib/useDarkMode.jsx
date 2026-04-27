@@ -1,14 +1,14 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 
-const DarkModeContext = createContext({ isDark: true, toggle: () => {} })
+const DarkModeContext = createContext({ isDark: false, toggle: () => {} })
 
 export function DarkModeProvider({ children }) {
   const [isDark, setIsDark] = useState(() => {
     try {
       const stored = localStorage.getItem('nsicx-theme')
-      return stored ? stored === 'dark' : true
+      return stored ? stored === 'dark' : false
     } catch {
-      return true
+      return false
     }
   })
 

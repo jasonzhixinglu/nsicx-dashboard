@@ -129,7 +129,13 @@ export default function NSFactorsChart({ data }) {
           />
           <Tooltip
             contentStyle={getTooltipStyle(isDark)}
-            formatter={(v, name) => name === 'smo' ? [`${v.toFixed(3)}%`, 'Smoothed'] : null}
+            formatter={(v, name, props) => {
+              const p = props.payload
+              if (name === 'smo')  return [`${v.toFixed(3)}%`, 'Smoothed']
+              if (name === 'w68')  return [`[${p.lo68.toFixed(3)}, ${(p.lo68 + p.w68).toFixed(3)}]%`, '68% CI']
+              if (name === 'w95')  return [`[${p.lo95.toFixed(3)}, ${(p.lo95 + p.w95).toFixed(3)}]%`, '95% CI']
+              return false
+            }}
             labelFormatter={d => d}
           />
           <ReferenceLine y={0} stroke={isDark ? 'rgba(248,250,252,0.15)' : 'rgba(15,23,42,0.15)'} strokeWidth={1} />

@@ -113,6 +113,8 @@ export default function OverviewPanel() {
     [whiskerData]
   )
 
+  const dataVintage = availableDates[availableDates.length - 1] ?? null
+
   const availableYears = useMemo(() =>
     [...new Set(availableDates.map(d => Number(d.split('-')[0])))].sort((a, b) => a - b),
     [availableDates]
@@ -181,34 +183,7 @@ export default function OverviewPanel() {
 
         <div>
           <div className="label mb-2">Data vintage</div>
-          <div className="flex items-center gap-1 mb-1.5">
-            <select
-              value={selYear ?? ''}
-              onChange={handleYearChange}
-              className="flex-1 text-xs rounded px-1 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 outline-none cursor-pointer"
-            >
-              {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
-            <select
-              value={selMonth ?? ''}
-              onChange={handleMonthChange}
-              className="flex-1 text-xs rounded px-1 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 outline-none cursor-pointer"
-            >
-              {monthsForSelYear.map(m => <option key={m} value={m}>{MONTH_NAMES[m - 1]}</option>)}
-            </select>
-          </div>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={goBack}
-              disabled={!canGoBack}
-              className="flex-1 text-xs py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-30 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-            >←</button>
-            <button
-              onClick={goForward}
-              disabled={!canGoForward}
-              className="flex-1 text-xs py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-30 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-            >→</button>
-          </div>
+          <div className="text-sm font-medium text-indigo-600 dark:text-indigo-300">{formatVintage(dataVintage)}</div>
         </div>
 
         <div className="border-t border-slate-200 dark:border-slate-800" />
@@ -292,10 +267,34 @@ export default function OverviewPanel() {
 
         {/* Lower: term structure snapshot */}
         <div className="panel p-3 flex flex-col gap-1 overflow-hidden md:flex-2 md:min-h-[180px]">
-          <div className="flex items-baseline justify-between">
-            <span className="label">
-              Chart B:{selectedDate && <span className="text-indigo-600 dark:text-indigo-400"> {formatMonthYear(selectedDate)}</span>} Term structure of inflation expectations
-            </span>
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <span className="label shrink-0">Chart B: Term structure of inflation expectations</span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={goBack}
+                disabled={!canGoBack}
+                className="text-xs px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-30 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >←</button>
+              <select
+                value={selYear ?? ''}
+                onChange={handleYearChange}
+                className="text-xs rounded px-1 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 outline-none cursor-pointer"
+              >
+                {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
+              </select>
+              <select
+                value={selMonth ?? ''}
+                onChange={handleMonthChange}
+                className="text-xs rounded px-1 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 outline-none cursor-pointer"
+              >
+                {monthsForSelYear.map(m => <option key={m} value={m}>{MONTH_NAMES[m - 1]}</option>)}
+              </select>
+              <button
+                onClick={goForward}
+                disabled={!canGoForward}
+                className="text-xs px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-30 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+              >→</button>
+            </div>
           </div>
           <div className="md:flex-1 md:min-h-0" style={{ height: '200px' }}>
             <TermStructureChart

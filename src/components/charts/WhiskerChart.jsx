@@ -41,6 +41,26 @@ function nearestCpi(px, cpi, xMin, xMax, width) {
   return best
 }
 
+function nearestStateDate(px, states, xMin, xMax, width) {
+  let best = null, bestDx = Infinity
+  for (const s of states) {
+    const x = dateToX(parseDate(s.d), xMin, xMax, width)
+    const dx = Math.abs(x - px)
+    if (dx < bestDx) { bestDx = dx; best = s.d }
+  }
+  return best
+}
+
+function nearestOriginToDate(dateStr, whiskers) {
+  const t = parseDate(dateStr).getTime()
+  let best = null, bestDt = Infinity
+  for (const w of whiskers) {
+    const dt = Math.abs(parseDate(w.origin).getTime() - t)
+    if (dt < bestDt) { bestDt = dt; best = w.origin }
+  }
+  return best
+}
+
 export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
   const svgRef = useRef(null)
   const [dims, setDims] = useState({ width: 600, height: 220 })
@@ -120,8 +140,8 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
   const handleMouseDown = useCallback((e) => {
     dragging.current = true
     const px = getSvgX(e)
-    const origin = nearestOrigin(px, data.whiskers, xMin, xMax, innerW)
-    if (origin) onSelectDate(origin)
+    const date = nearestStateDate(px, data.states, xMin, xMax, innerW)
+    if (date) onSelectDate(date)
   }, [data, xMin, xMax, innerW, onSelectDate, getSvgX])
 
   const handleMouseMove = useCallback((e) => {
@@ -129,8 +149,8 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
     const cpt = nearestCpi(px, data.cpi, xMin, xMax, innerW)
     setHoverCpi(cpt ?? null)
     if (!dragging.current) return
-    const origin = nearestOrigin(px, data.whiskers, xMin, xMax, innerW)
-    if (origin) onSelectDate(origin)
+    const date = nearestStateDate(px, data.states, xMin, xMax, innerW)
+    if (date) onSelectDate(date)
   }, [data, xMin, xMax, innerW, onSelectDate, getSvgX])
 
   const handleMouseUp = useCallback(() => { dragging.current = false }, [])
@@ -140,10 +160,11 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
     setHoverCpi(null)
   }, [])
 
-  // Selected line x position
-  const selectedX = selectedDate
-    ? X(parseDate(selectedDate))
-    : null
+  // Selected line x position (monthly — exact)
+  const selectedX = selectedDate ? X(parseDate(selectedDate)) : null
+
+  // Nearest quarterly origin for fan highlight
+  const highlightedOrigin = selectedDate ? nearestOriginToDate(selectedDate, data.whiskers) : null
 
   const sw = theme.strokeWidths
 
@@ -173,7 +194,7 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
 
         {/* Whiskers */}
         {data.whiskers.map(w => {
-          const isSelected = w.origin === selectedDate
+          const isSelected = w.origin === highlightedOrigin
           const path = w.pts
             .map((pt, i) => `${i === 0 ? 'M' : 'L'}${X(parseDate(pt.d)).toFixed(1)},${Y(pt.v).toFixed(1)}`)
             .join(' ')

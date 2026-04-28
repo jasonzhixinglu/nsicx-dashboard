@@ -108,6 +108,43 @@ export default function OverviewPanel() {
     return Object.fromEntries(whiskerData.states.map(s => [s.d, s]))
   }, [whiskerData])
 
+  const availableDates = useMemo(() =>
+    whiskerData ? whiskerData.states.map(s => s.d) : [],
+    [whiskerData]
+  )
+
+  const availableYears = useMemo(() =>
+    [...new Set(availableDates.map(d => Number(d.split('-')[0])))].sort((a, b) => a - b),
+    [availableDates]
+  )
+
+  const selYear  = selectedDate ? Number(selectedDate.split('-')[0]) : null
+  const selMonth = selectedDate ? Number(selectedDate.split('-')[1]) : null
+  const dateIndex = availableDates.indexOf(selectedDate)
+  const canGoBack    = dateIndex > 0
+  const canGoForward = dateIndex < availableDates.length - 1
+
+  const monthsForSelYear = useMemo(() =>
+    selYear ? availableDates.filter(d => d.startsWith(`${selYear}-`)).map(d => Number(d.split('-')[1])) : [],
+    [availableDates, selYear]
+  )
+
+  const handleYearChange = useCallback((e) => {
+    const newYear = Number(e.target.value)
+    const months = availableDates.filter(d => d.startsWith(`${newYear}-`)).map(d => Number(d.split('-')[1]))
+    const targetMonth = months.includes(selMonth) ? selMonth : months[months.length - 1]
+    setSelectedDate(`${newYear}-${String(targetMonth).padStart(2, '0')}`)
+  }, [availableDates, selMonth])
+
+  const handleMonthChange = useCallback((e) => {
+    const newMonth = Number(e.target.value)
+    const newDate = `${selYear}-${String(newMonth).padStart(2, '0')}`
+    if (stateMap[newDate]) setSelectedDate(newDate)
+  }, [selYear, stateMap])
+
+  const goBack    = useCallback(() => { if (canGoBack)    setSelectedDate(availableDates[dateIndex - 1]) }, [canGoBack,    availableDates, dateIndex])
+  const goForward = useCallback(() => { if (canGoForward) setSelectedDate(availableDates[dateIndex + 1]) }, [canGoForward, availableDates, dateIndex])
+
   const selectedState = selectedDate ? stateMap[selectedDate] ?? null : null
   const lam = whiskerData?.lam ?? 0.15
 
@@ -144,10 +181,34 @@ export default function OverviewPanel() {
 
         <div>
           <div className="label mb-2">Data vintage</div>
-          <div className="text-sm font-medium text-indigo-600 dark:text-indigo-300">{formatVintage(selectedDate)}</div>
-          <p className="text-xs text-slate-500 dark:text-slate-600 mt-1 leading-relaxed">
-            Click or drag the upper chart to select a vintage.
-          </p>
+          <div className="flex items-center gap-1 mb-1.5">
+            <select
+              value={selYear ?? ''}
+              onChange={handleYearChange}
+              className="flex-1 text-xs rounded px-1 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 outline-none cursor-pointer"
+            >
+              {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+            <select
+              value={selMonth ?? ''}
+              onChange={handleMonthChange}
+              className="flex-1 text-xs rounded px-1 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 outline-none cursor-pointer"
+            >
+              {monthsForSelYear.map(m => <option key={m} value={m}>{MONTH_NAMES[m - 1]}</option>)}
+            </select>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={goBack}
+              disabled={!canGoBack}
+              className="flex-1 text-xs py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-30 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            >←</button>
+            <button
+              onClick={goForward}
+              disabled={!canGoForward}
+              className="flex-1 text-xs py-1 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 disabled:opacity-30 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+            >→</button>
+          </div>
         </div>
 
         <div className="border-t border-slate-200 dark:border-slate-800" />

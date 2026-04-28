@@ -244,8 +244,10 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
           const cx = hoverCpi.x
           const cy = Y(hoverCpi.v)
           const [hy, hm] = hoverCpi.d.split('-').map(Number)
-          const label = `CPI YoY  ${MONTH_NAMES[hm - 1]} ${hy}  ${hoverCpi.v.toFixed(2)}%`
-          const LW = 112, LH = 14
+          const vintageM = hm === 12 ? 1 : hm + 1
+          const vintageY = hm === 12 ? hy + 1 : hy
+          const label = `CPI YoY  ${MONTH_NAMES[hm - 1]} ${hy} (${MONTH_NAMES[vintageM - 1]} vintage)  ${hoverCpi.v.toFixed(2)}%`
+          const LW = 210, LH = 14
           const lx = cx > innerW * 0.75 ? cx - LW - 8 : cx + 8
           const ly = cy < LH + 4 ? cy + 4 : cy - LH - 2
           return (

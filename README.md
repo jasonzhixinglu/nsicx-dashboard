@@ -26,6 +26,14 @@ Four JSON files are required in `public/data/`:
 
 Regenerate by running `export_data.py` in the private repo and copying the output files here before building or deploying.
 
+The CPI series in `whisker_data.json` can be refreshed independently using the haver-data pipeline:
+
+```bash
+python scripts/update_cpi.py --haver-data /path/to/haver-data
+```
+
+This pulls `jpcij@japan` (Japan CPI index, NSA) from the [haver-data repo](https://github.com/jasonzhixinglu/haver-data), computes the 12-month percentage change, and updates the CPI array in `whisker_data.json` in place.
+
 ## Local development
 
 ```bash

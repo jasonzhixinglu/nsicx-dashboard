@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-05T15:25:48+00:00",
+  "survey_periods": [
+    "2026-01",
+    "2026-02",
+    "2026-03",
+    "2026-04"
+  ],
+  "countries": [
+    {
+      "slug": "japan",
+      "name": "Japan",
+      "last_vintage": "2026-04",
+      "T": 304,
+      "n_surveys": 4
+    },
+    {
+      "slug": "canada",
+      "name": "Canada",
+      "last_vintage": "2026-04",
+      "T": 304,
+      "n_surveys": 4
+    },
+    {
+      "slug": "france",
+      "name": "France",
+      "last_vintage": "2026-04",
+      "T": 304,
+      "n_surveys": 4
+    },
+    {
+      "slug": "germany",
+      "name": "Germany",
+      "last_vintage": "2026-04",
+      "T": 304,
+      "n_surveys": 4
+    },
+    {
+      "slug": "italy",
+      "name": "Italy",
+      "last_vintage": "2026-04",
+      "T": 304,
+      "n_surveys": 4
+    },
+    {
+      "slug": "uk",
+      "name": "UK",
+      "last_vintage": "2026-04",
+      "T": 304,
+      "n_surveys": 4
+    },
+    {
+      "slug": "usa",
+      "name": "USA",
+      "last_vintage": "2026-04",
+      "T": 304,
+      "n_surveys": 6
+    },
+    {
+      "slug": "south_korea",
+      "name": "South Korea",
+      "last_vintage": "2026-04",
+      "T": 304,
+      "n_surveys": 4
+    },
+    {
+      "slug": "china",
+      "name": "China",
+      "last_vintage": "2026-04",
+      "T": 304,
+      "n_surveys": 4
+    },
+    {
+      "slug": "india",
+      "name": "India",
+      "last_vintage": "2026-04",
+      "T": 304,
+      "n_surveys": 4
+    },
+    {
+      "slug": "brazil",
+      "name": "Brazil",
+      "last_vintage": "2026-04",
+      "T": 301,
+      "n_surveys": 4
+    },
+    {
+      "slug": "mexico",
+      "name": "Mexico",
+      "last_vintage": "2026-04",
+      "T": 301,
+      "n_surveys": 4
+    },
+    {
+      "slug": "indonesia",
+      "name": "Indonesia",
+      "last_vintage": "2026-04",
+      "T": 304,
+      "n_surveys": 4
+    },
+    {
+      "slug": "russia",
+      "name": "Russia",
+      "last_vintage": "2026-04",
+      "T": 304,
+      "n_surveys": 4
+    },
+    {
+      "slug": "turkey",
+      "name": "Turkey",
+      "last_vintage": "2026-04",
+      "T": 304,
+      "n_surveys": 4
+    }
+  ]
+}

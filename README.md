@@ -72,6 +72,8 @@ public/data/multicountry/
 
 Country slugs match `output/dns_production/{slug}/` in the upstream pipeline. Schema details are in [`public/data/multicountry/README.md`](public/data/multicountry/README.md).
 
+The Country view sidebar has a one-click Excel export (`multicountry_nsicx.xlsx`) that bundles all 15 countries into a single workbook — one sheet per country plus a metadata sheet — with date, CPI YoY, NSICX factors (L, S, C), and avg / forward term structure (3M, 1Y, 2Y, 5Y, 10Y) for each.
+
 ## CSV / Excel exports
 
 The dashboard offers downloadable extracts:

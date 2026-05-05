@@ -32,7 +32,7 @@ function downloadFactorCSV(data) {
   const url  = URL.createObjectURL(blob)
   const a    = document.createElement('a')
   a.href     = url
-  a.download = 'dns_factors_with_ci.csv'
+  a.download = 'nsicx_factors_with_ci.csv'
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
@@ -98,7 +98,7 @@ export default function NSFactorsChart({ data }) {
           <button
             onClick={() => downloadFactorCSV(data)}
             className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-all"
-            title="Download DNS factors with CIs as CSV"
+            title="Download NSICX factors with CIs as CSV"
           >
             <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
               <path d="M6 1v7M3.5 5.5 6 8l2.5-2.5M2 10h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>

@@ -22,7 +22,7 @@ function downloadCSV(allSeries) {
   const blob = new Blob([csv], { type: 'text/csv' })
   const url  = URL.createObjectURL(blob)
   const a    = document.createElement('a')
-  a.href = url; a.download = 'bei_vs_dns_model.csv'
+  a.href = url; a.download = 'bei_vs_nsicx_model.csv'
   document.body.appendChild(a); a.click()
   document.body.removeChild(a); URL.revokeObjectURL(url)
 }
@@ -54,13 +54,13 @@ export default function BEIChart({ data }) {
           >{h}</button>
         ))}
         <span className="text-xs text-slate-500 dark:text-slate-600 flex items-center ml-2">
-          <span style={{ color: dnsColor }} className="mr-1">—</span> DNS model &nbsp;
+          <span style={{ color: dnsColor }} className="mr-1">—</span> NSICX model &nbsp;
           <span style={{ color: beiColor }} className="mr-1">—</span> BEI
         </span>
         <button
           onClick={() => downloadCSV(data.series)}
           className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 text-xs transition-all"
-          title="Download BEI vs DNS model as CSV"
+          title="Download BEI vs NSICX model as CSV"
         >
           <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
             <path d="M6 1v7M3.5 5.5 6 8l2.5-2.5M2 10h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -94,7 +94,7 @@ export default function BEIChart({ data }) {
           />
           <ReferenceLine y={2} stroke={theme.colors.target} strokeDasharray="4 3" />
           <Line
-            type="monotone" dataKey={cfg.dns} name="DNS model"
+            type="monotone" dataKey={cfg.dns} name="NSICX model"
             stroke={dnsColor} strokeWidth={2} dot={false}
             activeDot={{ r: 3 }} connectNulls={false}
           />

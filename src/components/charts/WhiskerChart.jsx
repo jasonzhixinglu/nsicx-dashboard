@@ -61,7 +61,7 @@ function nearestOriginToDate(dateStr, whiskers) {
   return best
 }
 
-export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
+export default function WhiskerChart({ data, selectedDate, onSelectDate, target = 2 }) {
   const svgRef = useRef(null)
   const [dims, setDims] = useState({ width: 600, height: 220 })
   const [hoverCpi, setHoverCpi] = useState(null)
@@ -187,10 +187,10 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate }) {
             stroke={theme.ui.grid} strokeWidth={0.5} />
         ))}
 
-        {/* 2% target line */}
-        <line x1={0} x2={innerW} y1={Y(2)} y2={Y(2)}
+        {/* Inflation target line */}
+        <line x1={0} x2={innerW} y1={Y(target)} y2={Y(target)}
           stroke={theme.colors.target} strokeWidth={1} strokeDasharray="4 3" />
-        <text x={innerW - 2} y={Y(2) - 3} fontSize={8} fill={theme.colors.target} textAnchor="end">2%</text>
+        <text x={innerW - 2} y={Y(target) - 3} fontSize={8} fill={theme.colors.target} textAnchor="end">{`${target}%`}</text>
 
         {/* Whiskers */}
         {data.whiskers.map(w => {

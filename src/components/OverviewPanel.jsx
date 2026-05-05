@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import WhiskerChart from './charts/WhiskerChart.jsx'
 import TermStructureChart from './charts/TermStructureChart.jsx'
+import KeyResults from './KeyResults.jsx'
+import { MONTH_NAMES, formatVintage, formatMonthYear } from '../lib/dateFormat.js'
 
 function buildAndDownloadCSV(whiskerData) {
   const lam = whiskerData.lam ?? 0.15
@@ -32,7 +34,7 @@ function buildAndDownloadCSV(whiskerData) {
 
   const header = [
     'date', 'cpi_yoy',
-    'dns_L', 'dns_S', 'dns_C',
+    'nsicx_L', 'nsicx_S', 'nsicx_C',
     'avg_3M', 'avg_1Y', 'avg_2Y', 'avg_5Y', 'avg_10Y',
     'fwd_3M', 'fwd_1Y', 'fwd_2Y', 'fwd_5Y', 'fwd_10Y',
   ].join(',')
@@ -62,28 +64,6 @@ function buildAndDownloadCSV(whiskerData) {
   a.click()
   document.body.removeChild(a)
   URL.revokeObjectURL(url)
-}
-
-const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-
-function formatVintage(yyyymm) {
-  if (!yyyymm) return '—'
-  const [y, m] = yyyymm.split('-').map(Number)
-  return `${MONTH_NAMES[m - 1]} ${y}`
-}
-
-function formatMonthYear(yyyymm) {
-  if (!yyyymm) return '—'
-  const [y, m] = yyyymm.split('-').map(Number)
-  return `${MONTH_NAMES[m - 1]} ${y}`
-}
-
-function prevMonthYear(yyyymm) {
-  if (!yyyymm) return '—'
-  const [y, m] = yyyymm.split('-').map(Number)
-  const pm = m === 1 ? 12 : m - 1
-  const py = m === 1 ? y - 1 : y
-  return `${MONTH_NAMES[pm - 1]} ${py}`
 }
 
 export default function OverviewPanel() {
@@ -200,7 +180,7 @@ export default function OverviewPanel() {
             Download CSV
           </button>
           <p className="text-xs text-slate-500 dark:text-slate-600 mt-1.5 leading-relaxed">
-            CPI, DNS factors, avg annualized term structure.
+            CPI, NSICX factors, avg annualized term structure.
           </p>
         </div>
 
@@ -214,7 +194,7 @@ export default function OverviewPanel() {
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <span className="inline-block w-4 h-px" style={{ background: 'rgba(148,163,184,0.45)' }} />
-            DNS inst. forward
+            NSICX inst. forward
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-500">
             <svg width="16" height="8"><line x1="0" y1="4" x2="16" y2="4" stroke="#6366f1" strokeWidth="1.5" strokeDasharray="4 2" /></svg>
@@ -315,92 +295,6 @@ export default function OverviewPanel() {
       </div>
 
     </div>
-  )
-}
-
-function KeyResults({ state, date, lam }) {
-  if (!state) return (
-    <div className="card p-4 text-xs text-slate-500 dark:text-slate-600">Select a date to see key readings.</div>
-  )
-
-  const avgAt = (h) => {
-    if (h < 1e-6) return state.L + state.S
-    const eL = Math.exp(-lam * h)
-    const L2 = (1 - eL) / (lam * h)
-    const L3 = L2 - eL
-    return state.L + L2 * state.S + L3 * state.C
-  }
-
-  const readings = [
-    { label: '1Y',    value: avgAt(12) },
-    { label: '2Y',    value: avgAt(24) },
-    { label: '5Y',    value: avgAt(60) },
-    { label: '10Y',   value: avgAt(120) },
-    { label: 'Trend', value: state.L },
-  ]
-
-  const color = (v) => v >= 2
-    ? 'text-amber-500 dark:text-amber-400'
-    : v > 0
-      ? 'text-slate-700 dark:text-slate-100'
-      : 'text-sky-600 dark:text-sky-400'
-
-  return (
-    <>
-      {/* Mobile: single merged card */}
-      <div className="lg:hidden">
-        <div className="card p-3">
-          <div className="pb-2 mb-2 border-b border-slate-200 dark:border-slate-800 space-y-0.5">
-            <div className="flex items-baseline justify-between">
-              <span className="text-xs text-slate-500">Survey</span>
-              <span className="text-xs font-medium text-indigo-600 dark:text-indigo-300">{formatMonthYear(date)}</span>
-            </div>
-            <div className="flex items-baseline justify-between">
-              <span className="text-xs text-slate-500">CPI</span>
-              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{prevMonthYear(date)}</span>
-            </div>
-          </div>
-          <div className="text-xs text-slate-500 mb-1.5">Avg annualized (%)</div>
-          <div className="grid grid-cols-5 gap-x-2">
-            {readings.map(r => (
-              <div key={r.label} className="text-center">
-                <div className="text-xs text-slate-500">{r.label}</div>
-                <div className={`text-sm font-mono font-semibold tabular-nums ${color(r.value)}`}>
-                  {r.value.toFixed(2)}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop: single merged card */}
-      <div className="hidden lg:block">
-        <div className="card p-4">
-          <div className="pb-2.5 mb-3 border-b border-slate-200 dark:border-slate-800 space-y-0.5">
-            <div className="flex items-baseline justify-between">
-              <span className="text-xs text-slate-500">Survey</span>
-              <span className="text-sm font-medium text-indigo-600 dark:text-indigo-300">{formatMonthYear(date)}</span>
-            </div>
-            <div className="flex items-baseline justify-between">
-              <span className="text-xs text-slate-500">CPI</span>
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{prevMonthYear(date)}</span>
-            </div>
-          </div>
-          <div className="text-xs text-slate-500 mb-2">Avg annualized (%)</div>
-          <div className="space-y-2">
-            {readings.map(r => (
-              <div key={r.label} className="flex items-baseline justify-between">
-                <span className="text-xs text-slate-500 w-10 shrink-0">{r.label}</span>
-                <span className={`text-base font-mono font-semibold tabular-nums ${color(r.value)}`}>
-                  {r.value.toFixed(2)}<span className="text-xs text-slate-400 dark:text-slate-600 ml-0.5">%</span>
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </>
   )
 }
 

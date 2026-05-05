@@ -30,7 +30,7 @@ export function computeCurve(state, lam, mode, maxH = 120) {
 }
 
 
-function TargetLabel({ viewBox, isDark }) {
+function TargetLabel({ viewBox, isDark, text }) {
   return (
     <text
       x={viewBox.x + viewBox.width - 4}
@@ -39,12 +39,12 @@ function TargetLabel({ viewBox, isDark }) {
       fill={isDark ? 'rgba(251,191,36,0.7)' : 'rgba(161,80,0,0.8)'}
       textAnchor="end"
     >
-      BoJ target
+      {text}
     </text>
   )
 }
 
-export default function TermStructureChart({ state, lam }) {
+export default function TermStructureChart({ state, lam, target = 2, targetLabel = 'BoJ target' }) {
   const { isDark } = useDarkMode()
   const theme = getTheme(isDark)
 
@@ -91,7 +91,7 @@ export default function TermStructureChart({ state, lam }) {
           formatter={(v, name) => [`${v.toFixed(3)}%`, name === 'avg' ? 'Avg annualized' : 'Inst. forward']}
           labelFormatter={(h) => `Horizon: ${h}m`}
         />
-        <ReferenceLine y={2} stroke={theme.colors.target} strokeDasharray="4 3" label={<TargetLabel isDark={isDark} />} />
+        <ReferenceLine y={target} stroke={theme.colors.target} strokeDasharray="4 3" label={<TargetLabel isDark={isDark} text={targetLabel} />} />
         <Line
           type="monotone"
           dataKey="avg"

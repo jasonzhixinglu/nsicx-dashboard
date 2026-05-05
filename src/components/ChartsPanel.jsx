@@ -15,17 +15,17 @@ const CHART_ROWS = [
   {
     id: 'realrates',
     section: 'Ex-ante real rates',
-    title: 'JGB nominal yield minus DNS-implied inflation expectations',
+    title: 'JGB nominal yield minus NSICX-implied inflation expectations',
     finding: 'Real rates turned persistently negative under YCC and have only recently normalized following the 2024 rate hike.',
-    body: 'Nominal JGB yields minus DNS-implied inflation expectations at each horizon. Vertical markers indicate major BoJ policy shifts. Toggle horizons to isolate the term structure of real rates.',
+    body: 'Nominal JGB yields minus NSICX-implied inflation expectations at each horizon. Vertical markers indicate major BoJ policy shifts. Toggle horizons to isolate the term structure of real rates.',
     dataKey: 'realRates',
   },
   {
     id: 'bei',
     section: 'Model vs market',
-    title: 'BEI vs DNS model-implied expectations',
+    title: 'BEI vs NSICX-implied expectations',
     finding: 'The wedge between break-even inflation and model-implied expectations narrows substantially post-2013, consistent with declining deflation risk and liquidity premia.',
-    body: 'Break-even inflation (JGBi) versus DNS composite inflation expectations at 5Y and 10Y horizons. Toggle between horizons. The gap reflects risk premia, liquidity premia, and deflation probability.',
+    body: 'Break-even inflation (JGBi) versus NSICX composite inflation expectations at 5Y and 10Y horizons. Toggle between horizons. The gap reflects risk premia, liquidity premia, and deflation probability.',
     dataKey: 'bei',
   },
 ]

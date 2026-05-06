@@ -668,6 +668,8 @@ function AnchoringView({ manifest }) {
   const [anchoring, setAnchoring] = useState(null)
   const [allSurveys, setAllSurveys] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [showJan, setShowJan] = useSessionState('nsicx-anchoring-show-jan', false)
+  const [showRaw, setShowRaw] = useSessionState('nsicx-anchoring-show-raw', false)
   const { isDark } = useDarkMode()
   const theme = getTheme(isDark)
 
@@ -761,9 +763,21 @@ function AnchoringView({ manifest }) {
       {/* Section 1: Long-term forwards */}
       <div className="panel p-4 flex flex-col gap-2">
         <div>
-          <div className="label">Trend level vs target</div>
+          <div className="flex items-baseline justify-between gap-2 flex-wrap">
+            <div className="label">Trend level vs target</div>
+            <button
+              onClick={() => setShowJan(!showJan)}
+              className={`text-xs px-2 py-0.5 rounded transition-colors ${
+                showJan
+                  ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
+              }`}
+            >
+              {showJan ? '✓ ' : '+ '}Jan 2026 (robustness)
+            </button>
+          </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Consensus <em>trend</em> inflation forecast — the 6–10y average (t25 in the LT survey), even longer-run than typical long-horizon expectations — shown as deviation from each country's target, for the Jan and Apr 2026 LT surveys. Color encodes the deviation: green at target, red above, blue below. Apr bars are wider (preferred); Jan bars are thinner. Sorted by April deviation.
+            Consensus <em>trend</em> inflation forecast — the 6–10y average (t25 in the LT survey), even longer-run than typical long-horizon expectations — shown as deviation from each country's target for the Apr 2026 LT survey (main). Color encodes the deviation: green at target, red above, blue below. Sorted ascending. Toggle Jan 2026 as a robustness check.
           </p>
         </div>
         <ResponsiveContainer width="100%" height={480}>
@@ -808,12 +822,14 @@ function AnchoringView({ manifest }) {
               formatter={n => n === 'janDev' ? 'Jan 2026' : 'Apr 2026'}
             />
             <ReferenceLine x={0} stroke={theme.ui.axis} strokeWidth={1} />
-            <Bar dataKey="janDev" name="janDev" fill="#9ca3af" isAnimationActive={false} barSize={6}>
-              {ltSorted.map(d => (
-                <Cell key={d.slug} fill={levelDeviationColor(d.janDev, isDark)} fillOpacity={0.55} />
-              ))}
-            </Bar>
-            <Bar dataKey="aprDev" name="aprDev" fill="#9ca3af" isAnimationActive={false} barSize={14}>
+            {showJan && (
+              <Bar dataKey="janDev" name="janDev" fill="#9ca3af" isAnimationActive={false} barSize={6}>
+                {ltSorted.map(d => (
+                  <Cell key={d.slug} fill={levelDeviationColor(d.janDev, isDark)} fillOpacity={0.55} />
+                ))}
+              </Bar>
+            )}
+            <Bar dataKey="aprDev" name="aprDev" fill="#9ca3af" isAnimationActive={false} barSize={showJan ? 14 : 18}>
               {ltSorted.map(d => (
                 <Cell key={d.slug} fill={levelDeviationColor(d.aprDev, isDark)} />
               ))}
@@ -825,9 +841,21 @@ function AnchoringView({ manifest }) {
       {/* Section 2: Sensitivity */}
       <div className="panel p-4 flex flex-col gap-2">
         <div>
-          <div className="label">Trend sensitivity to surprises</div>
+          <div className="flex items-baseline justify-between gap-2 flex-wrap">
+            <div className="label">Trend sensitivity to surprises</div>
+            <button
+              onClick={() => setShowRaw(!showRaw)}
+              className={`text-xs px-2 py-0.5 rounded transition-colors ${
+                showRaw
+                  ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
+              }`}
+            >
+              {showRaw ? '✓ ' : '+ '}Raw revisions (robustness)
+            </button>
+          </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Slope coefficient β from two anchoring regressions of the trend on a survey surprise. Wider bar (preferred): trend NSICX change (filter-implied) regressed on the short-horizon revision. Thinner bar: raw trend forecast change regressed on the same-CY survey-based surprise. Color encodes |β|: green near zero (trend well anchored), red as |β| grows. Solid bars: p &lt; 0.05.
+            Slope coefficient β from the anchoring regression of the trend NSICX change (filter-implied) on the short-horizon survey revision (main spec). Color encodes |β|: green near zero (trend well anchored), red as |β| grows. Solid bars: p &lt; 0.05. Toggle the raw-revisions spec as a robustness check.
           </p>
         </div>
 
@@ -860,10 +888,10 @@ function AnchoringView({ manifest }) {
                 const d = ctx?.payload
                 if (!d) return [v?.toFixed(3), name]
                 if (name === 'mainBeta') {
-                  return [`β = ${v.toFixed(4)}  (p=${d.mainP?.toFixed(3) ?? '—'}, R²=${d.mainR2?.toFixed(3) ?? '—'}, T=${d.mainT ?? '—'})`, 'ST NSICX revision (preferred)']
+                  return [`β = ${v.toFixed(4)}  (p=${d.mainP?.toFixed(3) ?? '—'}, R²=${d.mainR2?.toFixed(3) ?? '—'}, T=${d.mainT ?? '—'})`, 'ST NSICX revision']
                 }
                 if (name === 'rawBeta') {
-                  return [`β = ${v.toFixed(4)}  (p=${d.rawP?.toFixed(3) ?? '—'}, R²=${d.rawR2?.toFixed(3) ?? '—'}, T=${d.rawT ?? '—'})`, 'Same-CY raw revision']
+                  return [`β = ${v.toFixed(4)}  (p=${d.rawP?.toFixed(3) ?? '—'}, R²=${d.rawR2?.toFixed(3) ?? '—'}, T=${d.rawT ?? '—'})`, 'Raw revisions (robustness)']
                 }
                 return [v?.toFixed(3), name]
               }}
@@ -874,17 +902,19 @@ function AnchoringView({ manifest }) {
               height={20}
               iconSize={8}
               wrapperStyle={{ fontSize: 11 }}
-              formatter={n => n === 'mainBeta' ? 'ST NSICX revision (preferred)' : 'Same-CY raw revision'}
+              formatter={n => n === 'mainBeta' ? 'ST NSICX revision' : 'Raw revisions (robustness)'}
             />
             <ReferenceLine x={0} stroke={theme.ui.axis} strokeWidth={1} />
-            <Bar dataKey="rawBeta" name="rawBeta" fill="#9ca3af" isAnimationActive={false} barSize={6}>
-              {sensData.map(d => (
-                <Cell key={d.slug}
-                  fill={sensitivityColor(d.rawBeta, isDark)}
-                  fillOpacity={d.rawP != null && d.rawP < 0.05 ? 0.55 : 0.25} />
-              ))}
-            </Bar>
-            <Bar dataKey="mainBeta" name="mainBeta" fill="#9ca3af" isAnimationActive={false} barSize={14}>
+            {showRaw && (
+              <Bar dataKey="rawBeta" name="rawBeta" fill="#9ca3af" isAnimationActive={false} barSize={6}>
+                {sensData.map(d => (
+                  <Cell key={d.slug}
+                    fill={sensitivityColor(d.rawBeta, isDark)}
+                    fillOpacity={d.rawP != null && d.rawP < 0.05 ? 0.55 : 0.25} />
+                ))}
+              </Bar>
+            )}
+            <Bar dataKey="mainBeta" name="mainBeta" fill="#9ca3af" isAnimationActive={false} barSize={showRaw ? 14 : 18}>
               {sensData.map(d => (
                 <Cell key={d.slug}
                   fill={sensitivityColor(d.mainBeta, isDark)}

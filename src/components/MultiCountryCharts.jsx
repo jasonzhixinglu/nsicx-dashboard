@@ -73,13 +73,15 @@ function DownloadButton({ onClick, disabled, label }) {
 }
 
 // Continuous HSL gradient: emerald at 0, red as deviation rises positive,
-// blue as deviation falls negative. Clamped at ±1 pp.
-function levelDeviationColor(dev, isDark) {
+// blue as deviation falls negative. Saturates at ±scale (default 1 pp for
+// level deviations; pass a smaller scale for changes — 0.2 pp is large for
+// forward-rate revisions over a few months).
+function levelDeviationColor(dev, isDark, scale = 1) {
   if (dev == null) return isDark ? 'hsl(220, 5%, 40%)' : 'hsl(220, 5%, 70%)'
-  const dc = Math.max(-1, Math.min(1, dev))
+  const dc = Math.max(-1, Math.min(1, dev / scale))
   const hue = dc >= 0
-    ? 150 - dc * 150         //  0 → emerald, +1 → red
-    : 150 + (-dc) * 90       //  0 → emerald, -1 → blue
+    ? 150 - dc * 150         //  0 → emerald, +scale → red
+    : 150 + (-dc) * 90       //  0 → emerald, -scale → blue
   return `hsl(${hue.toFixed(1)}, 72%, ${isDark ? 62 : 42}%)`
 }
 
@@ -650,7 +652,7 @@ function ForwardRatesView({ manifest }) {
               <ReferenceLine x={0} stroke={theme.ui.axis} strokeWidth={1} />
               <Bar dataKey="change" isAnimationActive={false}>
                 {chartData.map(d => (
-                  <Cell key={d.slug} fill={levelDeviationColor(d.change, isDark)} />
+                  <Cell key={d.slug} fill={levelDeviationColor(d.change, isDark, 0.2)} />
                 ))}
               </Bar>
             </BarChart>

@@ -26,7 +26,7 @@ export default function AboutPanel() {
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-50 border border-indigo-200/80 text-xs text-indigo-700 font-medium dark:bg-indigo-950/60 dark:border-indigo-700/40 dark:text-indigo-300">
-            Forthcoming IMF Working Paper
+            Application of the NSICX model to Japan's expectations across six sources
           </div>
         </div>
       </div>

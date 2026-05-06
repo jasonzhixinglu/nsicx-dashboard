@@ -4,7 +4,6 @@ export default function MultiCountryAbout() {
 
       <div className="panel p-6 space-y-4">
         <div>
-          <div className="label mb-3">Multi-country application</div>
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white leading-snug">
             A Multi-Country Application of the NSICX Model to Consensus Expectations
           </h2>

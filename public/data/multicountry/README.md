@@ -24,6 +24,12 @@ Full derivation (including the equivalence
 `x(12;lambda)' F^{-(M-1)} beta_t = x_{[h1,h2]}(lambda)' beta_t`) is in
 `methodology.pdf` distributed alongside this README.
 
+All 15 countries are estimated under the same bounded-lambda
+specification (lambda in [0.02, 0.40], 6 horizon-bin measurement
+variances, joint MSE MLE) — no per-country exceptions. Under
+calendar-mode measurement every country lands at an interior solution
+with lambda in [0.06, 0.16].
+
 ## Layout
 
 ```

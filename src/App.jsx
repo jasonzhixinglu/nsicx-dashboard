@@ -18,7 +18,7 @@ const DASHBOARDS = {
     ],
   },
   multi: {
-    title: 'Multi-country inflation expectations',
+    title: 'Multi-Country Inflation Expectations',
     subtitle: 'Lu & Teoh · IMF Working Paper · Multi-country companion (Consensus only)',
     tabs: [
       { id: 'country', label: 'Country view', sub: 'Per-country charts',     fullHeight: true,  render: () => <MultiCountryPanel /> },

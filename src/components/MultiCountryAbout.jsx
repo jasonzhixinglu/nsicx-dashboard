@@ -6,7 +6,7 @@ export default function MultiCountryAbout() {
         <div>
           <div className="label mb-3">Multi-country application</div>
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white leading-snug">
-            A multi-country application of the NSICX model to Consensus expectations
+            A Multi-Country Application of the NSICX Model to Consensus Expectations
           </h2>
           <p className="text-sm text-slate-500 mt-1">
             Companion to: <em>A Composite Term Structure of Japan's Inflation Expectations</em>

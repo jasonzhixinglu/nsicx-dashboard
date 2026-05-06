@@ -7,6 +7,9 @@ export default function AboutPanel() {
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white leading-snug">
             A Composite Term Structure of Japan's Inflation Expectations
           </h2>
+          <p className="text-sm text-slate-500 mt-1">
+            Application of the NSICX model to Japan's inflation expectations across six sources
+          </p>
         </div>
 
         <div className="border-t border-slate-200 dark:border-slate-800 pt-4 space-y-3">
@@ -26,7 +29,7 @@ export default function AboutPanel() {
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-50 border border-indigo-200/80 text-xs text-indigo-700 font-medium dark:bg-indigo-950/60 dark:border-indigo-700/40 dark:text-indigo-300">
-            Application of the NSICX model to Japan's expectations across six sources
+            Forthcoming IMF Working Paper
           </div>
         </div>
       </div>

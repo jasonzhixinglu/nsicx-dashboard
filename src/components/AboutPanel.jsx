@@ -4,7 +4,7 @@ export default function AboutPanel() {
 
       <div className="panel p-6 space-y-4">
         <div>
-          <div className="label mb-3">Working Paper</div>
+          <div className="label mb-3">Forthcoming IMF Working Paper</div>
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white leading-snug">
             A Composite Term Structure of Japan's Inflation Expectations
           </h2>
@@ -27,7 +27,7 @@ export default function AboutPanel() {
           </div>
 
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-50 border border-indigo-200/80 text-xs text-indigo-700 font-medium dark:bg-indigo-950/60 dark:border-indigo-700/40 dark:text-indigo-300">
-            IMF Working Paper
+            Forthcoming IMF Working Paper
           </div>
         </div>
       </div>

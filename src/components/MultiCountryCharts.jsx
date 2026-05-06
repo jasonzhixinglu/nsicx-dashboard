@@ -318,8 +318,8 @@ function SnapshotsView({ manifest }) {
         <div className="label">Term-structure snapshots vs Consensus surveys</div>
         <p className="text-xs text-slate-500 mt-0.5 mb-3">
           {mode === 'fwd'
-            ? 'Solid line: model\'s instantaneous forward rate at horizon h (smooth NS forward curve). Red crosses: Consensus forecasts plotted at the midpoint of each target year\'s forward window (so for an April vintage, t1 lands at h≈4.5 — the midpoint of the remaining 9 months — and t2 at h≈15). The model and survey are not strictly like-for-like (instantaneous vs window average); see the footnote.'
-            : 'Solid line: model\'s avg-annualized rate from the vintage to horizon h. Red crosses: cumulative average of Consensus forecasts at each end-of-CY horizon, shifted left by months already realized (so April t1 lands at h=9, t2 at h=21, …).'}
+            ? 'Solid line: model\'s instantaneous forward rate at horizon h (smooth NS forward curve). Red crosses: Consensus calendar-year forecasts plotted at each CY\'s midpoint in horizon space — for an April vintage, CY1 spans [−3, 9] so t1 lands at h=3 and t2 at h=15. The model and survey are not strictly like-for-like (instantaneous vs CY average); see the footnote.'
+            : 'Solid line: model\'s avg-annualized rate from the vintage to horizon h. Red crosses: cumulative average of Consensus forecasts at each end-of-CY horizon, shifted left by months already realized (so April t1 lands at h=9, t2 at h=21, …); see the footnote.'}
         </p>
 
         {loading || !allData ? (
@@ -341,8 +341,8 @@ function SnapshotsView({ manifest }) {
 
         <p className="text-xs text-slate-500 dark:text-slate-600 italic leading-relaxed mt-3">
           {mode === 'fwd'
-            ? 'Note: The model line is the instantaneous forward rate; the survey crosses are 12-month calendar-year averages plotted at the midpoint of each forward window. They are not strictly like-for-like — instantaneous vs window-average — and for the current calendar year (n=1) the survey itself is a full-CY average that already includes months realized at the vintage date (for an April survey, t1 is effectively a 12-month forecast made 3 months earlier). The conceptual gap is largest for n=1 and shrinks for longer horizons.'
-            : 'Note: For the current calendar year (n=1), the Consensus forecast is a full-year average that already includes months realized at the vintage date — for an April survey, t1 is effectively a 12-month forecast made 3 months earlier, not a 9-month-forward forecast. We plot it at the remaining-CY horizon for visual alignment; the model curve there represents the avg from now to that horizon, so the two are not strictly equivalent for n=1. The mismatch closes for n≥2 (full forward calendar years).'}
+            ? 'Note: Survey crosses are 12-month CY averages plotted at each calendar year\'s midpoint in horizon space (for an April vintage: CY1 → h=3, CY2 → h=15, …). The model line is the instantaneous forward rate, so model and survey use different averaging windows — the conceptual gap is largest near short horizons and shrinks further out.'
+            : 'Note: The model line at horizon H is the avg-annualized rate from the vintage (h=0) to H; survey crosses are cumulative averages of t1..tn plotted at the end-of-CY horizon n·12−elapsed. For n=1 these are not strictly like-for-like — for April, the model averages over [0, 9] while the survey CY1 averages over [−3, 9] — though the relative gap shrinks at longer horizons.'}
         </p>
       </div>
 

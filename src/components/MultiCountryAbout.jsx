@@ -9,7 +9,7 @@ export default function MultiCountryAbout() {
             A multi-country application of the NSICX model to Consensus expectations
           </h2>
           <p className="text-sm text-slate-500 mt-1">
-            Companion to forthcoming IMF Working Paper: <em>A Composite Term Structure of Japan's Inflation Expectations</em>
+            Companion to: <em>A Composite Term Structure of Japan's Inflation Expectations</em>
           </p>
         </div>
 
@@ -61,7 +61,7 @@ export default function MultiCountryAbout() {
           </p>
 
           <p>
-            <span className="font-medium">Calendar-mode (no-strip) measurement.</span> Within-calendar-year Consensus forecasts are mapped into the Nelson-Siegel measurement equation via the deterministic NSICX no-arbitrage transition F, rather than by stripping out realized year-to-date inflation. This avoids the 1/J leverage explosion at year-end, removes the realized-CPI data dependency, and absorbs forecaster inattention into the measurement residual without amplification. The technical derivation is bundled with the data export as <em>methodology.pdf</em>.
+            <span className="font-medium">Direct measurement.</span> Within-calendar-year Consensus forecasts are mapped directly into the Nelson-Siegel measurement equation via the deterministic NSICX no-arbitrage transition F — we do not strip out realized year-to-date inflation. This avoids a numerical leverage explosion at year-end, removes the realized-CPI data dependency, and absorbs forecaster inattention into the measurement residual without amplification. The technical derivation is in <em>methodology.pdf</em>.
           </p>
 
           <p>

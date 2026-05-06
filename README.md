@@ -5,7 +5,7 @@
 An interactive companion to the working paper *A Composite Term Structure of Japan's Inflation Expectations* (Lu & Teoh, IMF Working Paper). The dashboard hosts two views, switched via a link in the header:
 
 - **Japan composite** (default landing) — the six-source composite from the paper.
-- **Multi-country** — the same Nelson–Siegel internally consistent expectations (NSICX) framework applied to 15 G20 economies using a single source (Consensus Economics) for cross-country comparability. Estimates use the **calendar-mode (no-strip)** measurement model, which maps within-CY Consensus forecasts into the NSICX measurement equation via the deterministic NSICX no-arbitrage transition F rather than by stripping out realized YTD inflation. Methodology note bundled at `public/data/multicountry/methodology.pdf`.
+- **Multi-country** — the same Nelson–Siegel internally consistent expectations (NSICX) framework applied to 15 G20 economies using a single source (Consensus Economics) for cross-country comparability. Within-CY Consensus forecasts are mapped directly into the NSICX measurement equation via the deterministic no-arbitrage transition F — we do not strip out realized YTD inflation. See `public/data/multicountry/methodology.pdf` for the derivation.
 
 The header toggle switches between dark and light mode; preference is persisted in `localStorage`. Active dashboard, active tab, and selector state (vintage, view mode, etc.) are persisted within a session via `sessionStorage`.
 
@@ -62,7 +62,7 @@ public/data/multicountry/
   README.md                       schema reference
   manifest.json                   country list, last vintages, survey periods,
                                   pipeline_variant ("calendar_mode_no_strip")
-  methodology.pdf                 design note on the calendar-mode measurement
+  methodology.pdf                 design note on the direct measurement scheme
   countries/{slug}/
     states.json                   filtered + smoothed L/S/C with SEs, plus lambda
     cpi.json                      CPI YoY series

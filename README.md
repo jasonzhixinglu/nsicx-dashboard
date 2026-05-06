@@ -5,7 +5,7 @@
 An interactive companion to the working paper *A Composite Term Structure of Japan's Inflation Expectations* (Lu & Teoh, IMF Working Paper). The dashboard hosts two views, switched via a link in the header:
 
 - **Japan composite** (default landing) — the six-source composite from the paper.
-- **Multi-country** — the same Nelson–Siegel internally consistent expectations (NSICX) framework applied to 15 G20 economies using a single source (Consensus Economics) for cross-country comparability.
+- **Multi-country** — the same Nelson–Siegel internally consistent expectations (NSICX) framework applied to 15 G20 economies using a single source (Consensus Economics) for cross-country comparability. Estimates use the **calendar-mode (no-strip)** measurement model, which maps within-CY Consensus forecasts into the NSICX measurement equation via the deterministic NSICX no-arbitrage transition F rather than by stripping out realized YTD inflation. Methodology note bundled at `public/data/multicountry/methodology.pdf`.
 
 The header toggle switches between dark and light mode; preference is persisted in `localStorage`. Active dashboard, active tab, and selector state (vintage, view mode, etc.) are persisted within a session via `sessionStorage`.
 
@@ -26,7 +26,7 @@ The header toggle switches between dark and light mode; preference is persisted 
 | Tab | Contents |
 |---|---|
 | Country view | Chart A whisker + Chart B term structure for a single country (regional country dropdown, per-country target, KeyResults sidebar) |
-| Comparisons | **Snapshots** (15-country grid of model term structure + Consensus survey overlays for a chosen vintage; toggle Avg-rates vs Forward-rates view), **Forwards** (cross-country bar chart of forward-rate changes between Jan/Feb/Mar and Apr 2026, selectable window: 1y / 1y1y / 2y3y / 5y5y), **Anchoring** (level anchoring: Jan vs Apr LT t25 deviation from each country's central-bank target; sensitivity anchoring: β coefficients from two regressions of the long end on a survey surprise) |
+| Comparisons | **Snapshots** (15-country grid of model term structure + Consensus survey overlays for a chosen vintage; toggle Avg-rates vs Forward-rates view), **Forwards** (cross-country bar chart of forward-rate changes between two user-selected vintages with `to > from`, selectable window: 1y / 1y1y / 2y3y / 5y5y), **Anchoring** (trend level vs target: Jan vs Apr LT t25 deviation from each country's central-bank target; trend sensitivity to surprises: β coefficients from two regressions of the long end on a survey surprise; continuous HSL color encoding) |
 | About | Methodology, authors |
 
 URL state persisted: `?dashboard=multi&country=usa` etc.
@@ -60,14 +60,17 @@ This pulls `jpcij@japan` (Japan CPI index, NSA) from the [haver-data repo](https
 ```
 public/data/multicountry/
   README.md                       schema reference
-  manifest.json                   country list, last vintages, survey periods
+  manifest.json                   country list, last vintages, survey periods,
+                                  pipeline_variant ("calendar_mode_no_strip")
+  methodology.pdf                 design note on the calendar-mode measurement
   countries/{slug}/
     states.json                   filtered + smoothed L/S/C with SEs, plus lambda
     cpi.json                      CPI YoY series
     surveys.json                  Consensus survey rows (ST + LT) for snapshot vintages
     mle.json                      MLE summary
   cross_country/
-    anchoring.json                anchoring regressions (main + raw_revisions)
+    anchoring.json                anchoring regressions (main + raw_revisions),
+                                  re-estimated against calmod-min1 filtered states
 ```
 
 Country slugs match `output/dns_production/{slug}/` in the upstream pipeline. Schema details are in [`public/data/multicountry/README.md`](public/data/multicountry/README.md).
@@ -82,8 +85,8 @@ The dashboard offers downloadable extracts:
 - **Japan composite — Charts**: NSICX factors with CIs (CSV), BEI vs NSICX model (CSV).
 - **Multi-country — Country view**: full multi-country workbook `multicountry_nsicx.xlsx` (one sheet per country, plus a metadata sheet) — uses SheetJS, lazy-loaded on click.
 - **Multi-country — Comparisons**:
-  - `snapshots.csv` — model and Consensus survey points across countries and vintages.
-  - `forward_rate_changes.csv` — long-format file: 15 countries × 3 from-vintages × 4 forward windows.
+  - `snapshots.csv` — model curve values + Consensus survey points across countries and vintages, with horizons aligned for each vintage's elapsed months.
+  - `forward_rate_changes.csv` — long-format file: 15 countries × 6 (from, to) vintage pairs × 4 forward windows = 360 rows, with `from_value` / `to_value` levels alongside the precomputed `change`.
   - `anchoring.csv` — per-country level + sensitivity stats.
 
 ## Local development

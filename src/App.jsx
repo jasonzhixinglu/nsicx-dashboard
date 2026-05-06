@@ -81,7 +81,7 @@ function saveTabsState(state) {
   try { sessionStorage.setItem(TAB_STORAGE_KEY, JSON.stringify(state)) } catch {}
 }
 
-export default function App() {
+function AppShell() {
   const [dashboard, setDashboard] = useState(getDashboardFromUrl)
   const [tabsByDashboard, setTabsByDashboard] = useState(() => {
     const saved = loadTabsState()
@@ -93,6 +93,12 @@ export default function App() {
   const cfg = DASHBOARDS[dashboard]
   const activeTab = tabsByDashboard[dashboard]
   const { isDark, toggle } = useDarkMode()
+
+  useEffect(() => {
+    document.title = dashboard === 'multi'
+      ? 'Multi-country NSICX Dashboard'
+      : "Japan Composite Inflation Expectations Dashboard"
+  }, [dashboard])
 
   const setActiveTab = (tabId) => {
     setTabsByDashboard(prev => {
@@ -139,12 +145,12 @@ export default function App() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`tab-btn text-center sm:text-left px-2 py-2 text-xs sm:px-5 sm:py-2.5 sm:text-sm leading-tight ${
+                  className={`tab-btn text-center lg:text-left px-2 py-1.5 text-xs sm:px-3 lg:px-5 lg:py-2.5 lg:text-sm leading-tight ${
                     activeTab === tab.id ? 'tab-btn-active' : 'tab-btn-inactive'
                   }`}
                 >
                   <div>{tab.label}</div>
-                  <div className={`text-xs mt-0.5 font-normal hidden sm:block ${
+                  <div className={`text-xs mt-0.5 font-normal hidden lg:block ${
                     activeTab === tab.id ? 'text-indigo-300' : 'text-slate-400 dark:text-slate-600'
                   }`}>{tab.sub}</div>
                 </button>
@@ -169,4 +175,8 @@ export default function App() {
 
     </div>
   )
+}
+
+export default function App() {
+  return <AppShell />
 }

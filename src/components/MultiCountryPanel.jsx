@@ -5,6 +5,8 @@ import KeyResults from './KeyResults.jsx'
 import { MONTH_NAMES, formatVintage } from '../lib/dateFormat.js'
 import { avgAnnualized, fwdInstant, addMonths } from '../lib/nsCurve.js'
 
+const MC_BASE = `${import.meta.env.BASE_URL}data/multicountry/`
+
 const PRESENTATION_START = '2002-01'
 const WHISKER_HORIZONS = [3, 6, 9, 12, 15, 18, 21, 24]
 
@@ -73,13 +75,13 @@ function buildCountrySheet(XLSX, country) {
   return XLSX.utils.aoa_to_sheet([header, ...rows])
 }
 
-async function downloadAllCountriesWorkbook(manifest, baseUrl) {
+async function downloadAllCountriesWorkbook(manifest) {
   const XLSX = await import('xlsx')
 
   const fetches = manifest.countries.map(c =>
     Promise.all([
-      fetch(`${baseUrl}data/multicountry/countries/${c.slug}/states.json`).then(r => r.json()),
-      fetch(`${baseUrl}data/multicountry/countries/${c.slug}/cpi.json`).then(r => r.json()),
+      fetch(`${MC_BASE}countries/${c.slug}/states.json`).then(r => r.json()),
+      fetch(`${MC_BASE}countries/${c.slug}/cpi.json`).then(r => r.json()),
     ]).then(([states, cpi]) => ({ ...c, states, cpi }))
   )
   const all = await Promise.all(fetches)
@@ -90,6 +92,7 @@ async function downloadAllCountriesWorkbook(manifest, baseUrl) {
     ['Multi-country NSICX dashboard data export'],
     ['Generated:', manifest.generated_at],
     ['Schema version:', manifest.schema_version],
+    ['Pipeline variant:', manifest.pipeline_variant ?? 'production'],
     [],
     ['Each country sheet contains: date, cpi_yoy, nsicx_L/S/C, avg & fwd term structure (3M, 1Y, 2Y, 5Y, 10Y).'],
     ['avg_h = average annualized rate over horizon h months. fwd_h = instantaneous forward at horizon h.'],
@@ -172,9 +175,9 @@ export default function MultiCountryPanel() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [downloading, setDownloading] = useState(false)
 
-  // Fetch manifest once
+  // Fetch manifest once on mount.
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}data/multicountry/manifest.json`)
+    fetch(`${MC_BASE}manifest.json`)
       .then(r => r.json())
       .then(m => {
         setManifest(m)
@@ -184,14 +187,14 @@ export default function MultiCountryPanel() {
       })
   }, [])
 
-  // Fetch country data when selection changes
+  // Fetch country data when selection changes.
   useEffect(() => {
     if (!selectedCountry) return
     setLoading(true)
     setCountryData(null)
     Promise.all([
-      fetch(`${import.meta.env.BASE_URL}data/multicountry/countries/${selectedCountry}/states.json`).then(r => r.json()),
-      fetch(`${import.meta.env.BASE_URL}data/multicountry/countries/${selectedCountry}/cpi.json`).then(r => r.json()),
+      fetch(`${MC_BASE}countries/${selectedCountry}/states.json`).then(r => r.json()),
+      fetch(`${MC_BASE}countries/${selectedCountry}/cpi.json`).then(r => r.json()),
     ]).then(([states, cpi]) => {
       setCountryData({ ...states, cpi })
       setLoading(false)
@@ -271,7 +274,7 @@ export default function MultiCountryPanel() {
     if (!manifest || downloading) return
     setDownloading(true)
     try {
-      await downloadAllCountriesWorkbook(manifest, import.meta.env.BASE_URL)
+      await downloadAllCountriesWorkbook(manifest)
     } finally {
       setDownloading(false)
     }

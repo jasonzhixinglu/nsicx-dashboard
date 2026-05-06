@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-05T15:25:48+00:00",
+  "pipeline_variant": "calendar_mode_no_strip",
+  "generated_at": "2026-05-06T00:06:13+00:00",
   "survey_periods": [
     "2026-01",
     "2026-02",
@@ -113,5 +114,6 @@
       "T": 304,
       "n_surveys": 4
     }
-  ]
+  ],
+  "methodology_pdf": "methodology.pdf"
 }

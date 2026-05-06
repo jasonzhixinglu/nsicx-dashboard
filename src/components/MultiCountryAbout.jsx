@@ -36,15 +36,32 @@ export default function MultiCountryAbout() {
       </div>
 
       <div className="panel p-6 space-y-4">
-        <div className="label">Methodology</div>
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="label">Methodology</div>
+          <a
+            href={`${import.meta.env.BASE_URL}data/multicountry/methodology.pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs py-1 px-2.5 rounded-md font-medium transition-all bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-700 inline-flex items-center gap-1.5"
+          >
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" className="shrink-0">
+              <path d="M6 1v7M3.5 5.5 6 8l2.5-2.5M2 10h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            methodology.pdf
+          </a>
+        </div>
 
         <div className="space-y-3 text-sm text-slate-900 dark:text-white leading-relaxed">
           <p>
-            This view uses the Nelson-Siegel internally consistent expectations model from the working paper, applied to Consensus Economics data across 15 G20 economies using a single source. The Japan composite in the paper combines six survey sources; here, all 15 countries are estimated on Consensus alone for comparability across countries.
+            This view uses the Nelson-Siegel internally consistent expectations (NSICX) model from the working paper, applied to Consensus Economics data across 15 G20 economies using a single source. The Japan composite in the paper combines six survey sources; here, all 15 countries are estimated on Consensus alone for comparability across countries.
           </p>
 
           <p>
-            Consensus Economics reports calendar year inflation forecasts for the current and next calendar years every month, plus long-range forecasts at the start of each calendar quarter (available since approximately 2014). For forecasts of the current calendar year, we strip out realized year-to-date CPI inflation by computing the YTD CPI index and back out what the survey implies over the remaining forward-looking months, yielding a clean forward-rate path that is comparable across vintages and countries.
+            Consensus Economics reports calendar year inflation forecasts for the current and next calendar years every month, plus long-range forecasts at the start of each calendar quarter (available since approximately 2014).
+          </p>
+
+          <p>
+            <span className="font-medium">Calendar-mode (no-strip) measurement.</span> Within-calendar-year Consensus forecasts are mapped into the Nelson-Siegel measurement equation via the deterministic NSICX no-arbitrage transition F, rather than by stripping out realized year-to-date inflation. This avoids the 1/J leverage explosion at year-end, removes the realized-CPI data dependency, and absorbs forecaster inattention into the measurement residual without amplification. The technical derivation is bundled with the data export as <em>methodology.pdf</em>.
           </p>
 
           <p>

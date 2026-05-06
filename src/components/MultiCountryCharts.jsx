@@ -5,9 +5,11 @@ import {
 } from 'recharts'
 import { getTheme, getTooltipStyle } from '../lib/chartTheme.js'
 import { useDarkMode } from '../lib/useDarkMode.jsx'
-import { avgAnnualized, avgWindow } from '../lib/nsCurve.js'
+import { avgAnnualized, avgWindow, fwdInstant } from '../lib/nsCurve.js'
 import { MONTH_NAMES } from '../lib/dateFormat.js'
 import { useSessionState } from '../lib/sessionState.js'
+
+const MC_BASE = `${import.meta.env.BASE_URL}data/multicountry/`
 
 const REGIONS_FLAT = [
   'usa', 'canada', 'mexico', 'brazil',
@@ -70,6 +72,25 @@ function DownloadButton({ onClick, disabled, label }) {
   )
 }
 
+// Continuous HSL gradient: emerald at 0, red as deviation rises positive,
+// blue as deviation falls negative. Clamped at ±1 pp.
+function levelDeviationColor(dev, isDark) {
+  if (dev == null) return isDark ? 'hsl(220, 5%, 40%)' : 'hsl(220, 5%, 70%)'
+  const dc = Math.max(-1, Math.min(1, dev))
+  const hue = dc >= 0
+    ? 150 - dc * 150         //  0 → emerald, +1 → red
+    : 150 + (-dc) * 90       //  0 → emerald, -1 → blue
+  return `hsl(${hue.toFixed(1)}, 72%, ${isDark ? 62 : 42}%)`
+}
+
+// |β| close to 0 → emerald (well-anchored); |β| at scale → red (poorly anchored).
+function sensitivityColor(beta, isDark, scale = 0.15) {
+  if (beta == null) return isDark ? 'hsl(220, 5%, 40%)' : 'hsl(220, 5%, 70%)'
+  const t = Math.min(1, Math.abs(beta) / scale)
+  const hue = 150 - t * 150
+  return `hsl(${hue.toFixed(1)}, 72%, ${isDark ? 62 : 42}%)`
+}
+
 // X-shape scatter marker (Recharts built-in 'cross' is the + sign).
 function XMark({ cx, cy, fill }) {
   const s = 4
@@ -100,20 +121,34 @@ function buildSnapshotForCountry(country, vintage, mode) {
   const rows = country.surveys.rows.filter(r => r.survey_period === vintage)
   const src = rows.find(r => r.source === 'LT') || rows.find(r => r.source === 'ST')
 
+  // Months of the current calendar year already realized at the vintage date.
+  // E.g. April vintage = vintage_month 4, so 3 months are behind us and only
+  // 9 months of CY1 are forward; subsequent CYs are full 12-month windows.
+  const monthsElapsed = Number(vintage.split('-')[1]) - 1
+
   const curve = []
   const scatter = []
 
   if (mode === 'fwd') {
-    // 12-month centered rolling forward: avg over [h-6, h+6].
-    for (let h = 6; h <= 126; h++) {
-      curve.push({ h, val: +avgWindow(L, S, C, lam, h - 6, h + 6).toFixed(4) })
+    // Instantaneous forward rate f(h) = L + e^(-λh)·S + λh·e^(-λh)·C.
+    // Smooth for all h ≥ 0 — no formula switches. Survey crosses are an
+    // approximate overlay (12-month CY averages plotted near their midpoint
+    // horizons); the footnote covers the imperfect comparison for n=1.
+    for (let h = 0; h <= 132; h++) {
+      curve.push({ h, val: +fwdInstant(L, S, C, lam, h).toFixed(4) })
     }
-    // Survey: tn (annual CY forecast) plotted at midpoint of CY n.
+    // Survey: tn plotted at the midpoint of its FORWARD window. For n=1
+    // (current CY), the forward window is [0, 12 - elapsed], so the midpoint
+    // is (12 - elapsed) / 2 — e.g. April t1 → h=4.5. For n≥2 the full CY is
+    // forward so the midpoint is (n-0.5)·12 - elapsed.
     if (src) {
       for (let n = 1; n <= 11; n++) {
         const v = src[`t${n}`]
         if (v == null) break
-        scatter.push({ h: (n - 1) * 12 + 6, v: +v.toFixed(4) })
+        const hMid = n === 1
+          ? (12 - monthsElapsed) / 2
+          : (n - 0.5) * 12 - monthsElapsed
+        scatter.push({ h: hMid, v: +v.toFixed(4) })
       }
     }
   } else {
@@ -121,14 +156,16 @@ function buildSnapshotForCountry(country, vintage, mode) {
     for (let h = 1; h <= 132; h++) {
       curve.push({ h, val: +avgAnnualized(L, S, C, lam, h).toFixed(4) })
     }
-    // Survey: cumulative average of t1..tn at h = n·12.
+    // Survey: cumulative avg of t1..tn at the end-of-CY_n horizon, shifted by
+    // monthsElapsed (so April t1 lands at h=9, t2 at h=21, etc.).
     if (src) {
       let sum = 0
       for (let n = 1; n <= 11; n++) {
         const v = src[`t${n}`]
         if (v == null) break
         sum += v
-        scatter.push({ h: n * 12, v: +(sum / n).toFixed(4) })
+        const hEoy = n * 12 - monthsElapsed
+        scatter.push({ h: hEoy, v: +(sum / n).toFixed(4) })
       }
     }
   }
@@ -147,7 +184,7 @@ function CountrySnapshotPanel({ country, vintage, target, isDark, mode }) {
   )
 
   const labelMap = mode === 'fwd'
-    ? { val: 'Model fwd', v: 'Survey (CY avg)' }
+    ? { val: 'Model fwd (inst.)', v: 'Survey (CY avg)' }
     : { val: 'Model avg', v: 'Survey (cum. avg)' }
 
   return (
@@ -209,8 +246,8 @@ function SnapshotsView({ manifest }) {
     setLoading(true)
     Promise.all(manifest.countries.map(c =>
       Promise.all([
-        fetch(`${import.meta.env.BASE_URL}data/multicountry/countries/${c.slug}/states.json`).then(r => r.json()),
-        fetch(`${import.meta.env.BASE_URL}data/multicountry/countries/${c.slug}/surveys.json`).then(r => r.json()),
+        fetch(`${MC_BASE}countries/${c.slug}/states.json`).then(r => r.json()),
+        fetch(`${MC_BASE}countries/${c.slug}/surveys.json`).then(r => r.json()),
       ]).then(([states, surveys]) => ({ slug: c.slug, name: c.name, states, surveys }))
     )).then(all => {
       setAllData(orderCountries(all))
@@ -281,8 +318,8 @@ function SnapshotsView({ manifest }) {
         <div className="label">Term-structure snapshots vs Consensus surveys</div>
         <p className="text-xs text-slate-500 mt-0.5 mb-3">
           {mode === 'fwd'
-            ? 'Solid line: model\'s 12-month centered forward rate. Red crosses: Consensus calendar-year forecasts plotted at the midpoint of each target year.'
-            : 'Solid line: model\'s avg-annualized rate from the vintage to horizon h. Red crosses: cumulative average of Consensus forecasts up to each year-end (t1, (t1+t2)/2, …).'}
+            ? 'Solid line: model\'s instantaneous forward rate at horizon h (smooth NS forward curve). Red crosses: Consensus forecasts plotted at the midpoint of each target year\'s forward window (so for an April vintage, t1 lands at h≈4.5 — the midpoint of the remaining 9 months — and t2 at h≈15). The model and survey are not strictly like-for-like (instantaneous vs window average); see the footnote.'
+            : 'Solid line: model\'s avg-annualized rate from the vintage to horizon h. Red crosses: cumulative average of Consensus forecasts at each end-of-CY horizon, shifted left by months already realized (so April t1 lands at h=9, t2 at h=21, …).'}
         </p>
 
         {loading || !allData ? (
@@ -301,6 +338,12 @@ function SnapshotsView({ manifest }) {
             ))}
           </div>
         )}
+
+        <p className="text-xs text-slate-500 dark:text-slate-600 italic leading-relaxed mt-3">
+          {mode === 'fwd'
+            ? 'Note: The model line is the instantaneous forward rate; the survey crosses are 12-month calendar-year averages plotted at the midpoint of each forward window. They are not strictly like-for-like — instantaneous vs window-average — and for the current calendar year (n=1) the survey itself is a full-CY average that already includes months realized at the vintage date (for an April survey, t1 is effectively a 12-month forecast made 3 months earlier). The conceptual gap is largest for n=1 and shrinks for longer horizons.'
+            : 'Note: For the current calendar year (n=1), the Consensus forecast is a full-year average that already includes months realized at the vintage date — for an April survey, t1 is effectively a 12-month forecast made 3 months earlier, not a 9-month-forward forecast. We plot it at the remaining-CY horizon for visual alignment; the model curve there represents the avg from now to that horizon, so the two are not strictly equivalent for n=1. The mismatch closes for n≥2 (full forward calendar years).'}
+        </p>
       </div>
 
     </div>
@@ -310,22 +353,25 @@ function SnapshotsView({ manifest }) {
 // ── Forward rates: cross-country bar chart of vintage-to-Apr changes ──────────
 
 function downloadChangesCSV(allStates) {
-  const fromOptions = ['2026-01', '2026-02', '2026-03']
   const rows = [['country', 'slug', 'from_vintage', 'to_vintage', 'window', 'from_value', 'to_value', 'change'].join(',')]
 
   for (const c of allStates) {
-    const toState = c.filtered.find(p => p.d === TO_VINTAGE)
-    if (!toState) continue
-    for (const fromV of fromOptions) {
+    for (let i = 0; i < SURVEY_PERIODS.length; i++) {
+      const fromV = SURVEY_PERIODS[i]
       const fromState = c.filtered.find(p => p.d === fromV)
       if (!fromState) continue
-      for (const w of FORWARD_WINDOWS) {
-        const fromVal = avgWindow(fromState.L, fromState.S, fromState.C, c.lambda, w.a, w.b)
-        const toVal   = avgWindow(toState.L,   toState.S,   toState.C,   c.lambda, w.a, w.b)
-        rows.push([
-          c.name, c.slug, fromV, TO_VINTAGE, w.key,
-          fromVal.toFixed(4), toVal.toFixed(4), (toVal - fromVal).toFixed(4),
-        ].join(','))
+      for (let j = i + 1; j < SURVEY_PERIODS.length; j++) {
+        const toV = SURVEY_PERIODS[j]
+        const toState = c.filtered.find(p => p.d === toV)
+        if (!toState) continue
+        for (const w of FORWARD_WINDOWS) {
+          const fromVal = avgWindow(fromState.L, fromState.S, fromState.C, c.lambda, w.a, w.b)
+          const toVal   = avgWindow(toState.L,   toState.S,   toState.C,   c.lambda, w.a, w.b)
+          rows.push([
+            c.name, c.slug, fromV, toV, w.key,
+            fromVal.toFixed(4), toVal.toFixed(4), (toVal - fromVal).toFixed(4),
+          ].join(','))
+        }
       }
     }
   }
@@ -338,7 +384,7 @@ function downloadSnapshotsCSV(allData) {
     'country', 'slug', 'vintage', 'source', 'n', 'target_year',
     'survey_value', 'survey_cum_avg',
     'horizon_eoy_months', 'horizon_mid_months',
-    'model_avg_to_eoy', 'model_fwd_centered_12m',
+    'model_avg_to_eoy', 'model_fwd_instant',
   ]
   const rows = [header.join(',')]
 
@@ -348,7 +394,8 @@ function downloadSnapshotsCSV(allData) {
       const stateRow = c.states.filtered.find(p => p.d === period)
       if (!stateRow) continue
       const { L, S, C } = stateRow
-      const [vy] = period.split('-').map(Number)
+      const [vy, vm] = period.split('-').map(Number)
+      const monthsElapsed = vm - 1
       const surveyRows = c.surveys.rows.filter(r => r.survey_period === period)
 
       for (const src of surveyRows) {
@@ -358,23 +405,26 @@ function downloadSnapshotsCSV(allData) {
           const v = src[`t${n}`]
           if (v == null) continue
           cumSum += v; cumCount += 1
-          const hEoy = n * 12
-          const hMid = (n - 0.5) * 12
+          const hEoy = n * 12 - monthsElapsed
+          const hMid = n === 1
+            ? (12 - monthsElapsed) / 2
+            : (n - 0.5) * 12 - monthsElapsed
           rows.push([
             c.name, c.slug, period, src.source, n, vy + (n - 1),
             v.toFixed(4),
             (cumSum / cumCount).toFixed(4),
             hEoy, hMid,
             avgAnnualized(L, S, C, lam, hEoy).toFixed(4),
-            avgWindow(L, S, C, lam, hMid - 6, hMid + 6).toFixed(4),
+            fwdInstant(L, S, C, lam, hMid).toFixed(4),
           ].join(','))
         }
         if (src.t25 != null) {
+          const hT25 = 90 - monthsElapsed
           rows.push([
             c.name, c.slug, period, src.source, 25, '',
             src.t25.toFixed(4), '',
-            '', 90, '',
-            avgWindow(L, S, C, lam, 84, 96).toFixed(4),
+            '', hT25, '',
+            fwdInstant(L, S, C, lam, hT25).toFixed(4),
           ].join(','))
         }
       }
@@ -423,15 +473,35 @@ function ForwardRatesView({ manifest }) {
   const [allStates, setAllStates] = useState(null)
   const [loading, setLoading] = useState(true)
   const [fromVintage, setFromVintage] = useSessionState('nsicx-forwards-from',   '2026-01')
+  const [toVintage,   setToVintage]   = useSessionState('nsicx-forwards-to',     TO_VINTAGE)
   const [windowKey,   setWindowKey]   = useSessionState('nsicx-forwards-window', '5y5y')
   const { isDark } = useDarkMode()
   const theme = getTheme(isDark)
+
+  // Maintain to > from invariant.
+  const safeFrom = SURVEY_PERIODS.indexOf(fromVintage) >= 0 ? fromVintage : SURVEY_PERIODS[0]
+  const safeTo   = (SURVEY_PERIODS.indexOf(toVintage) > SURVEY_PERIODS.indexOf(safeFrom))
+    ? toVintage
+    : SURVEY_PERIODS[SURVEY_PERIODS.indexOf(safeFrom) + 1] ?? SURVEY_PERIODS[SURVEY_PERIODS.length - 1]
+
+  const handleFromChange = (v) => {
+    setFromVintage(v)
+    const fIdx = SURVEY_PERIODS.indexOf(v)
+    const tIdx = SURVEY_PERIODS.indexOf(toVintage)
+    if (tIdx <= fIdx) setToVintage(SURVEY_PERIODS[fIdx + 1] ?? SURVEY_PERIODS[SURVEY_PERIODS.length - 1])
+  }
+  const handleToChange = (v) => {
+    setToVintage(v)
+    const tIdx = SURVEY_PERIODS.indexOf(v)
+    const fIdx = SURVEY_PERIODS.indexOf(fromVintage)
+    if (fIdx >= tIdx) setFromVintage(SURVEY_PERIODS[tIdx - 1] ?? SURVEY_PERIODS[0])
+  }
 
   useEffect(() => {
     if (!manifest) return
     setLoading(true)
     Promise.all(manifest.countries.map(c =>
-      fetch(`${import.meta.env.BASE_URL}data/multicountry/countries/${c.slug}/states.json`)
+      fetch(`${MC_BASE}countries/${c.slug}/states.json`)
         .then(r => r.json())
         .then(d => ({ slug: c.slug, name: c.name, ...d }))
     )).then(all => {
@@ -444,8 +514,8 @@ function ForwardRatesView({ manifest }) {
     if (!allStates) return []
     const w = FORWARD_WINDOWS.find(x => x.key === windowKey)
     return allStates.map(c => {
-      const fromState = c.filtered.find(p => p.d === fromVintage)
-      const toState   = c.filtered.find(p => p.d === TO_VINTAGE)
+      const fromState = c.filtered.find(p => p.d === safeFrom)
+      const toState   = c.filtered.find(p => p.d === safeTo)
       if (!fromState || !toState) return null
       const fromVal = avgWindow(fromState.L, fromState.S, fromState.C, c.lambda, w.a, w.b)
       const toVal   = avgWindow(toState.L,   toState.S,   toState.C,   c.lambda, w.a, w.b)
@@ -457,10 +527,12 @@ function ForwardRatesView({ manifest }) {
         toVal:   +toVal.toFixed(4),
       }
     }).filter(Boolean).sort((a, b) => a.change - b.change)
-  }, [allStates, fromVintage, windowKey])
+  }, [allStates, safeFrom, safeTo, windowKey])
 
-  const fromOptions = ['2026-01', '2026-02', '2026-03']
+  const fromOptions = SURVEY_PERIODS.slice(0, -1) // Jan, Feb, Mar
+  const toOptions   = SURVEY_PERIODS.slice(1)     // Feb, Mar, Apr
   const monthAbbr = (v) => MONTH_NAMES[Number(v.split('-')[1]) - 1]
+  const fromIdx = SURVEY_PERIODS.indexOf(safeFrom)
 
   return (
     <div className="space-y-4">
@@ -471,13 +543,13 @@ function ForwardRatesView({ manifest }) {
           {fromOptions.map((v, i) => (
             <button
               key={v}
-              onClick={() => setFromVintage(v)}
+              onClick={() => handleFromChange(v)}
               className={`text-xs px-3 py-1 transition-colors ${
                 i === 0 ? 'rounded-l' : ''
               } ${
                 i === fromOptions.length - 1 ? 'rounded-r' : 'border-r border-slate-200 dark:border-slate-700'
               } ${
-                fromVintage === v
+                safeFrom === v
                   ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
               }`}
@@ -486,7 +558,33 @@ function ForwardRatesView({ manifest }) {
             </button>
           ))}
         </div>
-        <span className="text-xs text-slate-500">to Apr 2026</span>
+
+        <span className="label ml-4">To</span>
+        <div className="flex items-center">
+          {toOptions.map((v, i) => {
+            const disabled = SURVEY_PERIODS.indexOf(v) <= fromIdx
+            return (
+              <button
+                key={v}
+                onClick={() => !disabled && handleToChange(v)}
+                disabled={disabled}
+                className={`text-xs px-3 py-1 transition-colors ${
+                  i === 0 ? 'rounded-l' : ''
+                } ${
+                  i === toOptions.length - 1 ? 'rounded-r' : 'border-r border-slate-200 dark:border-slate-700'
+                } ${
+                  disabled
+                    ? 'bg-slate-50 text-slate-300 dark:bg-slate-900 dark:text-slate-700 cursor-not-allowed'
+                    : safeTo === v
+                      ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
+                }`}
+              >
+                {monthAbbr(v)}
+              </button>
+            )
+          })}
+        </div>
 
         <span className="label ml-4">Window</span>
         <select
@@ -510,9 +608,9 @@ function ForwardRatesView({ manifest }) {
 
       <div className="panel p-4 flex flex-col gap-2">
         <div>
-          <div className="label">Change in {windowKey} forward rate, {monthAbbr(fromVintage)} → Apr 2026</div>
+          <div className="label">Change in {windowKey} forward rate, {monthAbbr(safeFrom)} → {monthAbbr(safeTo)} 2026</div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Difference in avg-annualized rate over the {windowKey} window between two vintages. Sorted ascending.
+            Difference in avg-annualized rate over the {windowKey} window between two vintages. Color encodes the change: green near zero, red for upward revisions, blue for downward (±1pp clamp). Sorted ascending.
           </p>
         </div>
         {loading || !allStates ? (
@@ -552,7 +650,7 @@ function ForwardRatesView({ manifest }) {
               <ReferenceLine x={0} stroke={theme.ui.axis} strokeWidth={1} />
               <Bar dataKey="change" isAnimationActive={false}>
                 {chartData.map(d => (
-                  <Cell key={d.slug} fill={d.change >= 0 ? '#ef4444' : '#0ea5e9'} />
+                  <Cell key={d.slug} fill={levelDeviationColor(d.change, isDark)} />
                 ))}
               </Bar>
             </BarChart>
@@ -577,9 +675,9 @@ function AnchoringView({ manifest }) {
     if (!manifest) return
     setLoading(true)
     Promise.all([
-      fetch(`${import.meta.env.BASE_URL}data/multicountry/cross_country/anchoring.json`).then(r => r.json()),
+      fetch(`${MC_BASE}cross_country/anchoring.json`).then(r => r.json()),
       ...manifest.countries.map(c =>
-        fetch(`${import.meta.env.BASE_URL}data/multicountry/countries/${c.slug}/surveys.json`)
+        fetch(`${MC_BASE}countries/${c.slug}/surveys.json`)
           .then(r => r.json())
           .then(s => ({ slug: c.slug, name: c.name, surveys: s }))
       )
@@ -663,9 +761,9 @@ function AnchoringView({ manifest }) {
       {/* Section 1: Long-term forwards */}
       <div className="panel p-4 flex flex-col gap-2">
         <div>
-          <div className="label">Level anchoring</div>
+          <div className="label">Trend level vs target</div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Consensus 6–10y average inflation forecast (t25 in the LT survey) shown as deviation from each country's target, for the Jan and Apr 2026 LT surveys. Bars left of zero = below target; right of zero = above. Sorted by April deviation.
+            Consensus <em>trend</em> inflation forecast — the 6–10y average (t25 in the LT survey), even longer-run than typical long-horizon expectations — shown as deviation from each country's target, for the Jan and Apr 2026 LT surveys. Color encodes the deviation: green at target, red above, blue below. Apr bars are wider (preferred); Jan bars are thinner. Sorted by April deviation.
           </p>
         </div>
         <ResponsiveContainer width="100%" height={480}>
@@ -710,8 +808,16 @@ function AnchoringView({ manifest }) {
               formatter={n => n === 'janDev' ? 'Jan 2026' : 'Apr 2026'}
             />
             <ReferenceLine x={0} stroke={theme.ui.axis} strokeWidth={1} />
-            <Bar dataKey="janDev" name="janDev" fill="#94a3b8" isAnimationActive={false} barSize={6} />
-            <Bar dataKey="aprDev" name="aprDev" fill="#6366f1" isAnimationActive={false} barSize={14} />
+            <Bar dataKey="janDev" name="janDev" fill="#9ca3af" isAnimationActive={false} barSize={6}>
+              {ltSorted.map(d => (
+                <Cell key={d.slug} fill={levelDeviationColor(d.janDev, isDark)} fillOpacity={0.55} />
+              ))}
+            </Bar>
+            <Bar dataKey="aprDev" name="aprDev" fill="#9ca3af" isAnimationActive={false} barSize={14}>
+              {ltSorted.map(d => (
+                <Cell key={d.slug} fill={levelDeviationColor(d.aprDev, isDark)} />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -719,9 +825,9 @@ function AnchoringView({ manifest }) {
       {/* Section 2: Sensitivity */}
       <div className="panel p-4 flex flex-col gap-2">
         <div>
-          <div className="label">Sensitivity anchoring</div>
+          <div className="label">Trend sensitivity to surprises</div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Slope coefficient β from two anchoring regressions. Indigo (preferred): long-end NSICX change regressed on the short-horizon revision. Gray: raw long-end forecast change regressed on the same-CY survey-based surprise. Solid bars: p &lt; 0.05.
+            Slope coefficient β from two anchoring regressions of the trend on a survey surprise. Wider bar (preferred): trend NSICX change (filter-implied) regressed on the short-horizon revision. Thinner bar: raw trend forecast change regressed on the same-CY survey-based surprise. Color encodes |β|: green near zero (trend well anchored), red as |β| grows. Solid bars: p &lt; 0.05.
           </p>
         </div>
 
@@ -771,14 +877,18 @@ function AnchoringView({ manifest }) {
               formatter={n => n === 'mainBeta' ? 'ST NSICX revision (preferred)' : 'Same-CY raw revision'}
             />
             <ReferenceLine x={0} stroke={theme.ui.axis} strokeWidth={1} />
-            <Bar dataKey="rawBeta" name="rawBeta" fill="#94a3b8" isAnimationActive={false} barSize={6}>
+            <Bar dataKey="rawBeta" name="rawBeta" fill="#9ca3af" isAnimationActive={false} barSize={6}>
               {sensData.map(d => (
-                <Cell key={d.slug} fill="#94a3b8" fillOpacity={d.rawP != null && d.rawP < 0.05 ? 1 : 0.35} />
+                <Cell key={d.slug}
+                  fill={sensitivityColor(d.rawBeta, isDark)}
+                  fillOpacity={d.rawP != null && d.rawP < 0.05 ? 0.55 : 0.25} />
               ))}
             </Bar>
-            <Bar dataKey="mainBeta" name="mainBeta" fill="#6366f1" isAnimationActive={false} barSize={14}>
+            <Bar dataKey="mainBeta" name="mainBeta" fill="#9ca3af" isAnimationActive={false} barSize={14}>
               {sensData.map(d => (
-                <Cell key={d.slug} fill="#6366f1" fillOpacity={d.mainP != null && d.mainP < 0.05 ? 1 : 0.35} />
+                <Cell key={d.slug}
+                  fill={sensitivityColor(d.mainBeta, isDark)}
+                  fillOpacity={d.mainP != null && d.mainP < 0.05 ? 1 : 0.4} />
               ))}
             </Bar>
           </BarChart>
@@ -786,6 +896,12 @@ function AnchoringView({ manifest }) {
       </div>
 
       </div>{/* end inner grid */}
+
+      {anchoring?._note && (
+        <p className="text-xs text-slate-500 dark:text-slate-600 italic leading-relaxed">
+          Note: {anchoring._note}
+        </p>
+      )}
 
     </div>
   )
@@ -803,7 +919,7 @@ export default function MultiCountryCharts() {
   const handleSubTabChange = (id) => setSubTab(id)
 
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}data/multicountry/manifest.json`)
+    fetch(`${MC_BASE}manifest.json`)
       .then(r => r.json())
       .then(setManifest)
   }, [])

@@ -139,17 +139,15 @@ function buildSnapshotForCountry(country, vintage, mode) {
     for (let h = 0; h <= 132; h++) {
       curve.push({ h, val: +fwdInstant(L, S, C, lam, h).toFixed(4) })
     }
-    // Survey: tn plotted at the midpoint of its FORWARD window. For n=1
-    // (current CY), the forward window is [0, 12 - elapsed], so the midpoint
-    // is (12 - elapsed) / 2 — e.g. April t1 → h=4.5. For n≥2 the full CY is
-    // forward so the midpoint is (n-0.5)·12 - elapsed.
+    // Survey: tn is a calendar-year average, so plot it at the midpoint of
+    // CY_n in horizon space. CY_n spans [(n-1)·12 - elapsed, n·12 - elapsed],
+    // with midpoint (n-0.5)·12 - elapsed. For April t1 → h=3 (CY1 spans
+    // [-3, 9], including the 3 months already realized).
     if (src) {
       for (let n = 1; n <= 11; n++) {
         const v = src[`t${n}`]
         if (v == null) break
-        const hMid = n === 1
-          ? (12 - monthsElapsed) / 2
-          : (n - 0.5) * 12 - monthsElapsed
+        const hMid = (n - 0.5) * 12 - monthsElapsed
         scatter.push({ h: hMid, v: +v.toFixed(4) })
       }
     }
@@ -408,9 +406,7 @@ function downloadSnapshotsCSV(allData) {
           if (v == null) continue
           cumSum += v; cumCount += 1
           const hEoy = n * 12 - monthsElapsed
-          const hMid = n === 1
-            ? (12 - monthsElapsed) / 2
-            : (n - 0.5) * 12 - monthsElapsed
+          const hMid = (n - 0.5) * 12 - monthsElapsed
           rows.push([
             c.name, c.slug, period, src.source, n, vy + (n - 1),
             v.toFixed(4),

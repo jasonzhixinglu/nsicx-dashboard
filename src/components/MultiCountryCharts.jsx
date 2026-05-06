@@ -35,9 +35,9 @@ const SURVEY_PERIODS = ['2026-01', '2026-02', '2026-03', '2026-04']
 const TO_VINTAGE = '2026-04'
 
 const SUB_TABS = [
-  { id: 'snapshots', label: 'Snapshots' },
   { id: 'forwards',  label: 'Forwards' },
   { id: 'anchoring', label: 'Anchoring' },
+  { id: 'snapshots', label: 'Snapshots' },
 ]
 
 function vintageLabel(v) {
@@ -940,7 +940,7 @@ function AnchoringView({ manifest }) {
 // ── Top-level wrapper with sub-tab navigation ─────────────────────────────────
 
 export default function MultiCountryCharts() {
-  const [subTab, setSubTab] = useSessionState('nsicx-multi-subtab', 'snapshots')
+  const [subTab, setSubTab] = useSessionState('nsicx-multi-subtab', 'forwards')
   const [manifest, setManifest] = useState(null)
 
   // Validate stored subTab against current SUB_TABS in case it was renamed.

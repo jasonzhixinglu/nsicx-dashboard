@@ -26,7 +26,7 @@ The header toggle switches between dark and light mode; preference is persisted 
 | Tab | Contents |
 |---|---|
 | Country view | Chart A whisker + Chart B term structure for a single country (regional country dropdown, per-country target, KeyResults sidebar) |
-| Comparisons | **Snapshots** (15-country grid of model term structure + Consensus survey overlays for a chosen vintage; toggle Avg-rates vs Forward-rates view), **Forwards** (cross-country bar chart of forward-rate changes between two user-selected vintages with `to > from`, selectable window: 1y / 1y1y / 2y3y / 5y5y), **Anchoring** (trend level vs target: Jan vs Apr LT t25 deviation from each country's central-bank target; trend sensitivity to surprises: β coefficients from two regressions of the long end on a survey surprise; continuous HSL color encoding) |
+| Comparisons | **Forwards** (cross-country bar chart of forward-rate changes between two user-selected vintages with `to > from`, selectable window: 1y / 1y1y / 2y3y / 5y5y), **Anchoring** (trend level vs target: Apr LT t25 deviation from each country's central-bank target with optional Jan robustness; trend sensitivity to surprises: β from regressing the long end on a survey surprise, with optional raw-revisions robustness; continuous HSL color encoding), **Snapshots** (15-country grid of model term structure + Consensus survey overlays for a chosen vintage; toggle Avg-rates vs Forward-rates view) |
 | About | Methodology, authors |
 
 URL state persisted: `?dashboard=multi&country=usa` etc.

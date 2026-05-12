@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "pipeline_variant": "calendar_mode_no_strip",
-  "generated_at": "2026-05-06T02:15:28+00:00",
+  "generated_at": "2026-05-12T17:24:55+00:00",
   "survey_periods": [
     "2026-01",
     "2026-02",
@@ -110,6 +110,20 @@
     {
       "slug": "turkey",
       "name": "Turkey",
+      "last_vintage": "2026-04",
+      "T": 304,
+      "n_surveys": 4
+    },
+    {
+      "slug": "australia",
+      "name": "Australia",
+      "last_vintage": "2026-04",
+      "T": 304,
+      "n_surveys": 4
+    },
+    {
+      "slug": "new_zealand",
+      "name": "New Zealand",
       "last_vintage": "2026-04",
       "T": 304,
       "n_surveys": 4

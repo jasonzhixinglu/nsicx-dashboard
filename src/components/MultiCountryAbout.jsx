@@ -68,7 +68,7 @@ export default function MultiCountryAbout() {
           </p>
 
           <p>
-            <span className="font-medium">AU and NZ caveat.</span> Both publish CPI quarterly. The CPI index is linearly interpolated in levels between quarter-ends, and monthly YoY rates are constructed from the interpolated index.
+            <span className="font-medium">AU and NZ caveat.</span> New Zealand publishes CPI quarterly throughout the sample; for Australia, the source is quarterly prior to April 2024 and natively monthly thereafter. Where the source is quarterly, the CPI index is linearly interpolated in levels between quarter-ends, and monthly YoY rates are constructed from the interpolated index.
           </p>
         </div>
       </div>

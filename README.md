@@ -2,7 +2,7 @@
 
 **Live dashboard:** https://jasonzhixinglu.github.io/nsicx-dashboard/
 
-An interactive companion to the working paper *A Composite Term Structure of Japan's Inflation Expectations* (Lu & Teoh, IMF Working Paper). The dashboard hosts two views, switched via a link in the header:
+An interactive companion to the working paper *A Composite Term Structure of Japan's Inflation Expectations* (Lu & Teoh, forthcoming IMF Working Paper). The dashboard hosts two views, switched via a link in the header:
 
 - **Japan composite** (default landing) — the six-source composite from the paper.
 - **Multi-country** — the same Nelson–Siegel internally consistent expectations (NSICX) framework applied to 17 economies using a single source (Consensus Economics) for cross-country comparability. Within-CY Consensus forecasts are mapped directly into the NSICX measurement equation via the deterministic no-arbitrage transition F — we do not strip out realized YTD inflation. See `public/data/multicountry/methodology.pdf` for the derivation. Australia and New Zealand publish CPI quarterly; their realized-CPI line is interpolated to monthly steps for display.
@@ -26,7 +26,7 @@ The header toggle switches between dark and light mode; preference is persisted 
 | Tab | Contents |
 |---|---|
 | Country view | Chart A whisker + Chart B term structure for a single country (regional country dropdown, per-country target, KeyResults sidebar) |
-| Comparisons | **Forwards** (cross-country bar chart of forward-rate changes between two user-selected vintages with `to > from`, selectable window: 1y / 1y1y / 2y3y / 5y5y), **Anchoring** (trend level vs target: Apr LT t25 deviation from each country's central-bank target with optional Jan robustness; trend sensitivity to surprises: β from regressing the long end on a survey surprise, with optional raw-revisions robustness; continuous HSL color encoding), **Snapshots** (15-country grid of model term structure + Consensus survey overlays for a chosen vintage; toggle Avg-rates vs Forward-rates view) |
+| Comparisons | **Forwards** (cross-country bar chart of forward-rate changes between two user-selected vintages with `to > from`, selectable window: 1y / 1y1y / 2y3y / 5y5y), **Anchoring** (trend level vs target: Apr LT t25 deviation from each country's central-bank target with optional Jan robustness; trend sensitivity to surprises: β from regressing the long end on a survey surprise, with optional raw-revisions robustness; continuous HSL color encoding), **Snapshots** (17-country grid of model term structure + Consensus survey overlays for a chosen vintage; toggle Avg-rates vs Forward-rates view) |
 | About | Methodology, authors |
 
 URL state persisted: `?dashboard=multi&country=usa` etc.
@@ -70,7 +70,7 @@ public/data/multicountry/
     mle.json                      MLE summary
   cross_country/
     anchoring.json                anchoring regressions (main + raw_revisions),
-                                  re-estimated against calmod-min1 filtered states
+                                  estimated against the filtered NSICX states
 ```
 
 Country slugs match `output/dns_production/{slug}/` in the upstream pipeline. Schema details are in [`public/data/multicountry/README.md`](public/data/multicountry/README.md).

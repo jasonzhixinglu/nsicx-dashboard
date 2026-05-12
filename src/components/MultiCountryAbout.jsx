@@ -52,23 +52,23 @@ export default function MultiCountryAbout() {
 
         <div className="space-y-3 text-sm text-slate-900 dark:text-white leading-relaxed">
           <p>
-            This view uses the Nelson-Siegel internally consistent expectations (NSICX) model from the working paper, applied to Consensus Economics data across 17 economies using a single source. The Japan composite in the paper combines six survey sources; here, all 17 countries are estimated on Consensus alone for comparability across countries.
+            This view applies the NSICX model from the working paper to Consensus Economics data across 17 economies. The paper's Japan composite combines six survey sources; here all 17 countries use Consensus alone for cross-country comparability.
           </p>
 
           <p>
-            Consensus Economics reports calendar year inflation forecasts for the current and next calendar years every month, plus long-range forecasts at the start of each calendar quarter (available since approximately 2014).
+            Consensus reports calendar-year inflation forecasts (current and next year) monthly, plus long-range forecasts quarterly since ~2014.
           </p>
 
           <p>
-            <span className="font-medium">Direct measurement.</span> Within-calendar-year Consensus forecasts are mapped directly into the Nelson-Siegel measurement equation via the deterministic NSICX no-arbitrage transition F — we do not strip out realized year-to-date inflation. This avoids a numerical leverage explosion at year-end, removes the realized-CPI data dependency, and absorbs forecaster inattention into the measurement residual without amplification. The technical derivation is in <em>methodology.pdf</em>.
+            <span className="font-medium">Direct measurement.</span> Within-calendar-year forecasts map directly into the NS measurement equation via the deterministic NSICX transition F — no stripping of realized YTD inflation. This avoids the year-end leverage explosion, removes the realized-CPI data dependency, and absorbs forecaster inattention into the residual without amplification. Full derivation in <em>methodology.pdf</em>.
           </p>
 
           <p>
-            The model is estimated by maximum likelihood over the post-2001 sample, including the six measurement errors. Results are shown from 2002 onward so the Kalman state can initialize.
+            Estimated over the post-2001 sample; results shown from 2002 onward to let the Kalman state initialize.
           </p>
 
           <p>
-            <span className="font-medium">Realized CPI for Australia and New Zealand.</span> Their statistical agencies publish CPI quarterly rather than monthly, so the realized-CPI line shown for these two countries is linearly interpolated between quarter-end readings — a visual smoothing, not a measurement at monthly frequency. All other countries use directly published monthly CPI.
+            <span className="font-medium">AU and NZ caveat.</span> Both publish CPI quarterly. The CPI index is linearly interpolated in levels between quarter-ends, and monthly YoY rates are constructed from the interpolated index.
           </p>
         </div>
       </div>

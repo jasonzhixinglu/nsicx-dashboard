@@ -86,10 +86,18 @@ console.log(usa.lambda, usa.filtered.length);
   "generated_at":     "2026-05-...",
   "survey_periods":   ["2026-01", "2026-02", "2026-03", "2026-04"],
   "countries":        [{"slug": "usa", "name": "USA", "last_vintage": "2026-04",
-                       "T": 304, "n_surveys": 6}, ...],
+                       "T": 304, "n_surveys": 6,
+                       "realized_cpi_source": "haver_monthly_sa"}, ...],
   "methodology_pdf":  "methodology.pdf"
 }
 ```
+
+`realized_cpi_source` is either `"haver_monthly_sa"` (15 production
+countries: monthly Haver IFS CPI, X-12 SA) or `"interpolated_quarterly"`
+(Australia and New Zealand: linearly interpolated in levels between
+quarter-end anchors before SA; X-12 skipped because the interpolated
+series has no monthly seasonality by construction). The UI should
+surface a caveat for the interpolated countries.
 
 ### `countries/{slug}/states.json`
 
@@ -114,12 +122,21 @@ console.log(usa.lambda, usa.filtered.length);
 ### `countries/{slug}/cpi.json`
 
 ```json
-{"country": "USA", "yoy_pct": [{"d": "2001-01", "v": 5.7138}, ...]}
+{"country": "USA",
+ "realized_cpi_source": "haver_monthly_sa",
+ "yoy_pct": [{"d": "2001-01", "v": 5.7138}, ...]}
 ```
 
 `yoy_pct[*].v` is realized YoY CPI inflation in percent on the X-12-default
 SA CPI level, i.e. `(log(SA_CPI_t) - log(SA_CPI_{t-12})) * 100`. Coverage
 starts at 2001-01.
+
+`realized_cpi_source` indicates how the underlying monthly CPI level was
+constructed: `"haver_monthly_sa"` for the 15 production countries (Haver
+IFS monthly CPI, X-12 default SA) or `"interpolated_quarterly"` for
+Australia (ANZ monthly indicator, flat-quarterly pre-2024) and New Zealand
+(IFS quarterly throughout) — both linearly interpolated in levels between
+quarter-end anchors with X-12 skipped.
 
 ### `countries/{slug}/surveys.json`
 

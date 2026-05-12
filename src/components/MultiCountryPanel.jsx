@@ -14,6 +14,7 @@ const REGIONS = [
   { label: 'Americas',     slugs: ['usa', 'canada', 'mexico', 'brazil'] },
   { label: 'Europe',       slugs: ['uk', 'france', 'germany', 'italy'] },
   { label: 'Asia-Pacific', slugs: ['japan', 'china', 'south_korea', 'india', 'indonesia'] },
+  { label: 'Oceania',      slugs: ['australia', 'new_zealand'] },
   { label: 'Eastern Europe', slugs: ['russia', 'turkey'] },
 ]
 
@@ -31,6 +32,8 @@ const INFLATION_TARGETS = {
   china:       { value: 2,   bank: 'PBoC' },
   india:       { value: 4,   bank: 'RBI' },
   indonesia:   { value: 2.5, bank: 'BI' },
+  australia:   { value: 2.5, bank: 'RBA' },
+  new_zealand: { value: 2,   bank: 'RBNZ' },
   brazil:      { value: 3,   bank: 'BCB' },
   mexico:      { value: 3,   bank: 'Banxico' },
   russia:      { value: 4,   bank: 'CBR' },
@@ -401,8 +404,15 @@ export default function MultiCountryPanel() {
         ) : (
           <>
             <div className="panel p-3 flex flex-col gap-1 overflow-hidden md:flex-3 md:min-h-[180px]">
-              <div className="flex items-baseline justify-between">
-                <span className="label">Chart A: Realized CPI YoY vs Consensus-implied NSICX forwards</span>
+              <div className="flex items-baseline justify-between gap-2 flex-wrap">
+                <span className="label">
+                  Chart A: Realized CPI YoY vs Consensus-implied NSICX forwards
+                  {countryData?.cpi?.realized_cpi_source === 'interpolated_quarterly' && (
+                    <span className="ml-1 text-xs italic font-normal text-slate-400 dark:text-slate-500" title="Source publishes CPI quarterly; monthly path is interpolated. See About → Methodology.">
+                      (quarterly CPI, monthly steps interpolated)
+                    </span>
+                  )}
+                </span>
                 <span className="text-xs text-slate-400 dark:text-slate-600">Click or drag to select snapshot</span>
               </div>
               <div className="flex-1 min-h-0">

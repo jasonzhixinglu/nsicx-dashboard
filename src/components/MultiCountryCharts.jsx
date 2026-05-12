@@ -14,13 +14,14 @@ const MC_BASE = `${import.meta.env.BASE_URL}data/multicountry/`
 const REGIONS_FLAT = [
   'usa', 'canada', 'mexico', 'brazil',
   'uk', 'france', 'germany', 'italy',
-  'japan', 'china', 'south_korea', 'india', 'indonesia',
+  'japan', 'china', 'south_korea', 'india', 'indonesia', 'australia', 'new_zealand',
   'russia', 'turkey',
 ]
 
 const INFLATION_TARGETS = {
   usa: 2, canada: 2, uk: 2, france: 2, germany: 2, italy: 2, japan: 2,
   south_korea: 2, china: 2, india: 4, indonesia: 2.5,
+  australia: 2.5, new_zealand: 2,
   brazil: 3, mexico: 3, russia: 4, turkey: 5,
 }
 
@@ -323,7 +324,7 @@ function SnapshotsView({ manifest }) {
         </p>
 
         {loading || !allData ? (
-          <div className="flex items-center justify-center h-64 text-xs text-slate-500">Loading 15 countries…</div>
+          <div className="flex items-center justify-center h-64 text-xs text-slate-500">Loading 17 countries…</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {allData.map(c => (
@@ -612,7 +613,7 @@ function ForwardRatesView({ manifest }) {
           </p>
         </div>
         {loading || !allStates ? (
-          <div className="flex items-center justify-center h-64 text-xs text-slate-500">Loading 15 countries…</div>
+          <div className="flex items-center justify-center h-64 text-xs text-slate-500">Loading 17 countries…</div>
         ) : (
           <ResponsiveContainer width="100%" height={Math.max(360, chartData.length * 24)}>
             <BarChart

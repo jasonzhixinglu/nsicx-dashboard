@@ -52,7 +52,7 @@ export default function MultiCountryAbout() {
 
         <div className="space-y-3 text-sm text-slate-900 dark:text-white leading-relaxed">
           <p>
-            This view uses the Nelson-Siegel internally consistent expectations (NSICX) model from the working paper, applied to Consensus Economics data across 15 G20 economies using a single source. The Japan composite in the paper combines six survey sources; here, all 15 countries are estimated on Consensus alone for comparability across countries.
+            This view uses the Nelson-Siegel internally consistent expectations (NSICX) model from the working paper, applied to Consensus Economics data across 17 economies using a single source. The Japan composite in the paper combines six survey sources; here, all 17 countries are estimated on Consensus alone for comparability across countries.
           </p>
 
           <p>
@@ -65,6 +65,10 @@ export default function MultiCountryAbout() {
 
           <p>
             The model is estimated by maximum likelihood over the post-2001 sample, including the six measurement errors. Results are shown from 2002 onward so the Kalman state can initialize.
+          </p>
+
+          <p>
+            <span className="font-medium">Realized CPI for Australia and New Zealand.</span> Their statistical agencies publish CPI quarterly rather than monthly, so the realized-CPI line shown for these two countries is linearly interpolated between quarter-end readings — a visual smoothing, not a measurement at monthly frequency. All other countries use directly published monthly CPI.
           </p>
         </div>
       </div>

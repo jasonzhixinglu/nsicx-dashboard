@@ -5,7 +5,7 @@
 An interactive companion to the working paper *A Composite Term Structure of Japan's Inflation Expectations* (Lu & Teoh, IMF Working Paper). The dashboard hosts two views, switched via a link in the header:
 
 - **Japan composite** (default landing) — the six-source composite from the paper.
-- **Multi-country** — the same Nelson–Siegel internally consistent expectations (NSICX) framework applied to 15 G20 economies using a single source (Consensus Economics) for cross-country comparability. Within-CY Consensus forecasts are mapped directly into the NSICX measurement equation via the deterministic no-arbitrage transition F — we do not strip out realized YTD inflation. See `public/data/multicountry/methodology.pdf` for the derivation.
+- **Multi-country** — the same Nelson–Siegel internally consistent expectations (NSICX) framework applied to 17 economies using a single source (Consensus Economics) for cross-country comparability. Within-CY Consensus forecasts are mapped directly into the NSICX measurement equation via the deterministic no-arbitrage transition F — we do not strip out realized YTD inflation. See `public/data/multicountry/methodology.pdf` for the derivation. Australia and New Zealand publish CPI quarterly; their realized-CPI line is interpolated to monthly steps for display.
 
 The header toggle switches between dark and light mode; preference is persisted in `localStorage`. Active dashboard, active tab, and selector state (vintage, view mode, etc.) are persisted within a session via `sessionStorage`.
 
@@ -75,7 +75,7 @@ public/data/multicountry/
 
 Country slugs match `output/dns_production/{slug}/` in the upstream pipeline. Schema details are in [`public/data/multicountry/README.md`](public/data/multicountry/README.md).
 
-The Country view sidebar has a one-click Excel export (`multicountry_nsicx.xlsx`) that bundles all 15 countries into a single workbook — one sheet per country plus a metadata sheet — with date, CPI YoY, NSICX factors (L, S, C), and avg / forward term structure (3M, 1Y, 2Y, 5Y, 10Y) for each.
+The Country view sidebar has a one-click Excel export (`multicountry_nsicx.xlsx`) that bundles all 17 countries into a single workbook — one sheet per country plus a metadata sheet — with date, CPI YoY, NSICX factors (L, S, C), and avg / forward term structure (3M, 1Y, 2Y, 5Y, 10Y) for each.
 
 ## CSV / Excel exports
 
@@ -86,7 +86,7 @@ The dashboard offers downloadable extracts:
 - **Multi-country — Country view**: full multi-country workbook `multicountry_nsicx.xlsx` (one sheet per country, plus a metadata sheet) — uses SheetJS, lazy-loaded on click.
 - **Multi-country — Comparisons**:
   - `snapshots.csv` — model curve values + Consensus survey points across countries and vintages, with horizons aligned for each vintage's elapsed months.
-  - `forward_rate_changes.csv` — long-format file: 15 countries × 6 (from, to) vintage pairs × 4 forward windows = 360 rows, with `from_value` / `to_value` levels alongside the precomputed `change`.
+  - `forward_rate_changes.csv` — long-format file: 17 countries × 6 (from, to) vintage pairs × 4 forward windows = 408 rows, with `from_value` / `to_value` levels alongside the precomputed `change`.
   - `anchoring.csv` — per-country level + sensitivity stats.
 
 ## Local development

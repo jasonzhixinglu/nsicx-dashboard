@@ -408,8 +408,13 @@ export default function MultiCountryPanel() {
                 <span className="label">
                   Chart A: Realized CPI YoY vs Consensus-implied NSICX forwards
                   {countryData?.cpi?.realized_cpi_source === 'interpolated_quarterly' && (
-                    <span className="ml-1 text-xs italic font-normal text-slate-400 dark:text-slate-500" title="Source publishes CPI quarterly; monthly path is interpolated. See About → Methodology.">
-                      (quarterly CPI, monthly steps interpolated)
+                    <span className="ml-1 text-xs italic font-normal text-slate-400 dark:text-slate-500"
+                          title={selectedCountry === 'australia'
+                            ? 'Australia: CPI source is quarterly prior to April 2024 and natively monthly thereafter. Pre-2024 monthly path is interpolated. See About → Methodology.'
+                            : 'Source publishes CPI quarterly; monthly path is interpolated. See About → Methodology.'}>
+                      {selectedCountry === 'australia'
+                        ? '(CPI interpolated pre-April 2024; natively monthly thereafter)'
+                        : '(quarterly CPI, monthly steps interpolated)'}
                     </span>
                   )}
                 </span>

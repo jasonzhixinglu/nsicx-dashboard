@@ -1,92 +1,93 @@
 {
   "schema_version": 1,
   "pipeline_variant": "calendar_mode_no_strip",
-  "generated_at": "2026-05-12T17:55:46+00:00",
+  "generated_at": "2026-05-14T21:38:13+00:00",
   "survey_periods": [
     "2026-01",
     "2026-02",
     "2026-03",
-    "2026-04"
+    "2026-04",
+    "2026-05"
   ],
   "countries": [
     {
       "slug": "japan",
       "name": "Japan",
-      "last_vintage": "2026-04",
-      "T": 304,
-      "n_surveys": 4,
+      "last_vintage": "2026-05",
+      "T": 305,
+      "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa"
     },
     {
       "slug": "canada",
       "name": "Canada",
-      "last_vintage": "2026-04",
-      "T": 304,
-      "n_surveys": 4,
+      "last_vintage": "2026-05",
+      "T": 305,
+      "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa"
     },
     {
       "slug": "france",
       "name": "France",
-      "last_vintage": "2026-04",
-      "T": 304,
-      "n_surveys": 4,
+      "last_vintage": "2026-05",
+      "T": 305,
+      "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa"
     },
     {
       "slug": "germany",
       "name": "Germany",
-      "last_vintage": "2026-04",
-      "T": 304,
-      "n_surveys": 4,
+      "last_vintage": "2026-05",
+      "T": 305,
+      "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa"
     },
     {
       "slug": "italy",
       "name": "Italy",
-      "last_vintage": "2026-04",
-      "T": 304,
-      "n_surveys": 4,
+      "last_vintage": "2026-05",
+      "T": 305,
+      "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa"
     },
     {
       "slug": "uk",
       "name": "UK",
-      "last_vintage": "2026-04",
-      "T": 304,
-      "n_surveys": 4,
+      "last_vintage": "2026-05",
+      "T": 305,
+      "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa"
     },
     {
       "slug": "usa",
       "name": "USA",
-      "last_vintage": "2026-04",
-      "T": 304,
-      "n_surveys": 6,
+      "last_vintage": "2026-05",
+      "T": 305,
+      "n_surveys": 7,
       "realized_cpi_source": "haver_monthly_sa"
     },
     {
       "slug": "south_korea",
       "name": "South Korea",
-      "last_vintage": "2026-04",
-      "T": 304,
-      "n_surveys": 4,
+      "last_vintage": "2026-05",
+      "T": 305,
+      "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa"
     },
     {
       "slug": "china",
       "name": "China",
-      "last_vintage": "2026-04",
-      "T": 304,
-      "n_surveys": 4,
+      "last_vintage": "2026-05",
+      "T": 305,
+      "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa"
     },
     {
       "slug": "india",
       "name": "India",
-      "last_vintage": "2026-04",
-      "T": 304,
-      "n_surveys": 4,
+      "last_vintage": "2026-05",
+      "T": 305,
+      "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa"
     },
     {
@@ -108,9 +109,9 @@
     {
       "slug": "indonesia",
       "name": "Indonesia",
-      "last_vintage": "2026-04",
-      "T": 304,
-      "n_surveys": 4,
+      "last_vintage": "2026-05",
+      "T": 305,
+      "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa"
     },
     {
@@ -132,17 +133,17 @@
     {
       "slug": "australia",
       "name": "Australia",
-      "last_vintage": "2026-04",
-      "T": 304,
-      "n_surveys": 4,
+      "last_vintage": "2026-05",
+      "T": 305,
+      "n_surveys": 5,
       "realized_cpi_source": "interpolated_quarterly"
     },
     {
       "slug": "new_zealand",
       "name": "New Zealand",
-      "last_vintage": "2026-04",
-      "T": 304,
-      "n_surveys": 4,
+      "last_vintage": "2026-05",
+      "T": 305,
+      "n_surveys": 5,
       "realized_cpi_source": "interpolated_quarterly"
     }
   ],

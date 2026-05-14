@@ -32,8 +32,8 @@ const FORWARD_WINDOWS = [
   { key: '5y5y', label: '5y5y', a: 60, b: 120 },
 ]
 
-const SURVEY_PERIODS = ['2026-01', '2026-02', '2026-03', '2026-04']
-const TO_VINTAGE = '2026-04'
+const SURVEY_PERIODS = ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05']
+const TO_VINTAGE = '2026-05'
 
 const SUB_TABS = [
   { id: 'forwards',  label: 'Forwards' },
@@ -256,6 +256,17 @@ function SnapshotsView({ manifest }) {
     })
   }, [manifest])
 
+  const visibleData = useMemo(() => {
+    if (!allData) return null
+    return allData.filter(c => c.states.filtered.some(p => p.d === vintage))
+  }, [allData, vintage])
+
+  const missingNames = useMemo(() => {
+    if (!allData || !visibleData) return []
+    const visibleSlugs = new Set(visibleData.map(c => c.slug))
+    return allData.filter(c => !visibleSlugs.has(c.slug)).map(c => c.name)
+  }, [allData, visibleData])
+
   return (
     <div className="space-y-4">
 
@@ -323,21 +334,28 @@ function SnapshotsView({ manifest }) {
             : 'Solid line: model\'s avg-annualized rate from the vintage to horizon h. Red crosses: cumulative average of Consensus forecasts at each end-of-CY horizon, shifted left by months already realized (so April t1 lands at h=9, t2 at h=21, …); see the footnote.'}
         </p>
 
-        {loading || !allData ? (
+        {loading || !visibleData ? (
           <div className="flex items-center justify-center h-64 text-xs text-slate-500">Loading 17 countries…</div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {allData.map(c => (
-              <CountrySnapshotPanel
-                key={c.slug}
-                country={c}
-                vintage={vintage}
-                target={INFLATION_TARGETS[c.slug] ?? 2}
-                isDark={isDark}
-                mode={mode}
-              />
-            ))}
-          </div>
+          <>
+            {missingNames.length > 0 && (
+              <p className="text-xs text-slate-500 dark:text-slate-500 mb-2">
+                Showing {visibleData.length} of {allData.length} countries with {vintageLabel(vintage)} data; not yet available: {missingNames.join(', ')}.
+              </p>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {visibleData.map(c => (
+                <CountrySnapshotPanel
+                  key={c.slug}
+                  country={c}
+                  vintage={vintage}
+                  target={INFLATION_TARGETS[c.slug] ?? 2}
+                  isDark={isDark}
+                  mode={mode}
+                />
+              ))}
+            </div>
+          </>
         )}
 
         <p className="text-xs text-slate-500 dark:text-slate-600 italic leading-relaxed mt-3">
@@ -528,6 +546,12 @@ function ForwardRatesView({ manifest }) {
     }).filter(Boolean).sort((a, b) => a.change - b.change)
   }, [allStates, safeFrom, safeTo, windowKey])
 
+  const missingNames = useMemo(() => {
+    if (!allStates) return []
+    const shown = new Set(chartData.map(d => d.slug))
+    return allStates.filter(c => !shown.has(c.slug)).map(c => c.name)
+  }, [allStates, chartData])
+
   const fromOptions = SURVEY_PERIODS.slice(0, -1) // Jan, Feb, Mar
   const toOptions   = SURVEY_PERIODS.slice(1)     // Feb, Mar, Apr
   const monthAbbr = (v) => MONTH_NAMES[Number(v.split('-')[1]) - 1]
@@ -609,7 +633,10 @@ function ForwardRatesView({ manifest }) {
         <div>
           <div className="label">Change in {windowKey} forward rate, {monthAbbr(safeFrom)} → {monthAbbr(safeTo)} 2026</div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Difference in avg-annualized rate over the {windowKey} window between two vintages. Color encodes the change: green near zero, red for upward revisions, blue for downward (±1pp clamp). Sorted ascending.
+            Difference in avg-annualized rate over the {windowKey} window between two vintages. Color encodes the change: green near zero, red for upward revisions, blue for downward (±0.2pp clamp). Sorted ascending.
+            {missingNames.length > 0 && allStates && (
+              <> Showing {chartData.length} of {allStates.length} countries; not yet available for both vintages: {missingNames.join(', ')}.</>
+            )}
           </p>
         </div>
         {loading || !allStates ? (

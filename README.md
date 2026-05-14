@@ -86,7 +86,7 @@ The dashboard offers downloadable extracts:
 - **Multi-country — Country view**: full multi-country workbook `multicountry_nsicx.xlsx` (one sheet per country, plus a metadata sheet) — uses SheetJS, lazy-loaded on click.
 - **Multi-country — Comparisons**:
   - `snapshots.csv` — model curve values + Consensus survey points across countries and vintages, with horizons aligned for each vintage's elapsed months.
-  - `forward_rate_changes.csv` — long-format file: 17 countries × 6 (from, to) vintage pairs × 4 forward windows = 408 rows, with `from_value` / `to_value` levels alongside the precomputed `change`.
+  - `forward_rate_changes.csv` — long-format file with `from_value` / `to_value` levels alongside the precomputed `change`. Each row is one (country, from_vintage, to_vintage, window) combination; rows are emitted where both endpoints exist in that country's filtered states.
   - `anchoring.csv` — per-country level + sensitivity stats.
 
 ## Local development

@@ -375,7 +375,7 @@ function LevelsView({ manifest }) {
   )
 }
 
-// ── Forward rates: cross-country bar chart of vintage-to-Apr changes ──────────
+// ── Forward rates: cross-country bar chart of vintage-to-vintage changes ─────
 
 function downloadChangesCSV(allStates) {
   const rows = [['country', 'slug', 'from_vintage', 'to_vintage', 'window', 'from_value', 'to_value', 'change'].join(',')]

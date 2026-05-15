@@ -173,15 +173,27 @@ function downloadLevelsCSV(allStates) {
   triggerCSV(rows.join('\n'), 'levels.csv')
 }
 
-function LevelPanel({ year, allStates, isDark, theme }) {
-  const [vintage, setVintage] = useSessionState(`nsicx-levels-vintage-${year}`, TO_VINTAGE)
+// Per-country (from, to) row of the model-implied CPI-growth change.
+function buildChangeRow(country, fromVintage, toVintage, year) {
+  const from = buildLevelRow(country, fromVintage, year)
+  const to   = buildLevelRow(country, toVintage,   year)
+  if (!from || !to) return null
+  return {
+    slug: country.slug,
+    name: country.name,
+    fromVal: from.value,
+    toVal:   to.value,
+    change:  +(to.value - from.value).toFixed(3),
+  }
+}
 
+function LevelChangePanel({ year, allStates, fromVintage, toVintage, isDark, theme }) {
   const rows = useMemo(() => {
     if (!allStates) return []
     return allStates
-      .map(c => buildLevelRow(c, vintage, year))
+      .map(c => buildChangeRow(c, fromVintage, toVintage, year))
       .filter(Boolean)
-  }, [allStates, vintage, year])
+  }, [allStates, fromVintage, toVintage, year])
 
   const missingNames = useMemo(() => {
     if (!allStates) return []
@@ -194,35 +206,13 @@ function LevelPanel({ year, allStates, isDark, theme }) {
 
   return (
     <div className="panel p-4 flex flex-col gap-2">
-      <div className="flex items-baseline justify-between gap-2 flex-wrap">
-        <div className="label">CPI growth, end-{BASE_YEAR} → end-{year}{isCumulative ? ' (cumulative)' : ''}</div>
-        <div className="flex items-center gap-1.5">
-          <span className="text-[10px] uppercase tracking-wider text-slate-500">Vintage</span>
-          <div className="flex items-center">
-            {SURVEY_PERIODS.map((v, i) => (
-              <button
-                key={v}
-                onClick={() => setVintage(v)}
-                className={`text-[10px] px-2 py-0.5 transition-colors ${
-                  i === 0 ? 'rounded-l' : ''
-                } ${
-                  i === SURVEY_PERIODS.length - 1 ? 'rounded-r' : 'border-r border-slate-200 dark:border-slate-700'
-                } ${
-                  vintage === v
-                    ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
-                }`}
-              >
-                {monthAbbr(v)}
-              </button>
-            ))}
-          </div>
-        </div>
+      <div className="label">
+        Change in {isCumulative ? `${year - BASE_YEAR}-year cumulative` : '1-year'} CPI growth (end-{BASE_YEAR} → end-{year}), {monthAbbr(fromVintage)} → {monthAbbr(toVintage)}
       </div>
       <p className="text-xs text-slate-500 mt-0.5">
-        Model-implied {isCumulative ? `${year - BASE_YEAR}-year cumulative` : '1-year'} CPI growth at the {vintageLabel(vintage)} vintage. Color encodes per-year deviation from each country's target (green at target, red above, blue below; ±1pp clamp). Countries ordered to match the Country view.
+        Color encodes the change: green near zero, red for upward revisions, blue for downward (±1pp clamp). Countries ordered to match the Country view.
         {missingNames.length > 0 && allStates && (
-          <> Not yet available at {vintageLabel(vintage)}: {missingNames.join(', ')}.</>
+          <> Not yet available for both vintages: {missingNames.join(', ')}.</>
         )}
       </p>
       {!allStates ? (
@@ -236,7 +226,7 @@ function LevelPanel({ year, allStates, isDark, theme }) {
               tick={{ fontSize: theme.ui.tickFontSize, fill: theme.ui.tickLabel }}
               axisLine={{ stroke: theme.ui.axis }}
               tickLine={false}
-              tickFormatter={v => `${v.toFixed(1)}%`}
+              tickFormatter={v => `${v >= 0 ? '+' : ''}${v.toFixed(2)}`}
             />
             <YAxis
               type="category"
@@ -250,18 +240,15 @@ function LevelPanel({ year, allStates, isDark, theme }) {
               contentStyle={getTooltipStyle(isDark)}
               formatter={(v, _, ctx) => {
                 const d = ctx?.payload
-                if (!d) return [`${v.toFixed(2)}%`, 'CPI growth']
-                return [
-                  `${v.toFixed(2)}%  (target ${d.cumTarget.toFixed(2)}%, dev/yr ${d.perYearDev >= 0 ? '+' : ''}${d.perYearDev.toFixed(2)}pp)`,
-                  'CPI growth',
-                ]
+                if (!d) return [`${v.toFixed(2)}pp`, 'Δ']
+                return [`${v >= 0 ? '+' : ''}${v.toFixed(2)}pp  (${d.fromVal.toFixed(2)}% → ${d.toVal.toFixed(2)}%)`, 'Change']
               }}
               labelFormatter={n => n}
             />
             <ReferenceLine x={0} stroke={theme.ui.axis} strokeWidth={1} />
-            <Bar dataKey="value" isAnimationActive={false}>
+            <Bar dataKey="change" isAnimationActive={false}>
               {rows.map(d => (
-                <Cell key={d.slug} fill={levelDeviationColor(d.perYearDev, isDark, 1)} />
+                <Cell key={d.slug} fill={levelDeviationColor(d.change, isDark, 1)} />
               ))}
             </Bar>
           </BarChart>
@@ -273,6 +260,8 @@ function LevelPanel({ year, allStates, isDark, theme }) {
 
 function LevelsView({ manifest }) {
   const [allStates, setAllStates] = useState(null)
+  const [fromVintage, setFromVintage] = useSessionState('nsicx-levels-from', '2026-01')
+  const [toVintage,   setToVintage]   = useSessionState('nsicx-levels-to',   TO_VINTAGE)
   const { isDark } = useDarkMode()
   const theme = getTheme(isDark)
 
@@ -287,19 +276,105 @@ function LevelsView({ manifest }) {
     })
   }, [manifest])
 
+  // Maintain to > from invariant (same logic as the Forwards view).
+  const safeFrom = SURVEY_PERIODS.indexOf(fromVintage) >= 0 ? fromVintage : SURVEY_PERIODS[0]
+  const safeTo   = (SURVEY_PERIODS.indexOf(toVintage) > SURVEY_PERIODS.indexOf(safeFrom))
+    ? toVintage
+    : SURVEY_PERIODS[SURVEY_PERIODS.indexOf(safeFrom) + 1] ?? SURVEY_PERIODS[SURVEY_PERIODS.length - 1]
+
+  const handleFromChange = (v) => {
+    setFromVintage(v)
+    const fIdx = SURVEY_PERIODS.indexOf(v)
+    const tIdx = SURVEY_PERIODS.indexOf(toVintage)
+    if (tIdx <= fIdx) setToVintage(SURVEY_PERIODS[fIdx + 1] ?? SURVEY_PERIODS[SURVEY_PERIODS.length - 1])
+  }
+  const handleToChange = (v) => {
+    setToVintage(v)
+    const tIdx = SURVEY_PERIODS.indexOf(v)
+    const fIdx = SURVEY_PERIODS.indexOf(fromVintage)
+    if (fIdx >= tIdx) setFromVintage(SURVEY_PERIODS[tIdx - 1] ?? SURVEY_PERIODS[0])
+  }
+
+  const fromOptions = SURVEY_PERIODS.slice(0, -1)
+  const toOptions   = SURVEY_PERIODS.slice(1)
+  const monthAbbr = (v) => MONTH_NAMES[Number(v.split('-')[1]) - 1]
+  const fromIdx = SURVEY_PERIODS.indexOf(safeFrom)
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-end">
-        <DownloadButton
-          onClick={() => allStates && downloadLevelsCSV(allStates)}
-          disabled={!allStates}
-          label="levels.csv"
-        />
+
+      <div className="flex items-center gap-3 flex-wrap">
+        <span className="label">From</span>
+        <div className="flex items-center">
+          {fromOptions.map((v, i) => (
+            <button
+              key={v}
+              onClick={() => handleFromChange(v)}
+              className={`text-xs px-3 py-1 transition-colors ${
+                i === 0 ? 'rounded-l' : ''
+              } ${
+                i === fromOptions.length - 1 ? 'rounded-r' : 'border-r border-slate-200 dark:border-slate-700'
+              } ${
+                safeFrom === v
+                  ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
+              }`}
+            >
+              {monthAbbr(v)}
+            </button>
+          ))}
+        </div>
+
+        <span className="label ml-4">To</span>
+        <div className="flex items-center">
+          {toOptions.map((v, i) => {
+            const disabled = SURVEY_PERIODS.indexOf(v) <= fromIdx
+            return (
+              <button
+                key={v}
+                onClick={() => !disabled && handleToChange(v)}
+                disabled={disabled}
+                className={`text-xs px-3 py-1 transition-colors ${
+                  i === 0 ? 'rounded-l' : ''
+                } ${
+                  i === toOptions.length - 1 ? 'rounded-r' : 'border-r border-slate-200 dark:border-slate-700'
+                } ${
+                  disabled
+                    ? 'bg-slate-50 text-slate-300 dark:bg-slate-900 dark:text-slate-700 cursor-not-allowed'
+                    : safeTo === v
+                      ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
+                }`}
+              >
+                {monthAbbr(v)}
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="ml-auto">
+          <DownloadButton
+            onClick={() => allStates && downloadLevelsCSV(allStates)}
+            disabled={!allStates}
+            label="levels.csv"
+          />
+        </div>
       </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <LevelPanel year={2026} allStates={allStates} isDark={isDark} theme={theme} />
-        <LevelPanel year={2027} allStates={allStates} isDark={isDark} theme={theme} />
+        <LevelChangePanel year={2026} fromVintage={safeFrom} toVintage={safeTo} allStates={allStates} isDark={isDark} theme={theme} />
+        <LevelChangePanel year={2027} fromVintage={safeFrom} toVintage={safeTo} allStates={allStates} isDark={isDark} theme={theme} />
       </div>
+
+      <p className="text-xs text-slate-500 dark:text-slate-600 italic leading-relaxed">
+        Note: Model CY forecast at month M of year Y for target CY Y+k−1:
+        {' '}π̂<sub>Y+k−1</sub><sup>(t)</sup> = x(12;λ)ᵀ · F(λ)<sup>12(k−1)−(M−1)</sup> · β<sub>t</sub>,
+        {' '}where x(12;λ) is the 12-month forward-average NS loading and F(λ) is the NSICX transition matrix
+        {' '}(closed form: F<sup>p</sup> has diagonal (1, e<sup>−pλ</sup>, e<sup>−pλ</sup>) and (1,2)-entry pλe<sup>−pλ</sup>).
+        {' '}The 2027 panel compounds the CY1 and CY2 forecasts:
+        {' '}π̂<sub>2027,cum</sub> = (1 + π̂<sub>2026</sub>)(1 + π̂<sub>2027</sub>) − 1.
+      </p>
+
     </div>
   )
 }

@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo } from 'react'
 import {
-  ComposedChart, Line, Scatter, BarChart, Bar, Cell,
+  BarChart, Bar, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Legend,
 } from 'recharts'
 import { getTheme, getTooltipStyle } from '../lib/chartTheme.js'
 import { useDarkMode } from '../lib/useDarkMode.jsx'
-import { avgAnnualized, avgWindow, fwdInstant } from '../lib/nsCurve.js'
+import { avgWindow } from '../lib/nsCurve.js'
 import { MONTH_NAMES } from '../lib/dateFormat.js'
 import { useSessionState } from '../lib/sessionState.js'
 
@@ -37,8 +37,8 @@ const TO_VINTAGE = '2026-05'
 
 const SUB_TABS = [
   { id: 'forwards',  label: 'Forwards' },
+  { id: 'levels',    label: 'Levels' },
   { id: 'anchoring', label: 'Anchoring' },
-  { id: 'snapshots', label: 'Snapshots' },
 ]
 
 function vintageLabel(v) {
@@ -94,191 +94,98 @@ function sensitivityColor(beta, isDark, scale = 0.15) {
   return `hsl(${hue.toFixed(1)}, 72%, ${isDark ? 62 : 42}%)`
 }
 
-// X-shape scatter marker (Recharts built-in 'cross' is the + sign).
-function XMark({ cx, cy, fill }) {
-  const s = 4
-  return (
-    <path
-      d={`M ${cx - s} ${cy - s} L ${cx + s} ${cy + s} M ${cx - s} ${cy + s} L ${cx + s} ${cy - s}`}
-      stroke={fill}
-      strokeWidth={1.5}
-      fill="none"
-    />
-  )
-}
-
 // Order countries for display: by region grouping
 function orderCountries(countries) {
   return REGIONS_FLAT.map(slug => countries.find(c => c.slug === slug)).filter(Boolean)
 }
 
-// ── Snapshots: per-country panel for a chosen vintage ─────────────────────────
+// ── Levels: model-implied CPI growth from end-2025 to end-2026/2027 ───────────
 
-function buildSnapshotForCountry(country, vintage, mode) {
-  const lam = country.states.lambda
-  const stateRow = country.states.filtered.find(p => p.d === vintage)
-  if (!stateRow) return null
-  const { L, S, C } = stateRow
+const BASE_YEAR = 2025
 
-  // Pick the survey row: prefer LT (more horizons), fall back to ST.
-  const rows = country.surveys.rows.filter(r => r.survey_period === vintage)
-  const src = rows.find(r => r.source === 'LT') || rows.find(r => r.source === 'ST')
+// For a vintage in [BASE_YEAR+1, ...], compute the model-implied compound
+// CPI growth from end-of-BASE_YEAR to end-of-targetYear. The CY-n window
+// [hEnd - n·12, hEnd - (n-1)·12] may dip into h<0 territory for vintages
+// inside CY1 — avgWindow clamps a≤0 to avgAnnualized(0,b), so the CY-1 leg
+// represents the model's avg-annualized forecast from the vintage to year-end
+// (i.e., the same construction as the NSICX measurement equation for CY1).
+function buildLevelRow(country, vintage, year) {
+  const state = country.filtered.find(p => p.d === vintage)
+  if (!state) return null
+  const lam = country.lambda
+  const [vy, vm] = vintage.split('-').map(Number)
+  const hEnd = (year - vy) * 12 + (12 - vm)
+  const target = INFLATION_TARGETS[country.slug] ?? 2
+  const nYears = year - BASE_YEAR
+  let cum = 1
+  for (let n = 1; n <= nYears; n++) {
+    const hA = hEnd - n * 12
+    const hB = hEnd - (n - 1) * 12
+    const rate = avgWindow(state.L, state.S, state.C, lam, hA, hB) / 100
+    cum *= (1 + rate)
+  }
+  const value = (cum - 1) * 100
+  const cumTarget = (Math.pow(1 + target / 100, nYears) - 1) * 100
+  const perYearDev = (value - cumTarget) / nYears
+  return {
+    slug: country.slug,
+    name: country.name,
+    target: +target.toFixed(2),
+    value: +value.toFixed(3),
+    cumTarget: +cumTarget.toFixed(3),
+    perYearDev: +perYearDev.toFixed(3),
+  }
+}
 
-  // Months of the current calendar year already realized at the vintage date.
-  // E.g. April vintage = vintage_month 4, so 3 months are behind us and only
-  // 9 months of CY1 are forward; subsequent CYs are full 12-month windows.
-  const monthsElapsed = Number(vintage.split('-')[1]) - 1
-
-  const curve = []
-  const scatter = []
-
-  if (mode === 'fwd') {
-    // Instantaneous forward rate f(h) = L + e^(-λh)·S + λh·e^(-λh)·C.
-    // Smooth for all h ≥ 0 — no formula switches. Survey crosses are an
-    // approximate overlay (12-month CY averages plotted near their midpoint
-    // horizons); the footnote covers the imperfect comparison for n=1.
-    for (let h = 0; h <= 132; h++) {
-      curve.push({ h, val: +fwdInstant(L, S, C, lam, h).toFixed(4) })
-    }
-    // Survey: tn is a calendar-year average, so plot it at the midpoint of
-    // CY_n in horizon space. CY_n spans [(n-1)·12 - elapsed, n·12 - elapsed],
-    // with midpoint (n-0.5)·12 - elapsed. For April t1 → h=3 (CY1 spans
-    // [-3, 9], including the 3 months already realized).
-    if (src) {
-      for (let n = 1; n <= 11; n++) {
-        const v = src[`t${n}`]
-        if (v == null) break
-        const hMid = (n - 0.5) * 12 - monthsElapsed
-        scatter.push({ h: hMid, v: +v.toFixed(4) })
-      }
-    }
-  } else {
-    // Avg-annualized rate from now to horizon h.
-    for (let h = 1; h <= 132; h++) {
-      curve.push({ h, val: +avgAnnualized(L, S, C, lam, h).toFixed(4) })
-    }
-    // Survey: cumulative avg of t1..tn at the end-of-CY_n horizon, shifted by
-    // monthsElapsed (so April t1 lands at h=9, t2 at h=21, etc.).
-    if (src) {
-      let sum = 0
-      for (let n = 1; n <= 11; n++) {
-        const v = src[`t${n}`]
-        if (v == null) break
-        sum += v
-        const hEoy = n * 12 - monthsElapsed
-        scatter.push({ h: hEoy, v: +(sum / n).toFixed(4) })
+function downloadLevelsCSV(allStates) {
+  const header = ['country', 'slug', 'vintage', 'target_year', 'cpi_growth_pct', 'cum_target_pct', 'per_year_deviation_pct']
+  const rows = [header.join(',')]
+  for (const c of allStates) {
+    for (const v of SURVEY_PERIODS) {
+      for (const year of [2026, 2027]) {
+        const row = buildLevelRow(c, v, year)
+        if (!row) continue
+        rows.push([
+          row.name, row.slug, v, year,
+          row.value.toFixed(3), row.cumTarget.toFixed(3), row.perYearDev.toFixed(3),
+        ].join(','))
       }
     }
   }
-
-  return { curve, scatter }
+  triggerCSV(rows.join('\n'), 'levels.csv')
 }
 
-function CountrySnapshotPanel({ country, vintage, target, isDark, mode }) {
-  const theme = getTheme(isDark)
-  const snapshot = useMemo(() => buildSnapshotForCountry(country, vintage, mode), [country, vintage, mode])
+function LevelPanel({ year, allStates, isDark, theme }) {
+  const [vintage, setVintage] = useSessionState(`nsicx-levels-vintage-${year}`, TO_VINTAGE)
 
-  if (!snapshot) return (
-    <div className="panel p-2 flex items-center justify-center h-32 text-xs text-slate-500">
-      {country.name}: no data
-    </div>
-  )
-
-  const labelMap = mode === 'fwd'
-    ? { val: 'Model fwd (inst.)', v: 'Survey (CY avg)' }
-    : { val: 'Model avg', v: 'Survey (cum. avg)' }
-
-  return (
-    <div className="panel p-2 flex flex-col gap-1">
-      <div className="flex items-baseline justify-between px-1">
-        <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{country.name}</span>
-        <span className="text-[10px] text-slate-500">target {target}%</span>
-      </div>
-      <ResponsiveContainer width="100%" height={140}>
-        <ComposedChart margin={{ top: 4, right: 8, bottom: 16, left: 4 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke={theme.ui.grid} vertical={false} />
-          <XAxis
-            type="number"
-            dataKey="h"
-            domain={[0, 132]}
-            ticks={[24, 60, 120]}
-            tickFormatter={h => `${h / 12}y`}
-            tick={{ fontSize: 9, fill: theme.ui.tickLabel }}
-            axisLine={{ stroke: theme.ui.axis }}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ fontSize: 9, fill: theme.ui.tickLabel }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={v => `${v.toFixed(1)}%`}
-            width={34}
-            domain={['auto', 'auto']}
-          />
-          <Tooltip
-            contentStyle={{ ...getTooltipStyle(isDark), fontSize: 11 }}
-            formatter={(v, name) => {
-              if (v == null) return null
-              return [`${(+v).toFixed(2)}%`, labelMap[name] ?? name]
-            }}
-            labelFormatter={h => `${h}m`}
-          />
-          <ReferenceLine y={target} stroke={theme.colors.target} strokeDasharray="4 3" />
-          <Line data={snapshot.curve} type="monotone" dataKey="val" name="val"
-                stroke={theme.colors.avg} strokeWidth={1.6} dot={false} isAnimationActive={false} />
-          {snapshot.scatter.length > 0 && (
-            <Scatter data={snapshot.scatter} dataKey="v" name="v" fill="#dc2626" shape={XMark} isAnimationActive={false} />
-          )}
-        </ComposedChart>
-      </ResponsiveContainer>
-    </div>
-  )
-}
-
-function SnapshotsView({ manifest }) {
-  const [allData, setAllData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [vintage, setVintage] = useSessionState('nsicx-snapshots-vintage', TO_VINTAGE)
-  const [mode, setMode]       = useSessionState('nsicx-snapshots-mode', 'avg')
-  const { isDark } = useDarkMode()
-
-  useEffect(() => {
-    if (!manifest) return
-    setLoading(true)
-    Promise.all(manifest.countries.map(c =>
-      Promise.all([
-        fetch(`${MC_BASE}countries/${c.slug}/states.json`).then(r => r.json()),
-        fetch(`${MC_BASE}countries/${c.slug}/surveys.json`).then(r => r.json()),
-      ]).then(([states, surveys]) => ({ slug: c.slug, name: c.name, states, surveys }))
-    )).then(all => {
-      setAllData(orderCountries(all))
-      setLoading(false)
-    })
-  }, [manifest])
-
-  const visibleData = useMemo(() => {
-    if (!allData) return null
-    return allData.filter(c => c.states.filtered.some(p => p.d === vintage))
-  }, [allData, vintage])
+  const rows = useMemo(() => {
+    if (!allStates) return []
+    return allStates
+      .map(c => buildLevelRow(c, vintage, year))
+      .filter(Boolean)
+  }, [allStates, vintage, year])
 
   const missingNames = useMemo(() => {
-    if (!allData || !visibleData) return []
-    const visibleSlugs = new Set(visibleData.map(c => c.slug))
-    return allData.filter(c => !visibleSlugs.has(c.slug)).map(c => c.name)
-  }, [allData, visibleData])
+    if (!allStates) return []
+    const shown = new Set(rows.map(r => r.slug))
+    return allStates.filter(c => !shown.has(c.slug)).map(c => c.name)
+  }, [allStates, rows])
+
+  const isCumulative = year > BASE_YEAR + 1
+  const monthAbbr = (v) => MONTH_NAMES[Number(v.split('-')[1]) - 1].slice(0, 3)
 
   return (
-    <div className="space-y-4">
-
-      <div className="flex items-center gap-4 flex-wrap">
-        <div className="flex items-center gap-2">
-          <span className="label">Vintage</span>
+    <div className="panel p-4 flex flex-col gap-2">
+      <div className="flex items-baseline justify-between gap-2 flex-wrap">
+        <div className="label">CPI growth, end-{BASE_YEAR} → end-{year}{isCumulative ? ' (cumulative)' : ''}</div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] uppercase tracking-wider text-slate-500">Vintage</span>
           <div className="flex items-center">
             {SURVEY_PERIODS.map((v, i) => (
               <button
                 key={v}
                 onClick={() => setVintage(v)}
-                className={`text-xs px-3 py-1 transition-colors ${
+                className={`text-[10px] px-2 py-0.5 transition-colors ${
                   i === 0 ? 'rounded-l' : ''
                 } ${
                   i === SURVEY_PERIODS.length - 1 ? 'rounded-r' : 'border-r border-slate-200 dark:border-slate-700'
@@ -288,83 +195,93 @@ function SnapshotsView({ manifest }) {
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
                 }`}
               >
-                {vintageLabel(v)}
+                {monthAbbr(v)}
               </button>
             ))}
           </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="label">View</span>
-          <div className="flex items-center">
-            {[{ id: 'avg', label: 'Avg rates' }, { id: 'fwd', label: 'Forward rates' }].map((m, i) => (
-              <button
-                key={m.id}
-                onClick={() => setMode(m.id)}
-                className={`text-xs px-3 py-1 transition-colors ${
-                  i === 0 ? 'rounded-l' : 'rounded-r'
-                } ${
-                  i === 0 ? 'border-r border-slate-200 dark:border-slate-700' : ''
-                } ${
-                  mode === m.id
-                    ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
-                }`}
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="ml-auto">
-          <DownloadButton
-            onClick={() => allData && downloadSnapshotsCSV(allData)}
-            disabled={!allData}
-            label="snapshots.csv"
-          />
         </div>
       </div>
-
-      <div>
-        <div className="label">Term-structure snapshots vs Consensus surveys</div>
-        <p className="text-xs text-slate-500 mt-0.5 mb-3">
-          {mode === 'fwd'
-            ? 'Solid line: model\'s instantaneous forward rate at horizon h (smooth NS forward curve). Red crosses: Consensus calendar-year forecasts plotted at each CY\'s midpoint in horizon space — for an April vintage, CY1 spans [−3, 9] so t1 lands at h=3 and t2 at h=15. The model and survey are not strictly like-for-like (instantaneous vs CY average); see the footnote.'
-            : 'Solid line: model\'s avg-annualized rate from the vintage to horizon h. Red crosses: cumulative average of Consensus forecasts at each end-of-CY horizon, shifted left by months already realized (so April t1 lands at h=9, t2 at h=21, …); see the footnote.'}
-        </p>
-
-        {loading || !visibleData ? (
-          <div className="flex items-center justify-center h-64 text-xs text-slate-500">Loading 17 countries…</div>
-        ) : (
-          <>
-            {missingNames.length > 0 && (
-              <p className="text-xs text-slate-500 dark:text-slate-500 mb-2">
-                Showing {visibleData.length} of {allData.length} countries with {vintageLabel(vintage)} data; not yet available: {missingNames.join(', ')}.
-              </p>
-            )}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {visibleData.map(c => (
-                <CountrySnapshotPanel
-                  key={c.slug}
-                  country={c}
-                  vintage={vintage}
-                  target={INFLATION_TARGETS[c.slug] ?? 2}
-                  isDark={isDark}
-                  mode={mode}
-                />
-              ))}
-            </div>
-          </>
+      <p className="text-xs text-slate-500 mt-0.5">
+        Model-implied {isCumulative ? `${year - BASE_YEAR}-year cumulative` : '1-year'} CPI growth at the {vintageLabel(vintage)} vintage. Color encodes per-year deviation from each country's target (green at target, red above, blue below; ±1pp clamp). Countries ordered to match the Country view.
+        {missingNames.length > 0 && allStates && (
+          <> Not yet available at {vintageLabel(vintage)}: {missingNames.join(', ')}.</>
         )}
+      </p>
+      {!allStates ? (
+        <div className="flex items-center justify-center h-64 text-xs text-slate-500">Loading…</div>
+      ) : (
+        <ResponsiveContainer width="100%" height={Math.max(360, rows.length * 24)}>
+          <BarChart data={rows} layout="vertical" margin={{ top: 8, right: 24, bottom: 8, left: 8 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke={theme.ui.grid} horizontal={false} />
+            <XAxis
+              type="number"
+              tick={{ fontSize: theme.ui.tickFontSize, fill: theme.ui.tickLabel }}
+              axisLine={{ stroke: theme.ui.axis }}
+              tickLine={false}
+              tickFormatter={v => `${v.toFixed(1)}%`}
+            />
+            <YAxis
+              type="category"
+              dataKey="name"
+              width={96}
+              tick={{ fontSize: theme.ui.tickFontSize, fill: theme.ui.tickLabel }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Tooltip
+              contentStyle={getTooltipStyle(isDark)}
+              formatter={(v, _, ctx) => {
+                const d = ctx?.payload
+                if (!d) return [`${v.toFixed(2)}%`, 'CPI growth']
+                return [
+                  `${v.toFixed(2)}%  (target ${d.cumTarget.toFixed(2)}%, dev/yr ${d.perYearDev >= 0 ? '+' : ''}${d.perYearDev.toFixed(2)}pp)`,
+                  'CPI growth',
+                ]
+              }}
+              labelFormatter={n => n}
+            />
+            <ReferenceLine x={0} stroke={theme.ui.axis} strokeWidth={1} />
+            <Bar dataKey="value" isAnimationActive={false}>
+              {rows.map(d => (
+                <Cell key={d.slug} fill={levelDeviationColor(d.perYearDev, isDark, 1)} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      )}
+    </div>
+  )
+}
 
-        <p className="text-xs text-slate-500 dark:text-slate-600 italic leading-relaxed mt-3">
-          {mode === 'fwd'
-            ? 'Note: Survey crosses are 12-month CY averages plotted at each calendar year\'s midpoint in horizon space (for an April vintage: CY1 → h=3, CY2 → h=15, …). The model line is the instantaneous forward rate, so model and survey use different averaging windows — the conceptual gap is largest near short horizons and shrinks further out.'
-            : 'Note: The model line at horizon H is the avg-annualized rate from the vintage (h=0) to H; survey crosses are cumulative averages of t1..tn plotted at the end-of-CY horizon n·12−elapsed. For n=1 these are not strictly like-for-like — for April, the model averages over [0, 9] while the survey CY1 averages over [−3, 9] — though the relative gap shrinks at longer horizons.'}
-        </p>
+function LevelsView({ manifest }) {
+  const [allStates, setAllStates] = useState(null)
+  const { isDark } = useDarkMode()
+  const theme = getTheme(isDark)
+
+  useEffect(() => {
+    if (!manifest) return
+    Promise.all(manifest.countries.map(c =>
+      fetch(`${MC_BASE}countries/${c.slug}/states.json`)
+        .then(r => r.json())
+        .then(d => ({ slug: c.slug, name: c.name, ...d }))
+    )).then(all => {
+      setAllStates(orderCountries(all))
+    })
+  }, [manifest])
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-end">
+        <DownloadButton
+          onClick={() => allStates && downloadLevelsCSV(allStates)}
+          disabled={!allStates}
+          label="levels.csv"
+        />
       </div>
-
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <LevelPanel year={2026} allStates={allStates} isDark={isDark} theme={theme} />
+        <LevelPanel year={2027} allStates={allStates} isDark={isDark} theme={theme} />
+      </div>
     </div>
   )
 }
@@ -396,59 +313,6 @@ function downloadChangesCSV(allStates) {
   }
 
   triggerCSV(rows.join('\n'), 'forward_rate_changes.csv')
-}
-
-function downloadSnapshotsCSV(allData) {
-  const header = [
-    'country', 'slug', 'vintage', 'source', 'n', 'target_year',
-    'survey_value', 'survey_cum_avg',
-    'horizon_eoy_months', 'horizon_mid_months',
-    'model_avg_to_eoy', 'model_fwd_instant',
-  ]
-  const rows = [header.join(',')]
-
-  for (const c of allData) {
-    const lam = c.states.lambda
-    for (const period of SURVEY_PERIODS) {
-      const stateRow = c.states.filtered.find(p => p.d === period)
-      if (!stateRow) continue
-      const { L, S, C } = stateRow
-      const [vy, vm] = period.split('-').map(Number)
-      const monthsElapsed = vm - 1
-      const surveyRows = c.surveys.rows.filter(r => r.survey_period === period)
-
-      for (const src of surveyRows) {
-        let cumSum = 0
-        let cumCount = 0
-        for (let n = 1; n <= 11; n++) {
-          const v = src[`t${n}`]
-          if (v == null) continue
-          cumSum += v; cumCount += 1
-          const hEoy = n * 12 - monthsElapsed
-          const hMid = (n - 0.5) * 12 - monthsElapsed
-          rows.push([
-            c.name, c.slug, period, src.source, n, vy + (n - 1),
-            v.toFixed(4),
-            (cumSum / cumCount).toFixed(4),
-            hEoy, hMid,
-            avgAnnualized(L, S, C, lam, hEoy).toFixed(4),
-            fwdInstant(L, S, C, lam, hMid).toFixed(4),
-          ].join(','))
-        }
-        if (src.t25 != null) {
-          const hT25 = 90 - monthsElapsed
-          rows.push([
-            c.name, c.slug, period, src.source, 25, '',
-            src.t25.toFixed(4), '',
-            '', hT25, '',
-            fwdInstant(L, S, C, lam, hT25).toFixed(4),
-          ].join(','))
-        }
-      }
-    }
-  }
-
-  triggerCSV(rows.join('\n'), 'snapshots.csv')
 }
 
 function downloadAnchoringCSV(allSurveys, anchoring) {
@@ -1003,8 +867,8 @@ export default function MultiCountryCharts() {
         ))}
       </nav>
 
-      {safeSubTab === 'snapshots' && <SnapshotsView    manifest={manifest} />}
       {safeSubTab === 'forwards'  && <ForwardRatesView manifest={manifest} />}
+      {safeSubTab === 'levels'    && <LevelsView       manifest={manifest} />}
       {safeSubTab === 'anchoring' && <AnchoringView    manifest={manifest} />}
 
     </div>

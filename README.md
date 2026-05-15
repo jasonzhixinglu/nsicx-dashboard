@@ -26,7 +26,7 @@ The header toggle switches between dark and light mode; preference is persisted 
 | Tab | Contents |
 |---|---|
 | Country view | Chart A whisker + Chart B term structure for a single country (regional country dropdown, per-country target, KeyResults sidebar) |
-| Comparisons | **Forwards** (cross-country bar chart of forward-rate changes between two user-selected vintages with `to > from`, selectable window: 1y / 1y1y / 2y3y / 5y5y), **Anchoring** (trend level vs target: Apr LT t25 deviation from each country's central-bank target with optional Jan robustness; trend sensitivity to surprises: β from regressing the long end on a survey surprise, with optional raw-revisions robustness; continuous HSL color encoding), **Snapshots** (17-country grid of model term structure + Consensus survey overlays for a chosen vintage; toggle Avg-rates vs Forward-rates view) |
+| Comparisons | **Forwards** (cross-country bar chart of forward-rate changes between two user-selected vintages with `to > from`, selectable window: 1y / 1y1y / 2y3y / 5y5y), **Levels** (two side-by-side bar charts: model-implied CPI growth from end-2025 to end-2026 and the 2-year cumulative through end-2027, with independent per-panel vintage selectors and country order matching the Country view), **Anchoring** (trend level vs target: Apr LT t25 deviation from each country's central-bank target with optional Jan robustness; trend sensitivity to surprises: β from regressing the long end on a survey surprise, with optional raw-revisions robustness; continuous HSL color encoding) |
 | About | Methodology, authors |
 
 URL state persisted: `?dashboard=multi&country=usa` etc.
@@ -85,8 +85,8 @@ The dashboard offers downloadable extracts:
 - **Japan composite — Charts**: NSICX factors with CIs (CSV), BEI vs NSICX model (CSV).
 - **Multi-country — Country view**: full multi-country workbook `multicountry_nsicx.xlsx` (one sheet per country, plus a metadata sheet) — uses SheetJS, lazy-loaded on click.
 - **Multi-country — Comparisons**:
-  - `snapshots.csv` — model curve values + Consensus survey points across countries and vintages, with horizons aligned for each vintage's elapsed months.
   - `forward_rate_changes.csv` — long-format file with `from_value` / `to_value` levels alongside the precomputed `change`. Each row is one (country, from_vintage, to_vintage, window) combination; rows are emitted where both endpoints exist in that country's filtered states.
+  - `levels.csv` — model-implied cumulative CPI growth from end-2025 to end-2026 and end-2027, per country × vintage, with cumulative target and per-year deviation.
   - `anchoring.csv` — per-country level + sensitivity stats.
 
 ## Local development

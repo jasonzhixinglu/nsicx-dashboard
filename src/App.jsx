@@ -22,7 +22,7 @@ const DASHBOARDS = {
     subtitle: 'Lu & Teoh · IMF Working Paper · Multi-country companion (Consensus only)',
     tabs: [
       { id: 'country', label: 'Country view', sub: 'Per-country charts',     fullHeight: true,  render: () => <MultiCountryPanel /> },
-      { id: 'charts',  label: 'Comparisons',  sub: 'Forwards · Anchoring · Snapshots', fullHeight: false, render: () => <MultiCountryCharts /> },
+      { id: 'charts',  label: 'Comparisons',  sub: 'Forwards · Levels · Anchoring', fullHeight: false, render: () => <MultiCountryCharts /> },
       { id: 'about',   label: 'About',        sub: 'Methodology · Authors',  fullHeight: false, render: () => <MultiCountryAbout /> },
     ],
   },

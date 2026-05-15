@@ -103,25 +103,43 @@ function orderCountries(countries) {
 
 const BASE_YEAR = 2025
 
-// For a vintage in [BASE_YEAR+1, ...], compute the model-implied compound
-// CPI growth from end-of-BASE_YEAR to end-of-targetYear. The CY-n window
-// [hEnd - n·12, hEnd - (n-1)·12] may dip into h<0 territory for vintages
-// inside CY1 — avgWindow clamps a≤0 to avgAnnualized(0,b), so the CY-1 leg
-// represents the model's avg-annualized forecast from the vintage to year-end
-// (i.e., the same construction as the NSICX measurement equation for CY1).
+// Calendar-mode CY forecast:
+//   π̂_{Y+k-1}^{(t)} = x(12; λ)ᵀ · F(λ)^{12(k-1) − (M−1)} · β_t
+//
+// F(λ) is the deterministic NSICX transition matrix; for any integer power p
+// the (1,2)-block follows a Jordan-block recursion, giving the closed form
+//   F^p = [[1, 0, 0],
+//          [0, e^{-pλ}, p·λ·e^{-pλ}],
+//          [0, 0,      e^{-pλ}]]
+// (works for negative p too — F^{-M+1} propagates the state back to the start
+// of the target calendar year). x(12; λ) = (1, x_S, x_C) is the 12-month
+// forward-average NS loading with x_S = (1 − e^{-12λ}) / (12λ) and
+// x_C = x_S − e^{-12λ}, so x · F^p · β is the model's full-CY YoY forecast.
+function cyForecast(L, S, C, lam, M, k) {
+  const p = 12 * (k - 1) - (M - 1)
+  const ePlam = Math.exp(-p * lam)
+  const sS = ePlam * S + p * lam * ePlam * C
+  const sC = ePlam * C
+  const e12 = Math.exp(-12 * lam)
+  const xS = (1 - e12) / (12 * lam)
+  const xC = xS - e12
+  return L + xS * sS + xC * sC
+}
+
+// Compound cyForecast across each CY from BASE_YEAR+1 through `year` to get
+// the cumulative CPI-index growth from end-BASE_YEAR to end-year.
 function buildLevelRow(country, vintage, year) {
   const state = country.filtered.find(p => p.d === vintage)
   if (!state) return null
   const lam = country.lambda
   const [vy, vm] = vintage.split('-').map(Number)
-  const hEnd = (year - vy) * 12 + (12 - vm)
   const target = INFLATION_TARGETS[country.slug] ?? 2
   const nYears = year - BASE_YEAR
   let cum = 1
-  for (let n = 1; n <= nYears; n++) {
-    const hA = hEnd - n * 12
-    const hB = hEnd - (n - 1) * 12
-    const rate = avgWindow(state.L, state.S, state.C, lam, hA, hB) / 100
+  for (let j = 1; j <= nYears; j++) {
+    const targetYear = BASE_YEAR + j
+    const k = targetYear - vy + 1
+    const rate = cyForecast(state.L, state.S, state.C, lam, vm, k) / 100
     cum *= (1 + rate)
   }
   const value = (cum - 1) * 100

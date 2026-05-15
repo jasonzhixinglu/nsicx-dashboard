@@ -552,8 +552,8 @@ function ForwardRatesView({ manifest }) {
     return allStates.filter(c => !shown.has(c.slug)).map(c => c.name)
   }, [allStates, chartData])
 
-  const fromOptions = SURVEY_PERIODS.slice(0, -1) // Jan, Feb, Mar
-  const toOptions   = SURVEY_PERIODS.slice(1)     // Feb, Mar, Apr
+  const fromOptions = SURVEY_PERIODS.slice(0, -1) // all but the latest
+  const toOptions   = SURVEY_PERIODS.slice(1)     // all but the earliest
   const monthAbbr = (v) => MONTH_NAMES[Number(v.split('-')[1]) - 1]
   const fromIdx = SURVEY_PERIODS.indexOf(safeFrom)
 

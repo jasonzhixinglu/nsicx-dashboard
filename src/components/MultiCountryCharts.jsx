@@ -366,13 +366,9 @@ function LevelsView({ manifest }) {
         <LevelChangePanel year={2027} fromVintage={safeFrom} toVintage={safeTo} allStates={allStates} isDark={isDark} theme={theme} />
       </div>
 
-      <p className="text-xs text-slate-500 dark:text-slate-600 italic leading-relaxed">
-        Note: Model CY forecast at month M of year Y for target CY Y+k−1:
-        {' '}π̂<sub>Y+k−1</sub><sup>(t)</sup> = x(12;λ)ᵀ · F(λ)<sup>12(k−1)−(M−1)</sup> · β<sub>t</sub>,
-        {' '}where x(12;λ) is the 12-month forward-average NS loading and F(λ) is the NSICX transition matrix
-        {' '}(closed form: F<sup>p</sup> has diagonal (1, e<sup>−pλ</sup>, e<sup>−pλ</sup>) and (1,2)-entry pλe<sup>−pλ</sup>).
-        {' '}The 2027 panel compounds the CY1 and CY2 forecasts:
-        {' '}π̂<sub>2027,cum</sub> = (1 + π̂<sub>2026</sub>)(1 + π̂<sub>2027</sub>) − 1.
+      <p className="text-xs text-slate-500 dark:text-slate-600 leading-relaxed">
+        π̂<sub>Y+k−1</sub><sup>(t)</sup> = x(12;λ)ᵀ · F(λ)<sup>12(k−1)−(M−1)</sup> · β<sub>t</sub>;
+        {' '}cumulative 2027 = (1 + π̂<sub>2026</sub>)(1 + π̂<sub>2027</sub>) − 1.
       </p>
 
     </div>

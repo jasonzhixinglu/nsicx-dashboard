@@ -130,6 +130,18 @@ export default function OverviewPanel() {
   const selectedState = selectedDate ? stateMap[selectedDate] ?? null : null
   const lam = whiskerData?.lam ?? 0.15
 
+  // Latest realized CPI as of the selected vintage (CPI publishes with a lag
+  // that varies; don't assume vintage − 1 month).
+  const cpiMonth = useMemo(() => {
+    const series = whiskerData?.cpi
+    if (!series || !selectedDate) return null
+    let latest = null
+    for (const p of series) {
+      if (p.d <= selectedDate && (latest === null || p.d > latest)) latest = p.d
+    }
+    return latest
+  }, [whiskerData, selectedDate])
+
   const handleDownload = useCallback(() => {
     if (whiskerData) buildAndDownloadCSV(whiskerData)
   }, [whiskerData])
@@ -291,7 +303,7 @@ export default function OverviewPanel() {
 
       {/* Right sidebar — key results */}
       <div className="lg:w-[180px] xl:w-[200px] lg:shrink-0 flex flex-col gap-3">
-        <KeyResults state={selectedState} date={selectedDate} lam={lam} />
+        <KeyResults state={selectedState} date={selectedDate} lam={lam} cpiMonth={cpiMonth} />
       </div>
 
     </div>

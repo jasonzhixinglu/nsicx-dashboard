@@ -1,4 +1,4 @@
-import { formatMonthYear, prevMonthYear } from '../lib/dateFormat.js'
+import { formatMonthYear } from '../lib/dateFormat.js'
 import { useDarkMode } from '../lib/useDarkMode.jsx'
 
 // Continuous HSL gradient: emerald at target, hue → red as v rises above,
@@ -13,7 +13,7 @@ function deviationColor(v, target, isDark) {
   return `hsl(${hue.toFixed(1)}, 72%, ${lightness}%)`
 }
 
-export default function KeyResults({ state, date, lam, target = 2 }) {
+export default function KeyResults({ state, date, lam, target = 2, cpiMonth = null }) {
   const { isDark } = useDarkMode()
   if (!state) return (
     <div className="card p-4 text-xs text-slate-500 dark:text-slate-600">Select a date to see key readings.</div>
@@ -49,7 +49,7 @@ export default function KeyResults({ state, date, lam, target = 2 }) {
             </div>
             <div className="flex items-baseline justify-between">
               <span className="text-xs text-slate-500">CPI</span>
-              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{prevMonthYear(date)}</span>
+              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{formatMonthYear(cpiMonth)}</span>
             </div>
           </div>
           <div className="text-xs text-slate-500 mb-1.5">Avg annualized (%)</div>
@@ -82,7 +82,7 @@ export default function KeyResults({ state, date, lam, target = 2 }) {
             </div>
             <div className="flex items-baseline justify-between">
               <span className="text-xs text-slate-500">CPI</span>
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{prevMonthYear(date)}</span>
+              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{formatMonthYear(cpiMonth)}</span>
             </div>
           </div>
           <div className="text-xs text-slate-500 mb-2">Avg annualized (%)</div>

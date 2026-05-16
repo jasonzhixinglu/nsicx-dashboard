@@ -288,6 +288,19 @@ export default function MultiCountryPanel() {
   const targetCfg = INFLATION_TARGETS[selectedCountry] ?? { value: 2, bank: '' }
   const targetLabel = targetCfg.bank ? `${targetCfg.bank} target` : 'Target'
 
+  // Latest realized CPI available as of the selected vintage — the CPI lag
+  // varies by country (and even by vintage), so derive it from the data
+  // rather than assuming vintage − 1 month.
+  const cpiMonth = useMemo(() => {
+    const series = countryData?.cpi?.yoy_pct
+    if (!series || !selectedDate) return null
+    let latest = null
+    for (const p of series) {
+      if (p.d <= selectedDate && (latest === null || p.d > latest)) latest = p.d
+    }
+    return latest
+  }, [countryData, selectedDate])
+
   if (!manifest) return (
     <div className="flex items-center justify-center h-64 text-slate-500 text-sm">
       Loading…
@@ -478,7 +491,7 @@ export default function MultiCountryPanel() {
 
       {/* Right sidebar — KeyResults */}
       <div className="lg:w-[180px] xl:w-[200px] lg:shrink-0 flex flex-col gap-3">
-        <KeyResults state={selectedState} date={selectedDate} lam={lam} target={targetCfg.value} />
+        <KeyResults state={selectedState} date={selectedDate} lam={lam} target={targetCfg.value} cpiMonth={cpiMonth} />
       </div>
 
     </div>

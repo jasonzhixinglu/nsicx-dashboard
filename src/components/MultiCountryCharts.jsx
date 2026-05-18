@@ -254,6 +254,13 @@ function LevelChangePanel({ year, allStates, fromVintage, toVintage, isDark, the
           </BarChart>
         </ResponsiveContainer>
       )}
+      <p className="text-xs text-slate-500 dark:text-slate-600 leading-relaxed">
+        {isCumulative ? (
+          <>π̂<sub>2027,cum</sub> = (1 + π̂<sub>2026</sub>)(1 + π̂<sub>2027</sub>) − 1, each π̂<sub>Y+k−1</sub> = x(12;λ)ᵀ · F(λ)<sup>12(k−1)−(M−1)</sup> · β<sub>t</sub> — compounded model CY forecasts, not raw surveys.</>
+        ) : (
+          <>π̂<sub>2026</sub><sup>(t)</sup> = x(12;λ)ᵀ · F(λ)<sup>−(M−1)</sup> · β<sub>t</sub> — model CY-2026 YoY forecast inverted from the filtered state, not the raw Consensus survey.</>
+        )}
+      </p>
     </div>
   )
 }
@@ -365,10 +372,6 @@ function LevelsView({ manifest }) {
         <LevelChangePanel year={2026} fromVintage={safeFrom} toVintage={safeTo} allStates={allStates} isDark={isDark} theme={theme} />
         <LevelChangePanel year={2027} fromVintage={safeFrom} toVintage={safeTo} allStates={allStates} isDark={isDark} theme={theme} />
       </div>
-
-      <p className="text-xs text-slate-500 dark:text-slate-600 leading-relaxed">
-        π̂<sub>Y+k−1</sub><sup>(t)</sup> = x(12;λ)ᵀ · F(λ)<sup>12(k−1)−(M−1)</sup> · β<sub>t</sub> — the model's full-CY YoY forecast inverted from the filtered state, not the raw Consensus survey. Cumulative 2027 = (1 + π̂<sub>2026</sub>)(1 + π̂<sub>2027</sub>) − 1.
-      </p>
 
     </div>
   )

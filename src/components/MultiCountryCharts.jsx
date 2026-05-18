@@ -256,9 +256,9 @@ function LevelChangePanel({ year, allStates, fromVintage, toVintage, isDark, the
       )}
       <p className="text-xs text-slate-500 dark:text-slate-600 leading-relaxed">
         {isCumulative ? (
-          <>π̂<sub>2027,cum</sub> = (1 + π̂<sub>2026</sub>)(1 + π̂<sub>2027</sub>) − 1, each π̂<sub>Y+k−1</sub> = x(12;λ)ᵀ · F(λ)<sup>12(k−1)−(M−1)</sup> · β<sub>t</sub> — compounded model CY forecasts, not raw surveys.</>
+          <>π̂<sub>2027,cum</sub> = (1 + π̂<sub>2026</sub>)(1 + π̂<sub>2027</sub>) − 1 — compounded model CY forecast</>
         ) : (
-          <>π̂<sub>2026</sub><sup>(t)</sup> = x(12;λ)ᵀ · F(λ)<sup>−(M−1)</sup> · β<sub>t</sub> — model CY-2026 YoY forecast inverted from the filtered state, not the raw Consensus survey.</>
+          <>π̂<sub>2026</sub><sup>(t)</sup> = x(12;λ)ᵀ · F(λ)<sup>−(M−1)</sup> · β<sub>t</sub> — model CY-2026 YoY forecast</>
         )}
       </p>
     </div>

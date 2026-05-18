@@ -635,6 +635,9 @@ function ForwardRatesView({ manifest }) {
             </BarChart>
           </ResponsiveContainer>
         )}
+        <p className="text-xs text-slate-500 dark:text-slate-600 leading-relaxed">
+          Δ = f̄<sub>[a,b]</sub>(β<sub>to</sub>) − f̄<sub>[a,b]</sub>(β<sub>from</sub>), with [a,b] in months ahead of each survey date — a constant-maturity change, not a fixed calendar inflation event (the window rolls forward by the from→to gap).
+        </p>
       </div>
 
     </div>

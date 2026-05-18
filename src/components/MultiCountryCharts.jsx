@@ -367,8 +367,7 @@ function LevelsView({ manifest }) {
       </div>
 
       <p className="text-xs text-slate-500 dark:text-slate-600 leading-relaxed">
-        π̂<sub>Y+k−1</sub><sup>(t)</sup> = x(12;λ)ᵀ · F(λ)<sup>12(k−1)−(M−1)</sup> · β<sub>t</sub>;
-        {' '}cumulative 2027 = (1 + π̂<sub>2026</sub>)(1 + π̂<sub>2027</sub>) − 1.
+        π̂<sub>Y+k−1</sub><sup>(t)</sup> = x(12;λ)ᵀ · F(λ)<sup>12(k−1)−(M−1)</sup> · β<sub>t</sub> — F(λ) rotates the filtered state β<sub>t</sub> to the start of the target calendar year and the 12-month forward loading x(12;λ) reads off the model's full-CY YoY forecast, i.e. the calendar-mode inversion of the Consensus CY survey, not the raw survey value. Cumulative 2027 = (1 + π̂<sub>2026</sub>)(1 + π̂<sub>2027</sub>) − 1.
       </p>
 
     </div>

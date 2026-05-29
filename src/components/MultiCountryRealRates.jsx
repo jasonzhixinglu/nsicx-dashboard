@@ -682,13 +682,6 @@ export default function MultiCountryRealRates() {
 
   return (
     <div className="space-y-3 py-2 max-w-6xl mx-auto">
-      <p className="text-xs text-slate-500 dark:text-slate-500 leading-relaxed">
-        Nominal curves are fitted to sovereign bond yields out to 30-year maturities using the
-        Nelson-Siegel-Svensson model, with yields sampled mid-month to align with the timing of
-        the Consensus surveys. Real = nominal Svensson − NSICX expected inflation, displayed to
-        10Y where NSICX is identified. Available for the 13 economies with sovereign yield curves
-        in haver-data (Brazil, Mexico, Russia, Turkey omitted).
-      </p>
       <div className="divide-y divide-slate-200 dark:divide-slate-800 border-y border-slate-200 dark:border-slate-800">
         <AccordionSection title="Snapshot across countries"
                           isOpen={safeOpen === 'snapshot'}
@@ -706,6 +699,13 @@ export default function MultiCountryRealRates() {
           <TimeSeriesSection allData={allData} />
         </AccordionSection>
       </div>
+      <p className="text-xs text-slate-500 dark:text-slate-500 leading-relaxed">
+        Nominal curves are fitted to sovereign bond yields out to 30-year maturities using the
+        Nelson-Siegel-Svensson model, with yields sampled mid-month to align with the timing of
+        the Consensus surveys. Real = nominal Svensson − NSICX expected inflation, displayed to
+        10Y where NSICX is identified. Available for the 13 economies with sovereign yield curves
+        in haver-data (Brazil, Mexico, Russia, Turkey omitted).
+      </p>
     </div>
   )
 }

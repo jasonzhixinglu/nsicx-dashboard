@@ -4,6 +4,7 @@ import ChartsPanel from './components/ChartsPanel.jsx'
 import AboutPanel from './components/AboutPanel.jsx'
 import MultiCountryPanel from './components/MultiCountryPanel.jsx'
 import MultiCountryCharts from './components/MultiCountryCharts.jsx'
+import MultiCountryRealRates from './components/MultiCountryRealRates.jsx'
 import MultiCountryAbout from './components/MultiCountryAbout.jsx'
 import { useDarkMode } from './lib/useDarkMode.jsx'
 
@@ -22,7 +23,8 @@ const DASHBOARDS = {
     subtitle: 'Lu & Teoh · IMF Working Paper · Multi-country companion (Consensus only)',
     tabs: [
       { id: 'country', label: 'Country view', sub: 'Per-country charts',     fullHeight: true,  render: () => <MultiCountryPanel /> },
-      { id: 'charts',  label: 'Comparisons',  sub: 'Forwards · Levels · Anchoring', fullHeight: false, render: () => <MultiCountryCharts /> },
+      { id: 'charts',  label: 'Cross country', sub: 'Forwards · Levels · Anchoring', fullHeight: false, render: () => <MultiCountryCharts /> },
+      { id: 'real',    label: 'Real rates',   sub: 'Snapshot · Term structure · History', fullHeight: false, render: () => <MultiCountryRealRates /> },
       { id: 'about',   label: 'About',        sub: 'Methodology · Authors',  fullHeight: false, render: () => <MultiCountryAbout /> },
     ],
   },

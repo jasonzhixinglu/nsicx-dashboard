@@ -35,6 +35,11 @@ const FORWARD_WINDOWS = [
 const SURVEY_PERIODS = ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05']
 const TO_VINTAGE = '2026-05'
 
+// High-inflation regimes that distort the bar-chart scale on the Cross-country
+// views. Forwards and Levels filter these out and anchor their X axes to the
+// remaining 13 countries' max revision magnitude.
+const EXCLUDED_FROM_COMPARISONS = new Set(['brazil', 'mexico', 'russia', 'turkey'])
+
 const SUB_TABS = [
   { id: 'forwards',  label: 'Forwards' },
   { id: 'levels',    label: 'Levels' },
@@ -201,6 +206,23 @@ function LevelChangePanel({ year, allStates, fromVintage, toVintage, isDark, the
     return allStates.filter(c => !shown.has(c.slug)).map(c => c.name)
   }, [allStates, rows])
 
+  // Anchored X-axis: max |change| across every (from, to) pair for this year,
+  // over the 13 displayed countries. Stays constant as the user steps vintages.
+  const anchoredMax = useMemo(() => {
+    if (!allStates) return 1
+    let maxAbs = 0
+    for (let i = 0; i < SURVEY_PERIODS.length; i++) {
+      for (let j = i + 1; j < SURVEY_PERIODS.length; j++) {
+        const fV = SURVEY_PERIODS[i], tV = SURVEY_PERIODS[j]
+        for (const c of allStates) {
+          const r = buildChangeRow(c, fV, tV, year)
+          if (r && Math.abs(r.change) > maxAbs) maxAbs = Math.abs(r.change)
+        }
+      }
+    }
+    return Math.max(0.1, Math.ceil(maxAbs * 10) / 10)
+  }, [allStates, year])
+
   const isCumulative = year > BASE_YEAR + 1
   const monthAbbr = (v) => MONTH_NAMES[Number(v.split('-')[1]) - 1].slice(0, 3)
 
@@ -210,7 +232,7 @@ function LevelChangePanel({ year, allStates, fromVintage, toVintage, isDark, the
         Change in {isCumulative ? `${year - BASE_YEAR}-year cumulative` : '1-year'} CPI growth (end-{BASE_YEAR} → end-{year}), {monthAbbr(fromVintage)} → {monthAbbr(toVintage)}
       </div>
       <p className="text-xs text-slate-500 mt-0.5">
-        Color encodes the change: green near zero, red for upward revisions, blue for downward (±1pp clamp). Countries ordered to match the Country view.
+        Color encodes the change: green near zero, red for upward revisions, blue for downward (±1pp clamp). X-axis anchored across vintages. Countries ordered to match the Country view. Brazil, Mexico, Russia, and Turkey omitted (high-inflation regimes distort the scale).
         {missingNames.length > 0 && allStates && (
           <> Not yet available for both vintages: {missingNames.join(', ')}.</>
         )}
@@ -223,6 +245,8 @@ function LevelChangePanel({ year, allStates, fromVintage, toVintage, isDark, the
             <CartesianGrid strokeDasharray="3 3" stroke={theme.ui.grid} horizontal={false} />
             <XAxis
               type="number"
+              domain={[-anchoredMax, anchoredMax]}
+              allowDataOverflow
               tick={{ fontSize: theme.ui.tickFontSize, fill: theme.ui.tickLabel }}
               axisLine={{ stroke: theme.ui.axis }}
               tickLine={false}
@@ -282,6 +306,11 @@ function LevelsView({ manifest }) {
       setAllStates(orderCountries(all))
     })
   }, [manifest])
+
+  // Drop high-inflation regimes for the comparison views — same set as Forwards.
+  const comparisonStates = useMemo(() =>
+    allStates ? allStates.filter(c => !EXCLUDED_FROM_COMPARISONS.has(c.slug)) : null
+  , [allStates])
 
   // Maintain to > from invariant (same logic as the Forwards view).
   const safeFrom = SURVEY_PERIODS.indexOf(fromVintage) >= 0 ? fromVintage : SURVEY_PERIODS[0]
@@ -369,8 +398,8 @@ function LevelsView({ manifest }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <LevelChangePanel year={2026} fromVintage={safeFrom} toVintage={safeTo} allStates={allStates} isDark={isDark} theme={theme} />
-        <LevelChangePanel year={2027} fromVintage={safeFrom} toVintage={safeTo} allStates={allStates} isDark={isDark} theme={theme} />
+        <LevelChangePanel year={2026} fromVintage={safeFrom} toVintage={safeTo} allStates={comparisonStates} isDark={isDark} theme={theme} />
+        <LevelChangePanel year={2027} fromVintage={safeFrom} toVintage={safeTo} allStates={comparisonStates} isDark={isDark} theme={theme} />
       </div>
 
     </div>
@@ -482,10 +511,14 @@ function ForwardRatesView({ manifest }) {
     })
   }, [manifest])
 
+  const comparisonStates = useMemo(() =>
+    allStates ? allStates.filter(c => !EXCLUDED_FROM_COMPARISONS.has(c.slug)) : null
+  , [allStates])
+
   const chartData = useMemo(() => {
-    if (!allStates) return []
+    if (!comparisonStates) return []
     const w = FORWARD_WINDOWS.find(x => x.key === windowKey)
-    return allStates.map(c => {
+    return comparisonStates.map(c => {
       const fromState = c.filtered.find(p => p.d === safeFrom)
       const toState   = c.filtered.find(p => p.d === safeTo)
       if (!fromState || !toState) return null
@@ -499,13 +532,37 @@ function ForwardRatesView({ manifest }) {
         toVal:   +toVal.toFixed(4),
       }
     }).filter(Boolean).sort((a, b) => a.change - b.change)
-  }, [allStates, safeFrom, safeTo, windowKey])
+  }, [comparisonStates, safeFrom, safeTo, windowKey])
 
   const missingNames = useMemo(() => {
-    if (!allStates) return []
+    if (!comparisonStates) return []
     const shown = new Set(chartData.map(d => d.slug))
-    return allStates.filter(c => !shown.has(c.slug)).map(c => c.name)
-  }, [allStates, chartData])
+    return comparisonStates.filter(c => !shown.has(c.slug)).map(c => c.name)
+  }, [comparisonStates, chartData])
+
+  // Anchored X-axis: max |change| across every (from, to, window) combo for
+  // the current window, computed over the 13 displayed countries. Keeps bars
+  // visually comparable when the user steps through vintages.
+  const anchoredMax = useMemo(() => {
+    if (!comparisonStates) return 1
+    const w = FORWARD_WINDOWS.find(x => x.key === windowKey)
+    let maxAbs = 0
+    for (let i = 0; i < SURVEY_PERIODS.length; i++) {
+      for (let j = i + 1; j < SURVEY_PERIODS.length; j++) {
+        const fromV = SURVEY_PERIODS[i], toV = SURVEY_PERIODS[j]
+        for (const c of comparisonStates) {
+          const fs = c.filtered.find(p => p.d === fromV)
+          const ts = c.filtered.find(p => p.d === toV)
+          if (!fs || !ts) continue
+          const f = avgWindow(fs.L, fs.S, fs.C, c.lambda, w.a, w.b)
+          const t = avgWindow(ts.L, ts.S, ts.C, c.lambda, w.a, w.b)
+          const a = Math.abs(t - f)
+          if (a > maxAbs) maxAbs = a
+        }
+      }
+    }
+    return Math.max(0.1, Math.ceil(maxAbs * 10) / 10)
+  }, [comparisonStates, windowKey])
 
   const fromOptions = SURVEY_PERIODS.slice(0, -1) // all but the latest
   const toOptions   = SURVEY_PERIODS.slice(1)     // all but the earliest
@@ -588,14 +645,14 @@ function ForwardRatesView({ manifest }) {
         <div>
           <div className="label">Change in {windowKey} forward rate, {monthAbbr(safeFrom)} → {monthAbbr(safeTo)} 2026</div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Difference in avg-annualized rate over the {windowKey} window between two vintages. Color encodes the change: green near zero, red for upward revisions, blue for downward (±0.2pp clamp). Sorted ascending.
-            {missingNames.length > 0 && allStates && (
-              <> Showing {chartData.length} of {allStates.length} countries; not yet available for both vintages: {missingNames.join(', ')}.</>
+            Difference in avg-annualized rate over the {windowKey} window between two vintages. Color encodes the change: green near zero, red for upward revisions, blue for downward (±0.2pp clamp). Sorted ascending. X-axis is anchored across vintages for visual comparability. Brazil, Mexico, Russia, and Turkey omitted (high-inflation regimes distort the scale).
+            {missingNames.length > 0 && comparisonStates && (
+              <> Not yet available for both vintages: {missingNames.join(', ')}.</>
             )}
           </p>
         </div>
-        {loading || !allStates ? (
-          <div className="flex items-center justify-center h-64 text-xs text-slate-500">Loading 17 countries…</div>
+        {loading || !comparisonStates ? (
+          <div className="flex items-center justify-center h-64 text-xs text-slate-500">Loading 13 countries…</div>
         ) : (
           <ResponsiveContainer width="100%" height={Math.max(360, chartData.length * 24)}>
             <BarChart
@@ -606,6 +663,8 @@ function ForwardRatesView({ manifest }) {
               <CartesianGrid strokeDasharray="3 3" stroke={theme.ui.grid} horizontal={false} />
               <XAxis
                 type="number"
+                domain={[-anchoredMax, anchoredMax]}
+                allowDataOverflow
                 tick={{ fontSize: theme.ui.tickFontSize, fill: theme.ui.tickLabel }}
                 axisLine={{ stroke: theme.ui.axis }}
                 tickLine={false}

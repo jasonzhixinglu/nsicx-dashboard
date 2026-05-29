@@ -78,7 +78,7 @@ function deviationFromUSColor(dev, isDark, scale = 2) {
 
 function AccordionSection({ title, isOpen, onToggle, children }) {
   return (
-    <div className={`border-l-4 ${isOpen ? 'border-l-indigo-500' : 'border-l-transparent'}`}>
+    <div style={{ borderLeftStyle: 'solid', borderLeftWidth: '4px', borderLeftColor: isOpen ? 'rgb(99 102 241)' : 'transparent' }}>
       <button
         type="button"
         onClick={onToggle}

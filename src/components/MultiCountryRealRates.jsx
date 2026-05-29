@@ -682,6 +682,21 @@ export default function MultiCountryRealRates() {
 
   return (
     <div className="space-y-3 py-2 max-w-6xl mx-auto">
+      <ul className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed list-disc pl-5 space-y-1.5 marker:text-indigo-500">
+        <li>
+          <span className="font-semibold text-slate-800 dark:text-slate-200">Nominal curve:</span>
+          {' '}Nelson-Siegel-Svensson fit to sovereign bond yields out to 30-year maturities,
+          {' '}with yields sampled mid-month to align with the timing of the Consensus surveys.
+        </li>
+        <li>
+          <span className="font-semibold text-slate-800 dark:text-slate-200">Real rate:</span>
+          {' '}Nominal Svensson − NSICX expected inflation, displayed to 10Y where NSICX is identified.
+        </li>
+        <li>
+          <span className="font-semibold text-slate-800 dark:text-slate-200">Coverage:</span>
+          {' '}13 economies with sovereign yield curves in haver-data; Brazil, Mexico, Russia, and Turkey omitted.
+        </li>
+      </ul>
       <div className="divide-y divide-slate-200 dark:divide-slate-800 border-y border-slate-200 dark:border-slate-800">
         <AccordionSection title="Snapshot across countries"
                           isOpen={safeOpen === 'snapshot'}
@@ -699,21 +714,6 @@ export default function MultiCountryRealRates() {
           <TimeSeriesSection allData={allData} />
         </AccordionSection>
       </div>
-      <ul className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed list-disc pl-5 space-y-1.5 marker:text-indigo-500">
-        <li>
-          <span className="font-semibold text-slate-800 dark:text-slate-200">Nominal curve.</span>
-          {' '}Nelson-Siegel-Svensson fit to sovereign bond yields out to 30-year maturities,
-          {' '}with yields sampled mid-month to align with the timing of the Consensus surveys.
-        </li>
-        <li>
-          <span className="font-semibold text-slate-800 dark:text-slate-200">Real rate.</span>
-          {' '}Nominal Svensson − NSICX expected inflation, displayed to 10Y where NSICX is identified.
-        </li>
-        <li>
-          <span className="font-semibold text-slate-800 dark:text-slate-200">Coverage.</span>
-          {' '}13 economies with sovereign yield curves in haver-data; Brazil, Mexico, Russia, and Turkey omitted.
-        </li>
-      </ul>
     </div>
   )
 }

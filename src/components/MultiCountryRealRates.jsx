@@ -602,7 +602,7 @@ export default function MultiCountryRealRates() {
                           onToggle={() => toggle('termstructure')}>
           <TermStructureSection allData={allData} />
         </AccordionSection>
-        <AccordionSection title="Real rate history"
+        <AccordionSection title="Real rates history by country"
                           isOpen={safeOpen === 'timeseries'}
                           onToggle={() => toggle('timeseries')}>
           <TimeSeriesSection allData={allData} />

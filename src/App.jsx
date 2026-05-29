@@ -11,7 +11,7 @@ import { useDarkMode } from './lib/useDarkMode.jsx'
 const DASHBOARDS = {
   japan: {
     title: "A Composite Term Structure of Japan's Inflation Expectations",
-    subtitle: 'Lu & Teoh · IMF Working Paper · Japan composite (six sources)',
+    subtitle: 'Lu & Teoh · forthcoming IMF Working Paper · Japan composite (six sources)',
     tabs: [
       { id: 'overview', label: 'Overview', sub: 'Hero chart · Controls', fullHeight: true,  render: () => <OverviewPanel /> },
       { id: 'charts',   label: 'Charts',   sub: 'Key figures',           fullHeight: false, render: () => <ChartsPanel /> },
@@ -20,7 +20,7 @@ const DASHBOARDS = {
   },
   multi: {
     title: 'Multi-Country Inflation Expectations',
-    subtitle: 'Lu & Teoh · IMF Working Paper · Multi-country companion (Consensus only)',
+    subtitle: 'Lu & Teoh · forthcoming IMF Working Paper · Multi-country companion (Consensus only)',
     tabs: [
       { id: 'country', label: 'Country view', sub: 'Per-country charts',     fullHeight: true,  render: () => <MultiCountryPanel /> },
       { id: 'charts',  label: 'Cross country', sub: 'Forwards · Levels · Anchoring', fullHeight: false, render: () => <MultiCountryCharts /> },

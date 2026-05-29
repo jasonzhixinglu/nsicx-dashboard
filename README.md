@@ -5,7 +5,7 @@
 An interactive companion to the working paper *A Composite Term Structure of Japan's Inflation Expectations* (Lu & Teoh, forthcoming IMF Working Paper). The dashboard hosts two views, switched via a link in the header:
 
 - **Japan composite** (default landing) — the six-source composite from the paper.
-- **Multi-country** — the same Nelson–Siegel internally consistent expectations (NSICX) framework applied to 17 economies using a single source (Consensus Economics) for cross-country comparability. Within-CY Consensus forecasts are mapped directly into the NSICX measurement equation via the deterministic no-arbitrage transition F — we do not strip out realized YTD inflation. See `public/data/multicountry/methodology.pdf` for the derivation. Australia and New Zealand publish CPI quarterly; their realized-CPI line is interpolated to monthly steps for display.
+- **Multi-country** — the same Nelson–Siegel internally consistent expectations (NSICX) framework applied to 17 economies using a single source (Consensus Economics) for cross-country comparability. Within-CY Consensus forecasts are mapped directly into the NSICX measurement equation via the deterministic no-arbitrage transition F — we do not strip out realized YTD inflation. See `public/data/multicountry/methodology.pdf` for the derivation. Australia and New Zealand publish CPI quarterly; their realized-CPI line is interpolated to monthly steps for display. The Real rates tab combines the NSICX expected-inflation curve with monthly Nelson-Siegel-Svensson fits to sovereign bond yields (estimated out to 30Y, displayed to 10Y where NSICX is identified) — available for the 13 countries with sovereign-yield coverage in haver-data.
 
 The header toggle switches between dark and light mode; preference is persisted in `localStorage`. Active dashboard, active tab, and selector state (vintage, view mode, etc.) are persisted within a session via `sessionStorage`.
 
@@ -25,8 +25,9 @@ The header toggle switches between dark and light mode; preference is persisted 
 
 | Tab | Contents |
 |---|---|
-| Country view | Chart A whisker + Chart B term structure for a single country (regional country dropdown, per-country target, KeyResults sidebar) |
-| Cross country | **Forwards** (cross-country bar chart of forward-rate changes between two user-selected vintages with `to > from`, selectable window: 1y / 1y1y / 2y3y / 5y5y), **Levels** (two side-by-side bar charts of vintage-to-vintage change in the model-implied CPI growth — end-2025 → end-2026 and the 2-year cumulative through end-2027 — driven by a shared From/To vintage selector, country order matching the Country view; the CY forecast is reconstructed from the filtered NSICX state via the calendar-mode measurement equation rather than read off the raw survey), **Anchoring** (trend level vs target: Apr LT t25 deviation from each country's central-bank target with optional Jan robustness; trend sensitivity to surprises: β from regressing the long end on a survey surprise, with optional raw-revisions robustness; continuous HSL color encoding) |
+| Country view | Chart A whisker + Chart B term structure for a single country (regional country dropdown, per-country target, KeyResults sidebar). All 17 countries available. |
+| Cross country | **Forwards** (cross-country bar chart of forward-rate changes between two user-selected vintages with `to > from`, selectable window: 1y / 1y1y / 2y3y / 5y5y; X axis anchored across vintages for visual comparability), **Levels** (two side-by-side bar charts of vintage-to-vintage change in the model-implied CPI growth — end-2025 → end-2026 and the 2-year cumulative through end-2027 — driven by a shared From/To vintage selector, country order matching the Country view; the CY forecast is reconstructed from the filtered NSICX state via the calendar-mode measurement equation rather than read off the raw survey), **Anchoring** (trend level vs target: Apr LT t25 deviation from each country's central-bank target with optional Jan robustness; trend sensitivity to surprises: β from regressing the long end on a survey surprise, with optional raw-revisions robustness; continuous HSL color encoding). Forwards and Levels filter to 13 countries (Brazil, Mexico, Russia, Turkey omitted — high-inflation regimes distort the scale); Anchoring keeps all 17. |
+| Real rates | Cleveland-Fed-style accordion of three sections: **Snapshot across countries** (table on the LHS + sorted bar chart on the RHS for a selected horizon; color encodes the gap to the US at the same horizon, ±2pp clamp; vintage and 1Y/2Y/5Y/10Y horizon selectors), **Term structure snapshot** (nominal Svensson curve, NSICX expected inflation, real wedge; observed-yield dots overlaid ≤10Y), **Real rates history** (line chart over time at 1/2/5/10Y horizons for a selected country; pill toggles per horizon). 13 countries (only those with a Svensson-fitted sovereign curve — Brazil/Mexico/Russia/Turkey have no sovereign yields in haver-data). |
 | About | Methodology, authors |
 
 URL state persisted: `?dashboard=multi&country=usa` etc.
@@ -61,13 +62,21 @@ This pulls `jpcij@japan` (Japan CPI index, NSA) from the [haver-data repo](https
 public/data/multicountry/
   README.md                       schema reference
   manifest.json                   country list, last vintages, survey periods,
-                                  pipeline_variant ("calendar_mode_no_strip")
+                                  pipeline_variant ("calendar_mode_no_strip"),
+                                  plus has_svensson / svensson_start / svensson_T
+                                  / n_yield_obs / realized_cpi_source per country
   methodology.pdf                 design note on the direct measurement scheme
   countries/{slug}/
     states.json                   filtered + smoothed L/S/C with SEs, plus lambda
-    cpi.json                      CPI YoY series
+    cpi.json                      CPI YoY series (realized_cpi_source flag)
     surveys.json                  Consensus survey rows (ST + LT) for snapshot vintages
     mle.json                      MLE summary
+    svensson.json                 Nelson-Siegel-Svensson monthly fit params
+                                  (b0..b3, lam1, lam2) — only for the 13 countries
+                                  with has_svensson=true
+    observed_yields.json          end-of-month sovereign yields underlying the
+                                  Svensson fit (long format {d, tau, y}) — same
+                                  13-country coverage
   cross_country/
     anchoring.json                anchoring regressions (main + raw_revisions),
                                   estimated against the filtered NSICX states
@@ -88,6 +97,9 @@ The dashboard offers downloadable extracts:
   - `forward_rate_changes.csv` — long-format file with `from_value` / `to_value` levels alongside the precomputed `change`. Each row is one (country, from_vintage, to_vintage, window) combination; rows are emitted where both endpoints exist in that country's filtered states.
   - `levels.csv` — model-implied cumulative CPI growth from end-2025 to end-2026 and end-2027, per country × vintage, with cumulative target and per-year deviation.
   - `anchoring.csv` — per-country level + sensitivity stats.
+- **Multi-country — Real rates**:
+  - `real_rates_horizons.csv` — long-format: country × date × {1, 2, 5, 10}Y horizon × {nominal, expected_inflation, real} (% p.a.). Full history × 13 countries.
+  - `real_term_structure.csv` — long-format: country × date × tau_months (1..120) × {nominal, expected_inflation, real, observed_yield} (% p.a.). `observed_yield_pct` is populated only at the published maturities (3m, 6m, 1y, 2y, 5y, 10y); empty otherwise.
 
 ## Local development
 

@@ -52,7 +52,7 @@ export default function MultiCountryAbout() {
 
         <div className="space-y-3 text-sm text-slate-900 dark:text-white leading-relaxed">
           <p>
-            This view applies the NSICX model from the working paper to Consensus Economics data across 17 economies. The paper's Japan composite combines six survey sources; here all 17 countries use Consensus alone for cross-country comparability. Estimated by maximum likelihood over the post-2001 sample, with results shown from 2002 onward to let the Kalman state initialize.
+            This dashboard applies the NSICX model from the working paper to Consensus Economics data across 17 economies. The paper's Japan composite combines six survey sources; here all 17 countries use Consensus alone for cross-country comparability. Estimated by maximum likelihood over the post-2001 sample, with results shown from 2002 onward to let the Kalman state initialize. For Australia (pre-April 2024) and New Zealand, the underlying CPI is published quarterly; the index is linearly interpolated between quarter-ends and monthly YoY rates are constructed from the interpolated index.
           </p>
 
           <p>
@@ -60,7 +60,7 @@ export default function MultiCountryAbout() {
           </p>
 
           <p>
-            <span className="font-medium">Real rates.</span> The Real rates tab overlays the NSICX expected-inflation curve on Nelson-Siegel-Svensson nominal sovereign yield curves, fitted to bond yields out to 30Y (displayed to 10Y where NSICX is identified). Yields are sampled mid-month to align with the Consensus survey timing. Available for 13 economies, omitting Brazil, Mexico, Russia, and Turkey. For Australia (pre-April 2024) and New Zealand, the underlying CPI is published quarterly; the index is linearly interpolated between quarter-ends and monthly YoY rates are constructed from the interpolated index.
+            <span className="font-medium">Real rates.</span> The Real rates tab overlays the NSICX expected-inflation curve on Nelson-Siegel-Svensson nominal sovereign yield curves, fitted to bond yields out to 30Y (displayed to 10Y where NSICX is identified). Yields are sampled mid-month to align with the Consensus survey timing. Available for 13 economies, omitting Brazil, Mexico, Russia, and Turkey.
           </p>
         </div>
       </div>

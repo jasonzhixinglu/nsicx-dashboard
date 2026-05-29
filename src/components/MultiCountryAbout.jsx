@@ -52,23 +52,15 @@ export default function MultiCountryAbout() {
 
         <div className="space-y-3 text-sm text-slate-900 dark:text-white leading-relaxed">
           <p>
-            This view applies the NSICX model from the working paper to Consensus Economics data across 17 economies. The paper's Japan composite combines six survey sources; here all 17 countries use Consensus alone for cross-country comparability.
+            This view applies the NSICX model from the working paper to Consensus Economics data across 17 economies. The paper's Japan composite combines six survey sources; here all 17 countries use Consensus alone for cross-country comparability. Estimated by maximum likelihood over the post-2001 sample, with results shown from 2002 onward to let the Kalman state initialize.
           </p>
 
           <p>
-            Consensus reports calendar-year inflation forecasts (current and next year) monthly, plus long-range forecasts quarterly since ~2014.
+            <span className="font-medium">Direct measurement.</span> Consensus reports calendar-year inflation forecasts (current and next year) monthly, plus long-range forecasts quarterly since ~2014. Within-calendar-year forecasts map directly into the NS measurement equation via the deterministic NSICX transition F — no stripping of realized YTD inflation. This avoids the year-end leverage explosion, removes the realized-CPI data dependency, and absorbs forecaster inattention into the residual without amplification. Full derivation in <em>methodology.pdf</em>.
           </p>
 
           <p>
-            <span className="font-medium">Direct measurement.</span> Within-calendar-year forecasts map directly into the NS measurement equation via the deterministic NSICX transition F — no stripping of realized YTD inflation. This avoids the year-end leverage explosion, removes the realized-CPI data dependency, and absorbs forecaster inattention into the residual without amplification. Full derivation in <em>methodology.pdf</em>.
-          </p>
-
-          <p>
-            Estimated over the post-2001 sample; results shown from 2002 onward to let the Kalman state initialize.
-          </p>
-
-          <p>
-            <span className="font-medium">AU and NZ caveat.</span> New Zealand publishes CPI quarterly throughout the sample; for Australia, the source is quarterly prior to April 2024 and natively monthly thereafter. Where the source is quarterly, the CPI index is linearly interpolated in levels between quarter-ends, and monthly YoY rates are constructed from the interpolated index.
+            <span className="font-medium">Real rates.</span> The Real rates tab overlays the NSICX expected-inflation curve on Nelson-Siegel-Svensson nominal sovereign yield curves, fitted to bond yields out to 30Y (displayed to 10Y where NSICX is identified). Yields are sampled mid-month to align with the Consensus survey timing. Available for 13 economies, omitting Brazil, Mexico, Russia, and Turkey. For Australia (pre-April 2024) and New Zealand, the underlying CPI is published quarterly; the index is linearly interpolated between quarter-ends and monthly YoY rates are constructed from the interpolated index.
           </p>
         </div>
       </div>

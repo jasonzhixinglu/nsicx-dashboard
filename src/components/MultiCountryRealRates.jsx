@@ -163,29 +163,83 @@ function YearMonthSelector({ months, value, onChange, label = 'Vintage' }) {
   )
 }
 
-function ModeToggle({ value, onChange }) {
+function triggerCSV(content, filename) {
+  const blob = new Blob([content], { type: 'text/csv' })
+  const url  = URL.createObjectURL(blob)
+  const a    = document.createElement('a')
+  a.href = url; a.download = filename
+  document.body.appendChild(a); a.click()
+  document.body.removeChild(a); URL.revokeObjectURL(url)
+}
+
+function DownloadButton({ onClick, disabled, label }) {
   return (
-    <div className="flex items-center gap-2">
-      <span className="label">Mode</span>
-      <div className="flex items-center">
-        {[{ id: 'avg', label: 'Avg rates' }, { id: 'fwd', label: 'Forwards' }].map((m, i) => (
-          <button
-            key={m.id}
-            onClick={() => onChange(m.id)}
-            className={`text-xs px-3 py-1 transition-colors ${
-              i === 0 ? 'rounded-l border-r border-slate-200 dark:border-slate-700' : 'rounded-r'
-            } ${
-              value === m.id
-                ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
-            }`}
-          >
-            {m.label}
-          </button>
-        ))}
-      </div>
-    </div>
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="text-xs py-1 px-2.5 rounded-md font-medium transition-all bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-1.5"
+    >
+      <svg width="11" height="11" viewBox="0 0 12 12" fill="none" className="shrink-0">
+        <path d="M6 1v7M3.5 5.5 6 8l2.5-2.5M2 10h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+      {label}
+    </button>
   )
+}
+
+// Long-format CSV: country × date × horizon (1/2/5/10y) × {nominal, inflation, real}.
+function downloadHorizonsCSV(allData) {
+  const header = ['country', 'slug', 'date', 'horizon_years', 'nominal_pct', 'expected_inflation_pct', 'real_pct']
+  const rows = [header.join(',')]
+  for (const c of orderCountries(allData)) {
+    const stateByD = Object.fromEntries(c.filtered.map(p => [p.d, p]))
+    for (const sv of c.svensson_params) {
+      const state = stateByD[sv.d]
+      if (!state) continue
+      for (const tau of HORIZONS_YEARS) {
+        const nominal = nominalAt(sv, tau, 'avg')
+        const infl    = inflationAt(state, c.lambda, tau, 'avg')
+        rows.push([
+          c.name, c.slug, sv.d, tau,
+          nominal.toFixed(4), infl.toFixed(4), (nominal - infl).toFixed(4),
+        ].join(','))
+      }
+    }
+  }
+  triggerCSV(rows.join('\n'), 'real_rates_horizons.csv')
+}
+
+// Long-format CSV: country × date × tau_months (1..120) × {nominal, inflation, real, observed (where present)}.
+function downloadTermStructureCSV(allData) {
+  const header = ['country', 'slug', 'date', 'tau_months', 'nominal_pct', 'expected_inflation_pct', 'real_pct', 'observed_yield_pct']
+  const rows = [header.join(',')]
+  for (const c of orderCountries(allData)) {
+    const stateByD = Object.fromEntries(c.filtered.map(p => [p.d, p]))
+    const obsByDate = {}
+    for (const r of c.observed_yields) {
+      if (r.tau > 10) continue
+      const key = r.d
+      if (!obsByDate[key]) obsByDate[key] = {}
+      obsByDate[key][Math.round(r.tau * 12)] = r.y
+    }
+    for (const sv of c.svensson_params) {
+      const state = stateByD[sv.d]
+      if (!state) continue
+      const obsMap = obsByDate[sv.d] || {}
+      for (let i = 1; i <= 120; i++) {
+        const tau = i / 12
+        const nominal = nominalAt(sv, tau, 'avg')
+        const infl    = inflationAt(state, c.lambda, tau, 'avg')
+        const obs     = obsMap[i]
+        rows.push([
+          c.name, c.slug, sv.d, i,
+          nominal.toFixed(4), infl.toFixed(4), (nominal - infl).toFixed(4),
+          obs != null ? obs.toFixed(4) : '',
+        ].join(','))
+      }
+    }
+  }
+  triggerCSV(rows.join('\n'), 'real_term_structure.csv')
 }
 
 function HorizonSelector({ value, onChange }) {
@@ -233,9 +287,9 @@ function CountrySelector({ countries, value, onChange }) {
 // ── § 1 — Snapshot across countries ─────────────────────────────────────────
 
 function SnapshotSection({ allData }) {
-  const [mode, setMode]       = useSessionState('nsicx-real-snap-mode', 'avg')
   const [vintage, setVintage] = useSessionState('nsicx-real-snap-vintage', '2026-05')
   const [horizon, setHorizon] = useSessionState('nsicx-real-snap-horizon', 10)
+  const mode = 'avg'
   const { isDark } = useDarkMode()
   const theme = getTheme(isDark)
 
@@ -284,11 +338,17 @@ function SnapshotSection({ allData }) {
     <div className="space-y-3">
       <div className="flex items-center gap-4 flex-wrap">
         <YearMonthSelector months={commonMonths} value={safeVintage} onChange={setVintage} />
-        <ModeToggle value={mode} onChange={setMode} />
         <HorizonSelector value={horizon} onChange={setHorizon} />
+        <div className="ml-auto">
+          <DownloadButton
+            onClick={() => allData && downloadHorizonsCSV(allData)}
+            disabled={!allData}
+            label="real_rates_horizons.csv"
+          />
+        </div>
       </div>
       <p className="text-xs text-slate-500">
-        Real {mode === 'fwd' ? 'instantaneous-forward' : 'avg-annualized'} rates (% p.a.) at {formatMonthYear(safeVintage)} across the 13 countries with a Svensson curve. Left: full table in regional order. Right: bars for the selected horizon, sorted ascending; color encodes the gap to the US at the same horizon — green at the US level, red for higher, blue for lower (±2pp clamp). Vintage range is the intersection where every country has both a Svensson fit and an NSICX state.
+        Real avg-annualized rates (% p.a.) at {formatMonthYear(safeVintage)} across the 13 countries with a Svensson curve. Left: full table in regional order. Right: bars for the selected horizon, sorted ascending; color encodes the gap to the US at the same horizon — green at the US level, red for higher, blue for lower (±2pp clamp). Vintage range is the intersection where every country has both a Svensson fit and an NSICX state.
       </p>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* LHS: table */}
@@ -368,9 +428,9 @@ function SnapshotSection({ allData }) {
 // ── § 2 — Time series, single country ───────────────────────────────────────
 
 function TimeSeriesSection({ allData }) {
-  const [mode, setMode]               = useSessionState('nsicx-real-ts-mode', 'avg')
   const [countrySlug, setCountrySlug] = useSessionState('nsicx-real-ts-country', 'usa')
   const [activeHorizons, setActiveHorizons] = useState(() => new Set(HORIZONS_YEARS))
+  const mode = 'avg'
   const { isDark } = useDarkMode()
   const theme = getTheme(isDark)
 
@@ -408,10 +468,16 @@ function TimeSeriesSection({ allData }) {
     <div className="space-y-3">
       <div className="flex items-center gap-4 flex-wrap">
         <CountrySelector countries={countries} value={safeSlug} onChange={setCountrySlug} />
-        <ModeToggle value={mode} onChange={setMode} />
+        <div className="ml-auto">
+          <DownloadButton
+            onClick={() => allData && downloadHorizonsCSV(allData)}
+            disabled={!allData}
+            label="real_rates_horizons.csv"
+          />
+        </div>
       </div>
       <p className="text-xs text-slate-500">
-        Time series of {mode === 'fwd' ? 'instantaneous-forward' : 'avg-annualized'} real rate (% p.a.) at 1Y, 2Y, 5Y, 10Y horizons for {country?.name}. Click a horizon pill above the chart to toggle that line.
+        Time series of avg-annualized real rate (% p.a.) at 1Y, 2Y, 5Y, 10Y horizons for {country?.name}. Click a horizon pill above the chart to toggle that line.
       </p>
       <div className="flex flex-wrap gap-1.5 items-center">
         {HORIZONS_YEARS.map(tau => {
@@ -462,9 +528,9 @@ function TimeSeriesSection({ allData }) {
 // ── § 3 — Term structure decomposition ──────────────────────────────────────
 
 function TermStructureSection({ allData }) {
-  const [mode, setMode]               = useSessionState('nsicx-real-term-mode', 'avg')
   const [countrySlug, setCountrySlug] = useSessionState('nsicx-real-term-country', 'usa')
   const [vintage, setVintage]         = useSessionState('nsicx-real-term-vintage', '2026-05')
+  const mode = 'avg'
   const { isDark } = useDarkMode()
   const theme = getTheme(isDark)
 
@@ -534,14 +600,16 @@ function TermStructureSection({ allData }) {
       <div className="flex items-center gap-4 flex-wrap">
         <CountrySelector countries={countries} value={safeSlug} onChange={setCountrySlug} />
         <YearMonthSelector months={monthsForCountry} value={safeVintage} onChange={setVintage} />
-        <ModeToggle value={mode} onChange={setMode} />
+        <div className="ml-auto">
+          <DownloadButton
+            onClick={() => allData && downloadTermStructureCSV(allData)}
+            disabled={!allData}
+            label="real_term_structure.csv"
+          />
+        </div>
       </div>
       <p className="text-xs text-slate-500">
-        {country?.name} at {formatMonthYear(safeVintage)}. Nominal {mode === 'fwd' ? 'forward' : 'avg'} from Svensson, expected inflation from NSICX, real = nominal − inflation.
-        {mode === 'avg'
-          ? ' Dots: observed sovereign yields (≤10Y) at the selected vintage.'
-          : ' Observed yields are zero-coupon (avg) yields, so they aren\'t overlaid in forward mode.'}
-        {' '}Curves clipped at 10Y where NSICX is identified.
+        {country?.name} at {formatMonthYear(safeVintage)}. Nominal avg-annualized yield from Svensson, expected inflation from NSICX, real = nominal − inflation. Dots: observed sovereign yields (≤10Y) at the selected vintage. Curves clipped at 10Y where NSICX is identified.
       </p>
       <div className="h-[260px] lg:h-[380px]">
       <ResponsiveContainer width="100%" height="100%">
@@ -566,9 +634,7 @@ function TermStructureSection({ allData }) {
           <Line type="monotone" dataKey="nominal"   name="Nominal"            stroke={theme.colors.avg} strokeWidth={1.8} dot={false} isAnimationActive={false} />
           <Line type="monotone" dataKey="inflation" name="Expected inflation" stroke="#f97316"          strokeWidth={1.6} dot={false} isAnimationActive={false} />
           <Line type="monotone" dataKey="real"      name="Real"               stroke="#10b981"          strokeWidth={1.8} dot={false} isAnimationActive={false} />
-          {mode === 'avg' && (
-            <Scatter dataKey="obs" name="Observed yield" fill={theme.colors.cpi} shape="circle" isAnimationActive={false} />
-          )}
+          <Scatter dataKey="obs" name="Observed yield" fill={theme.colors.cpi} shape="circle" isAnimationActive={false} />
         </ComposedChart>
       </ResponsiveContainer>
       </div>
@@ -617,11 +683,11 @@ export default function MultiCountryRealRates() {
   return (
     <div className="space-y-3 py-2">
       <p className="text-xs text-slate-500 dark:text-slate-500 leading-relaxed">
-        Nominal curves are fitted to sovereign bond yields using the Nelson-Siegel-Svensson model,
-        with yields sampled mid-month to align with the timing of the Consensus surveys.
-        Real = nominal Svensson − NSICX expected inflation, displayed to 10Y where NSICX is identified.
-        Available for the 13 economies with sovereign yield curves in haver-data
-        (Brazil, Mexico, Russia, Turkey omitted).
+        Nominal curves are fitted to sovereign bond yields out to 30-year maturities using the
+        Nelson-Siegel-Svensson model, with yields sampled mid-month to align with the timing of
+        the Consensus surveys. Real = nominal Svensson − NSICX expected inflation, displayed to
+        10Y where NSICX is identified. Available for the 13 economies with sovereign yield curves
+        in haver-data (Brazil, Mexico, Russia, Turkey omitted).
       </p>
       <div className="divide-y divide-slate-200 dark:divide-slate-800 border-y border-slate-200 dark:border-slate-800">
         <AccordionSection title="Snapshot across countries"

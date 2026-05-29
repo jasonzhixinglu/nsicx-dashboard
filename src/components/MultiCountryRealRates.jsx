@@ -370,8 +370,18 @@ function SnapshotSection({ allData }) {
 function TimeSeriesSection({ allData }) {
   const [mode, setMode]               = useSessionState('nsicx-real-ts-mode', 'avg')
   const [countrySlug, setCountrySlug] = useSessionState('nsicx-real-ts-country', 'usa')
+  const [activeHorizons, setActiveHorizons] = useState(() => new Set(HORIZONS_YEARS))
   const { isDark } = useDarkMode()
   const theme = getTheme(isDark)
+
+  const toggleHorizon = (tau) => {
+    setActiveHorizons(prev => {
+      const next = new Set(prev)
+      if (next.has(tau)) next.delete(tau)
+      else next.add(tau)
+      return next
+    })
+  }
 
   const countries = useMemo(() => (allData ? orderCountries(allData) : []), [allData])
   const safeSlug = countries.find(c => c.slug === countrySlug) ? countrySlug : (countries[0]?.slug ?? 'usa')
@@ -401,8 +411,25 @@ function TimeSeriesSection({ allData }) {
         <ModeToggle value={mode} onChange={setMode} />
       </div>
       <p className="text-xs text-slate-500">
-        Time series of {mode === 'fwd' ? 'instantaneous-forward' : 'avg-annualized'} real rate (% p.a.) at 1Y, 2Y, 5Y, 10Y horizons for {country?.name}. Click a legend entry to toggle that horizon.
+        Time series of {mode === 'fwd' ? 'instantaneous-forward' : 'avg-annualized'} real rate (% p.a.) at 1Y, 2Y, 5Y, 10Y horizons for {country?.name}. Click a horizon pill above the chart to toggle that line.
       </p>
+      <div className="flex flex-wrap gap-1.5 items-center">
+        {HORIZONS_YEARS.map(tau => {
+          const isActive = activeHorizons.has(tau)
+          return (
+            <button
+              key={tau}
+              onClick={() => toggleHorizon(tau)}
+              className={`text-xs px-2 py-0.5 rounded-md font-medium transition-all border ${
+                isActive
+                  ? 'border-transparent text-white'
+                  : 'border-slate-300 dark:border-slate-700 text-slate-500 bg-transparent'
+              }`}
+              style={isActive ? { backgroundColor: HORIZON_COLOR[tau] } : {}}
+            >{tau}Y</button>
+          )
+        })}
+      </div>
       <div className="h-[240px] lg:h-[380px]">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={rows} margin={{ top: 8, right: 24, bottom: 8, left: 8 }}>
@@ -420,9 +447,8 @@ function TimeSeriesSection({ allData }) {
             formatter={(v, name) => [`${v != null ? (+v).toFixed(2) : '—'}%`, name]}
             labelFormatter={d => formatMonthYear(d)}
           />
-          <Legend iconType="line" wrapperStyle={{ fontSize: 11 }} />
           <ReferenceLine y={0} stroke={theme.ui.axis} strokeWidth={1} />
-          {HORIZONS_YEARS.map(tau => (
+          {HORIZONS_YEARS.filter(tau => activeHorizons.has(tau)).map(tau => (
             <Line key={tau} type="monotone" dataKey={'h' + tau} name={`${tau}Y`}
                   stroke={HORIZON_COLOR[tau]} strokeWidth={1.6} dot={false} isAnimationActive={false} />
           ))}
@@ -608,7 +634,7 @@ export default function MultiCountryRealRates() {
                           onToggle={() => toggle('termstructure')}>
           <TermStructureSection allData={allData} />
         </AccordionSection>
-        <AccordionSection title="Real rates history by country"
+        <AccordionSection title="Real rates history"
                           isOpen={safeOpen === 'timeseries'}
                           onToggle={() => toggle('timeseries')}>
           <TimeSeriesSection allData={allData} />

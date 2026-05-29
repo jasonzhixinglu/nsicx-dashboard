@@ -379,10 +379,11 @@ function SnapshotSection({ allData }) {
                   {HORIZONS_YEARS.map(tau => (
                     <td
                       key={tau}
-                      className={`text-right py-1 px-2 font-mono tabular-nums ${
+                      onClick={() => setHorizon(tau)}
+                      className={`text-right py-1 px-2 font-mono tabular-nums cursor-pointer transition-colors ${
                         horizon === tau
                           ? 'text-indigo-700 dark:text-indigo-300 bg-indigo-50/50 dark:bg-indigo-900/10 font-semibold'
-                          : 'text-slate-600 dark:text-slate-400'
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100/60 dark:hover:bg-slate-800/40'
                       }`}
                     >
                       {r['h' + tau] != null ? r['h' + tau].toFixed(2) : '—'}

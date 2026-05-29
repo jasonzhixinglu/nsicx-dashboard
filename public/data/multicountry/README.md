@@ -44,6 +44,10 @@ output/dashboard/
       cpi.json                     CPI YoY series (full sample, SA)
       surveys.json                 Consensus survey rows for the snapshot vintages
       mle.json                     MLE summary (params, log-lik, T, etc.)
+      svensson.json                Svensson NSS fitted curve params, monthly
+                                   (13 countries with sovereign yields only)
+      observed_yields.json         end-of-month sovereign yields underlying
+                                   the Svensson fits (long format)
   cross_country/
     anchoring.json                 anchoring regressions (calmod-state-derived)
 ```
@@ -87,7 +91,9 @@ console.log(usa.lambda, usa.filtered.length);
   "survey_periods":   ["2026-01", "2026-02", "2026-03", "2026-04"],
   "countries":        [{"slug": "usa", "name": "USA", "last_vintage": "2026-04",
                        "T": 304, "n_surveys": 6,
-                       "realized_cpi_source": "haver_monthly_sa"}, ...],
+                       "realized_cpi_source": "haver_monthly_sa",
+                       "has_svensson": true, "svensson_start": "2006-03",
+                       "svensson_T": 243, "n_yield_obs": 2167}, ...],
   "methodology_pdf":  "methodology.pdf"
 }
 ```
@@ -98,6 +104,14 @@ countries: monthly Haver IFS CPI, X-12 SA) or `"interpolated_quarterly"`
 quarter-end anchors before SA; X-12 skipped because the interpolated
 series has no monthly seasonality by construction). The UI should
 surface a caveat for the interpolated countries.
+
+`has_svensson` flags the 13 countries that have sovereign yields in
+`haver-data` and therefore a fitted Svensson nominal curve in
+`svensson.json` plus the underlying observed yields in
+`observed_yields.json`. The 4 missing — Brazil, Mexico, Russia, Turkey
+— have neither file. `svensson_start` is the first month of the panel
+(`null` when `has_svensson` is false); `svensson_T` and `n_yield_obs`
+give the row counts.
 
 ### `countries/{slug}/states.json`
 
@@ -156,6 +170,55 @@ include that horizon. The dashboard interprets per-source.
 Verbatim copy of `output/dns_production/{slug}/mle_summary.json`. Includes
 `params` (qL, qS, qC, lam, v1..v6), `bse` (asymptotic SEs from the MLE
 Hessian), `loglik`, `nobs`.
+
+### `countries/{slug}/svensson.json`
+
+```json
+{"country": "USA",
+ "model":   "nelson_siegel_svensson",
+ "fit":     "per_month_nls_cross_section",
+ "params":  [{"d": "2006-03", "b0": 4.5591, "b1": -7.9971, "b2": 9.5438,
+              "b3": 0.6507, "lam1": 0.0808, "lam2": 12.0491}, ...]}
+```
+
+The fitted Nelson-Siegel-Svensson (NSS) yield curve at maturity τ (in
+years) is reconstructed from a row as
+
+```
+A1(τ, τ_k) = (1 − exp(−τ/τ_k)) / (τ/τ_k)
+y(τ) = b0
+     + b1 ·  A1(τ, 1/lam1)
+     + b2 · [A1(τ, 1/lam1) − exp(−τ·lam1)]
+     + b3 · [A1(τ, 1/lam2) − exp(−τ·lam2)]
+```
+
+Each `params[*]` row is an independent per-month cross-sectional NLS
+fit (4-start multistart) against the observed yields in
+`observed_yields.json` for that month. No time-series filtering across
+months — the path of `b0..b3, lam1, lam2` is noisy and should be read
+as point estimates, not a smoothed state. Yields are in **percent**;
+maturities are in **years**.
+
+Only present for the 13 countries with `has_svensson: true`. Earliest
+panel start is 2006-03 (US, Canada, UK, France, Germany, Italy, Japan,
+Australia); later starts reflect when each country's haver-data yield
+panel begins (China 2011-11, India 2010-01, Indonesia 2010-09, South
+Korea 2013-04, New Zealand starts earlier at 2001-01).
+
+### `countries/{slug}/observed_yields.json`
+
+```json
+{"country": "USA",
+ "source":  "haver_intdaily_monthly_endofmonth",
+ "rows":    [{"d": "2006-03", "tau": 0.25, "y": 4.6104},
+             {"d": "2006-03", "tau": 0.50, "y": 4.8021},
+             {"d": "2006-03", "tau": 2.00, "y": 4.6700}, ...]}
+```
+
+End-of-month sovereign yields underlying the Svensson fit, long format
+to handle sparse-maturity months efficiently. `tau` is the maturity in
+years; `y` is the yield in percent. Pulled from haver-data INTDAILY,
+end-of-month snapshots.
 
 ### `cross_country/anchoring.json`
 

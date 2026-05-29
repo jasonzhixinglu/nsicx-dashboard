@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "pipeline_variant": "calendar_mode_no_strip",
-  "generated_at": "2026-05-22T14:36:51+00:00",
+  "generated_at": "2026-05-29T19:03:09+00:00",
   "survey_periods": [
     "2026-01",
     "2026-02",
@@ -16,7 +16,11 @@
       "last_vintage": "2026-05",
       "T": 305,
       "n_surveys": 5,
-      "realized_cpi_source": "haver_monthly_sa"
+      "realized_cpi_source": "haver_monthly_sa",
+      "has_svensson": true,
+      "svensson_start": "2006-03",
+      "svensson_T": 243,
+      "n_yield_obs": 2332
     },
     {
       "slug": "canada",
@@ -24,7 +28,11 @@
       "last_vintage": "2026-05",
       "T": 305,
       "n_surveys": 5,
-      "realized_cpi_source": "haver_monthly_sa"
+      "realized_cpi_source": "haver_monthly_sa",
+      "has_svensson": true,
+      "svensson_start": "2006-03",
+      "svensson_T": 243,
+      "n_yield_obs": 2038
     },
     {
       "slug": "france",
@@ -32,7 +40,11 @@
       "last_vintage": "2026-05",
       "T": 305,
       "n_surveys": 5,
-      "realized_cpi_source": "haver_monthly_sa"
+      "realized_cpi_source": "haver_monthly_sa",
+      "has_svensson": true,
+      "svensson_start": "2006-03",
+      "svensson_T": 243,
+      "n_yield_obs": 2575
     },
     {
       "slug": "germany",
@@ -40,7 +52,11 @@
       "last_vintage": "2026-05",
       "T": 305,
       "n_surveys": 5,
-      "realized_cpi_source": "haver_monthly_sa"
+      "realized_cpi_source": "haver_monthly_sa",
+      "has_svensson": true,
+      "svensson_start": "2006-03",
+      "svensson_T": 243,
+      "n_yield_obs": 2541
     },
     {
       "slug": "italy",
@@ -48,7 +64,11 @@
       "last_vintage": "2026-05",
       "T": 305,
       "n_surveys": 5,
-      "realized_cpi_source": "haver_monthly_sa"
+      "realized_cpi_source": "haver_monthly_sa",
+      "has_svensson": true,
+      "svensson_start": "2006-03",
+      "svensson_T": 243,
+      "n_yield_obs": 2575
     },
     {
       "slug": "uk",
@@ -56,7 +76,11 @@
       "last_vintage": "2026-05",
       "T": 305,
       "n_surveys": 5,
-      "realized_cpi_source": "haver_monthly_sa"
+      "realized_cpi_source": "haver_monthly_sa",
+      "has_svensson": true,
+      "svensson_start": "2006-03",
+      "svensson_T": 243,
+      "n_yield_obs": 2186
     },
     {
       "slug": "usa",
@@ -64,7 +88,11 @@
       "last_vintage": "2026-05",
       "T": 305,
       "n_surveys": 7,
-      "realized_cpi_source": "haver_monthly_sa"
+      "realized_cpi_source": "haver_monthly_sa",
+      "has_svensson": true,
+      "svensson_start": "2006-03",
+      "svensson_T": 243,
+      "n_yield_obs": 2167
     },
     {
       "slug": "south_korea",
@@ -72,7 +100,11 @@
       "last_vintage": "2026-05",
       "T": 305,
       "n_surveys": 5,
-      "realized_cpi_source": "haver_monthly_sa"
+      "realized_cpi_source": "haver_monthly_sa",
+      "has_svensson": true,
+      "svensson_start": "2013-04",
+      "svensson_T": 158,
+      "n_yield_obs": 1106
     },
     {
       "slug": "china",
@@ -80,7 +112,11 @@
       "last_vintage": "2026-05",
       "T": 305,
       "n_surveys": 5,
-      "realized_cpi_source": "haver_monthly_sa"
+      "realized_cpi_source": "haver_monthly_sa",
+      "has_svensson": true,
+      "svensson_start": "2011-11",
+      "svensson_T": 175,
+      "n_yield_obs": 1574
     },
     {
       "slug": "india",
@@ -88,7 +124,11 @@
       "last_vintage": "2026-05",
       "T": 305,
       "n_surveys": 5,
-      "realized_cpi_source": "haver_monthly_sa"
+      "realized_cpi_source": "haver_monthly_sa",
+      "has_svensson": true,
+      "svensson_start": "2010-01",
+      "svensson_T": 197,
+      "n_yield_obs": 1576
     },
     {
       "slug": "brazil",
@@ -96,7 +136,11 @@
       "last_vintage": "2026-05",
       "T": 302,
       "n_surveys": 5,
-      "realized_cpi_source": "haver_monthly_sa"
+      "realized_cpi_source": "haver_monthly_sa",
+      "has_svensson": false,
+      "svensson_start": null,
+      "svensson_T": 0,
+      "n_yield_obs": 0
     },
     {
       "slug": "mexico",
@@ -104,7 +148,11 @@
       "last_vintage": "2026-05",
       "T": 302,
       "n_surveys": 5,
-      "realized_cpi_source": "haver_monthly_sa"
+      "realized_cpi_source": "haver_monthly_sa",
+      "has_svensson": false,
+      "svensson_start": null,
+      "svensson_T": 0,
+      "n_yield_obs": 0
     },
     {
       "slug": "indonesia",
@@ -112,7 +160,11 @@
       "last_vintage": "2026-05",
       "T": 305,
       "n_surveys": 5,
-      "realized_cpi_source": "haver_monthly_sa"
+      "realized_cpi_source": "haver_monthly_sa",
+      "has_svensson": true,
+      "svensson_start": "2010-09",
+      "svensson_T": 189,
+      "n_yield_obs": 1597
     },
     {
       "slug": "russia",
@@ -120,7 +172,11 @@
       "last_vintage": "2026-05",
       "T": 305,
       "n_surveys": 5,
-      "realized_cpi_source": "haver_monthly_sa"
+      "realized_cpi_source": "haver_monthly_sa",
+      "has_svensson": false,
+      "svensson_start": null,
+      "svensson_T": 0,
+      "n_yield_obs": 0
     },
     {
       "slug": "turkey",
@@ -128,7 +184,11 @@
       "last_vintage": "2026-05",
       "T": 305,
       "n_surveys": 5,
-      "realized_cpi_source": "haver_monthly_sa"
+      "realized_cpi_source": "haver_monthly_sa",
+      "has_svensson": false,
+      "svensson_start": null,
+      "svensson_T": 0,
+      "n_yield_obs": 0
     },
     {
       "slug": "australia",
@@ -136,7 +196,11 @@
       "last_vintage": "2026-05",
       "T": 305,
       "n_surveys": 5,
-      "realized_cpi_source": "interpolated_quarterly"
+      "realized_cpi_source": "interpolated_quarterly",
+      "has_svensson": true,
+      "svensson_start": "2006-03",
+      "svensson_T": 243,
+      "n_yield_obs": 1927
     },
     {
       "slug": "new_zealand",
@@ -144,7 +208,11 @@
       "last_vintage": "2026-05",
       "T": 305,
       "n_surveys": 5,
-      "realized_cpi_source": "interpolated_quarterly"
+      "realized_cpi_source": "interpolated_quarterly",
+      "has_svensson": true,
+      "svensson_start": "2001-01",
+      "svensson_T": 305,
+      "n_yield_obs": 1591
     }
   ],
   "methodology_pdf": "methodology.pdf"

@@ -681,7 +681,7 @@ export default function MultiCountryRealRates() {
   )
 
   return (
-    <div className="space-y-3 py-2">
+    <div className="space-y-3 py-2 max-w-6xl mx-auto">
       <p className="text-xs text-slate-500 dark:text-slate-500 leading-relaxed">
         Nominal curves are fitted to sovereign bond yields out to 30-year maturities using the
         Nelson-Siegel-Svensson model, with yields sampled mid-month to align with the timing of

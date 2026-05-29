@@ -691,10 +691,7 @@ export default function MultiCountryRealRates() {
         <li>
           <span className="font-semibold text-slate-800 dark:text-slate-200">Real rate:</span>
           {' '}Nominal Svensson − NSICX expected inflation, displayed to 10Y where NSICX is identified.
-        </li>
-        <li>
-          <span className="font-semibold text-slate-800 dark:text-slate-200">Coverage:</span>
-          {' '}13 economies with sovereign yield curves in haver-data; Brazil, Mexico, Russia, and Turkey omitted.
+          {' '}Available for 13 economies with sovereign yield curves in haver-data, omitting Brazil, Mexico, Russia, and Turkey.
         </li>
       </ul>
       <div className="divide-y divide-slate-200 dark:divide-slate-800 border-y border-slate-200 dark:border-slate-800">

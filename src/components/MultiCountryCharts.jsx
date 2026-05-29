@@ -753,10 +753,10 @@ function AnchoringView({ manifest }) {
   }, [allSurveys])
 
   // Sort countries by April deviation (most below target → most above) for the chart.
-  const ltSorted = useMemo(() =>
-    [...ltData].filter(d => d.aprDev != null).sort((a, b) => a.aprDev - b.aprDev),
-    [ltData]
-  )
+  const ltSorted = useMemo(() => {
+    const key = showJan ? 'janDev' : 'aprDev'
+    return [...ltData].filter(d => d[key] != null).sort((a, b) => a[key] - b[key])
+  }, [ltData, showJan])
 
   // Sensitivity data: two specs per country.
   //  - mainBeta  = main.delta_ST    (filter-implied long-end on short-horizon survey revision)
@@ -784,6 +784,11 @@ function AnchoringView({ manifest }) {
       .sort((a, b) => (a.mainBeta ?? 0) - (b.mainBeta ?? 0))
   }, [anchoring, manifest])
 
+  const sensSorted = useMemo(() => {
+    const key = showRaw ? 'rawBeta' : 'mainBeta'
+    return [...sensData].filter(d => d[key] != null).sort((a, b) => a[key] - b[key])
+  }, [sensData, showRaw])
+
   if (loading || !ltData.length) {
     return (
       <div className="flex items-center justify-center h-64 text-xs text-slate-500">Loading anchoring data…</div>
@@ -793,12 +798,38 @@ function AnchoringView({ manifest }) {
   return (
     <div className="space-y-3">
 
-      <div className="flex justify-end">
-        <DownloadButton
-          onClick={() => allSurveys && anchoring && downloadAnchoringCSV(allSurveys, anchoring)}
-          disabled={!allSurveys || !anchoring}
-          label="anchoring.csv"
-        />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div>
+          <button
+            onClick={() => setShowJan(!showJan)}
+            className={`text-xs px-2 py-0.5 rounded transition-colors ${
+              showJan
+                ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
+            }`}
+          >
+            {showJan ? 'Showing Jan 2026 (robustness)' : 'Show Jan 2026 (robustness)'}
+          </button>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setShowRaw(!showRaw)}
+            className={`text-xs px-2 py-0.5 rounded transition-colors ${
+              showRaw
+                ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
+            }`}
+          >
+            {showRaw ? 'Showing raw revisions (robustness)' : 'Show raw revisions (robustness)'}
+          </button>
+          <div className="ml-auto">
+            <DownloadButton
+              onClick={() => allSurveys && anchoring && downloadAnchoringCSV(allSurveys, anchoring)}
+              disabled={!allSurveys || !anchoring}
+              label="anchoring.csv"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -806,21 +837,9 @@ function AnchoringView({ manifest }) {
       {/* Section 1: Long-term forwards */}
       <div className="panel p-4 flex flex-col gap-2">
         <div>
-          <div className="flex items-baseline justify-between gap-2 flex-wrap">
-            <div className="label">Trend level vs target</div>
-            <button
-              onClick={() => setShowJan(!showJan)}
-              className={`text-xs px-2 py-0.5 rounded transition-colors ${
-                showJan
-                  ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
-              }`}
-            >
-              {showJan ? '✓ ' : '+ '}Jan 2026 (robustness)
-            </button>
-          </div>
+          <div className="label">Trend level vs target</div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Consensus <em>trend</em> inflation forecast — the 6–10y average (t25 in the LT survey), even longer-run than typical long-horizon expectations — shown as deviation from each country's target for the Apr 2026 LT survey (main). Color encodes the deviation: green at target, red above, blue below. Sorted ascending. Toggle Jan 2026 as a robustness check.
+            Consensus <em>trend</em> inflation forecast — the 6–10y average (t25 in the LT survey), even longer-run than typical long-horizon expectations — shown as deviation from each country's target for the {showJan ? 'Jan' : 'Apr'} 2026 LT survey. Color encodes the deviation: green at target, red above, blue below. Sorted ascending.
           </p>
         </div>
         <ResponsiveContainer width="100%" height={480}>
@@ -865,16 +884,9 @@ function AnchoringView({ manifest }) {
               formatter={n => n === 'janDev' ? 'Jan 2026' : 'Apr 2026'}
             />
             <ReferenceLine x={0} stroke={theme.ui.axis} strokeWidth={1} />
-            {showJan && (
-              <Bar dataKey="janDev" name="janDev" fill="#9ca3af" isAnimationActive={false} barSize={6}>
-                {ltSorted.map(d => (
-                  <Cell key={d.slug} fill={levelDeviationColor(d.janDev, isDark)} fillOpacity={0.55} />
-                ))}
-              </Bar>
-            )}
-            <Bar dataKey="aprDev" name="aprDev" fill="#9ca3af" isAnimationActive={false} barSize={showJan ? 14 : 18}>
+            <Bar dataKey={showJan ? 'janDev' : 'aprDev'} name={showJan ? 'janDev' : 'aprDev'} fill="#9ca3af" isAnimationActive={false} barSize={18}>
               {ltSorted.map(d => (
-                <Cell key={d.slug} fill={levelDeviationColor(d.aprDev, isDark)} />
+                <Cell key={d.slug} fill={levelDeviationColor(showJan ? d.janDev : d.aprDev, isDark)} />
               ))}
             </Bar>
           </BarChart>
@@ -884,27 +896,15 @@ function AnchoringView({ manifest }) {
       {/* Section 2: Sensitivity */}
       <div className="panel p-4 flex flex-col gap-2">
         <div>
-          <div className="flex items-baseline justify-between gap-2 flex-wrap">
-            <div className="label">Trend sensitivity to surprises</div>
-            <button
-              onClick={() => setShowRaw(!showRaw)}
-              className={`text-xs px-2 py-0.5 rounded transition-colors ${
-                showRaw
-                  ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
-              }`}
-            >
-              {showRaw ? '✓ ' : '+ '}Raw revisions (robustness)
-            </button>
-          </div>
+          <div className="label">Trend sensitivity to surprises</div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Slope coefficient β from the anchoring regression of the trend NSICX change (filter-implied) on the short-horizon survey revision (main spec). Color encodes |β|: green near zero (trend well anchored), red as |β| grows. Solid bars: p &lt; 0.05. Toggle the raw-revisions spec as a robustness check.
+            Slope coefficient β from {showRaw ? 'the raw-revisions anchoring regression (raw long-end on same-CY survey-based surprise)' : 'the anchoring regression of the trend NSICX change (filter-implied) on the short-horizon survey revision (main spec)'}. Color encodes |β|: green near zero (trend well anchored), red as |β| grows. Solid bars: p &lt; 0.05. Sorted ascending.
           </p>
         </div>
 
         <ResponsiveContainer width="100%" height={480}>
           <BarChart
-            data={sensData}
+            data={sensSorted}
             layout="vertical"
             margin={{ top: 8, right: 24, bottom: 8, left: 8 }}
             barCategoryGap={6}
@@ -948,21 +948,16 @@ function AnchoringView({ manifest }) {
               formatter={n => n === 'mainBeta' ? 'ST NSICX revision' : 'Raw revisions (robustness)'}
             />
             <ReferenceLine x={0} stroke={theme.ui.axis} strokeWidth={1} />
-            {showRaw && (
-              <Bar dataKey="rawBeta" name="rawBeta" fill="#9ca3af" isAnimationActive={false} barSize={6}>
-                {sensData.map(d => (
+            <Bar dataKey={showRaw ? 'rawBeta' : 'mainBeta'} name={showRaw ? 'rawBeta' : 'mainBeta'} fill="#9ca3af" isAnimationActive={false} barSize={18}>
+              {sensSorted.map(d => {
+                const beta = showRaw ? d.rawBeta : d.mainBeta
+                const p    = showRaw ? d.rawP    : d.mainP
+                return (
                   <Cell key={d.slug}
-                    fill={sensitivityColor(d.rawBeta, isDark)}
-                    fillOpacity={d.rawP != null && d.rawP < 0.05 ? 0.55 : 0.25} />
-                ))}
-              </Bar>
-            )}
-            <Bar dataKey="mainBeta" name="mainBeta" fill="#9ca3af" isAnimationActive={false} barSize={showRaw ? 14 : 18}>
-              {sensData.map(d => (
-                <Cell key={d.slug}
-                  fill={sensitivityColor(d.mainBeta, isDark)}
-                  fillOpacity={d.mainP != null && d.mainP < 0.05 ? 1 : 0.4} />
-              ))}
+                    fill={sensitivityColor(beta, isDark)}
+                    fillOpacity={p != null && p < 0.05 ? 1 : 0.4} />
+                )
+              })}
             </Bar>
           </BarChart>
         </ResponsiveContainer>

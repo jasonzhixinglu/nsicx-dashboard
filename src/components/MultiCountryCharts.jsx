@@ -799,29 +799,51 @@ function AnchoringView({ manifest }) {
     <div className="space-y-3">
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div>
-          <button
-            onClick={() => setShowJan(!showJan)}
-            className={`text-xs px-2 py-0.5 rounded transition-colors ${
-              showJan
-                ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
-            }`}
-          >
-            {showJan ? 'Showing Jan 2026 (robustness)' : 'Show Jan 2026 (robustness)'}
-          </button>
+        <div className="flex items-center">
+          {[
+            { id: false, label: 'Apr 2026' },
+            { id: true,  label: 'Jan 2026 (robustness)' },
+          ].map((opt, i, arr) => (
+            <button
+              key={String(opt.id)}
+              onClick={() => setShowJan(opt.id)}
+              className={`text-xs px-3 py-1 transition-colors ${
+                i === 0 ? 'rounded-l' : ''
+              } ${
+                i === arr.length - 1 ? 'rounded-r' : 'border-r border-slate-200 dark:border-slate-700'
+              } ${
+                showJan === opt.id
+                  ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={() => setShowRaw(!showRaw)}
-            className={`text-xs px-2 py-0.5 rounded transition-colors ${
-              showRaw
-                ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
-            }`}
-          >
-            {showRaw ? 'Showing raw revisions (robustness)' : 'Show raw revisions (robustness)'}
-          </button>
+          <div className="flex items-center">
+            {[
+              { id: false, label: 'ST NSICX revision' },
+              { id: true,  label: 'Raw revisions (robustness)' },
+            ].map((opt, i, arr) => (
+              <button
+                key={String(opt.id)}
+                onClick={() => setShowRaw(opt.id)}
+                className={`text-xs px-3 py-1 transition-colors ${
+                  i === 0 ? 'rounded-l' : ''
+                } ${
+                  i === arr.length - 1 ? 'rounded-r' : 'border-r border-slate-200 dark:border-slate-700'
+                } ${
+                  showRaw === opt.id
+                    ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
           <div className="ml-auto">
             <DownloadButton
               onClick={() => allSurveys && anchoring && downloadAnchoringCSV(allSurveys, anchoring)}

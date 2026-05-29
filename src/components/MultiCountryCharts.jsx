@@ -753,10 +753,12 @@ function AnchoringView({ manifest }) {
   }, [allSurveys])
 
   // Sort countries by April deviation (most below target → most above) for the chart.
-  const ltSorted = useMemo(() => {
-    const key = showJan ? 'janDev' : 'aprDev'
-    return [...ltData].filter(d => d[key] != null).sort((a, b) => a[key] - b[key])
-  }, [ltData, showJan])
+  // Country order is fixed by the main (Apr) spec — toggling robustness swaps
+  // the values shown but does not reshuffle rows.
+  const ltSorted = useMemo(() =>
+    [...ltData].filter(d => d.aprDev != null).sort((a, b) => a.aprDev - b.aprDev),
+    [ltData]
+  )
 
   // Sensitivity data: two specs per country.
   //  - mainBeta  = main.delta_ST    (filter-implied long-end on short-horizon survey revision)
@@ -784,10 +786,12 @@ function AnchoringView({ manifest }) {
       .sort((a, b) => (a.mainBeta ?? 0) - (b.mainBeta ?? 0))
   }, [anchoring, manifest])
 
-  const sensSorted = useMemo(() => {
-    const key = showRaw ? 'rawBeta' : 'mainBeta'
-    return [...sensData].filter(d => d[key] != null).sort((a, b) => a[key] - b[key])
-  }, [sensData, showRaw])
+  // Country order is fixed by the main spec — toggling robustness swaps the
+  // values shown but does not reshuffle rows.
+  const sensSorted = useMemo(() =>
+    [...sensData].sort((a, b) => (a.mainBeta ?? 0) - (b.mainBeta ?? 0)),
+    [sensData]
+  )
 
   if (loading || !ltData.length) {
     return (

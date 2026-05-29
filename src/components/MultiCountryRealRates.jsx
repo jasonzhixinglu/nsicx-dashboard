@@ -334,8 +334,9 @@ function SnapshotSection({ allData }) {
           </table>
         </div>
 
-        {/* RHS: sorted bar chart for selected horizon */}
-        <div>
+        {/* RHS: sorted bar chart for selected horizon (hidden on mobile to
+            keep the table front-and-centre) */}
+        <div className="hidden lg:block">
           <ResponsiveContainer width="100%" height={Math.max(360, sortedRows.length * 26)}>
             <BarChart data={sortedRows} layout="vertical" margin={{ top: 8, right: 24, bottom: 8, left: 8 }}>
               <CartesianGrid strokeDasharray="3 3" stroke={theme.ui.grid} horizontal={false} />
@@ -402,7 +403,8 @@ function TimeSeriesSection({ allData }) {
       <p className="text-xs text-slate-500">
         Time series of {mode === 'fwd' ? 'instantaneous-forward' : 'avg-annualized'} real rate (% p.a.) at 1Y, 2Y, 5Y, 10Y horizons for {country?.name}. Click a legend entry to toggle that horizon.
       </p>
-      <ResponsiveContainer width="100%" height={380}>
+      <div className="h-[240px] lg:h-[380px]">
+      <ResponsiveContainer width="100%" height="100%">
         <LineChart data={rows} margin={{ top: 8, right: 24, bottom: 8, left: 8 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={theme.ui.grid} />
           <XAxis dataKey="d"
@@ -426,6 +428,7 @@ function TimeSeriesSection({ allData }) {
           ))}
         </LineChart>
       </ResponsiveContainer>
+      </div>
     </div>
   )
 }
@@ -514,7 +517,8 @@ function TermStructureSection({ allData }) {
           : ' Observed yields are zero-coupon (avg) yields, so they aren\'t overlaid in forward mode.'}
         {' '}Curves clipped at 10Y where NSICX is identified.
       </p>
-      <ResponsiveContainer width="100%" height={380}>
+      <div className="h-[260px] lg:h-[380px]">
+      <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 8, right: 24, bottom: 8, left: 8 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={theme.ui.grid} />
           <XAxis type="number" dataKey="tauMonths" domain={[0, 120]}
@@ -541,6 +545,7 @@ function TermStructureSection({ allData }) {
           )}
         </ComposedChart>
       </ResponsiveContainer>
+      </div>
     </div>
   )
 }
@@ -586,10 +591,11 @@ export default function MultiCountryRealRates() {
   return (
     <div className="space-y-3 py-2">
       <p className="text-xs text-slate-500 dark:text-slate-500 leading-relaxed">
-        Ex-ante real-rate construction for the 13 economies with available sovereign yield curves
-        (Brazil, Mexico, Russia, and Turkey omitted — no sovereign yields in haver-data).
-        Real = nominal Svensson − NSICX expected inflation (Fisher subtraction; sub-bp impact at current levels).
-        Curves displayed to 10Y where NSICX is identified.
+        Nominal curves are fitted to sovereign bond yields using the Nelson-Siegel-Svensson model,
+        with yields sampled mid-month to align with the timing of the Consensus surveys.
+        Real = nominal Svensson − NSICX expected inflation, displayed to 10Y where NSICX is identified.
+        Available for the 13 economies with sovereign yield curves in haver-data
+        (Brazil, Mexico, Russia, Turkey omitted).
       </p>
       <div className="divide-y divide-slate-200 dark:divide-slate-800 border-y border-slate-200 dark:border-slate-800">
         <AccordionSection title="Snapshot across countries"

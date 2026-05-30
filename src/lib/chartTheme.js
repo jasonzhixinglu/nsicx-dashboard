@@ -6,7 +6,7 @@ export const DARK_THEME = {
     slope:           '#22d3ee',
     curvature:       '#34d399',
     target:          'rgba(251,191,36,0.45)',
-    whisker:         'rgba(148,163,184,0.30)',
+    whisker:         'rgba(34,211,238,0.35)',
     whiskerSelected: '#6366f1',
   },
   strokeWidths: {
@@ -35,7 +35,7 @@ export const LIGHT_THEME = {
     slope:           '#0891b2',
     curvature:       '#059669',
     target:          'rgba(217,119,6,0.45)',
-    whisker:         'rgba(100,116,139,0.30)',
+    whisker:         'rgba(8,145,178,0.35)',
     whiskerSelected: '#4f46e5',
   },
   strokeWidths: DARK_THEME.strokeWidths,

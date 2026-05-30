@@ -35,7 +35,7 @@ export const LIGHT_THEME = {
     slope:           '#0891b2',
     curvature:       '#059669',
     target:          'rgba(217,119,6,0.45)',
-    whisker:         'rgba(100,116,139,0.30)',
+    whisker:         'rgba(71,85,105,0.40)',
     whiskerSelected: '#4f46e5',
   },
   strokeWidths: DARK_THEME.strokeWidths,

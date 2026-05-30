@@ -612,7 +612,7 @@ function TermStructureSection({ allData }) {
       <p className="text-xs text-slate-500">
         {country?.name} at {formatMonthYear(safeVintage)}. Nominal avg-annualized yield from Svensson, expected inflation from NSICX, real = nominal − inflation. Dots: observed sovereign yields (≤10Y) at the selected vintage. Curves clipped at 10Y where NSICX is identified.
       </p>
-      <div className="h-[260px] lg:h-[380px]">
+      <div className="h-[260px] lg:h-[380px] max-w-4xl mx-auto w-full">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 8, right: 24, bottom: 8, left: 8 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={theme.ui.grid} />

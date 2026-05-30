@@ -682,7 +682,7 @@ export default function MultiCountryRealRates() {
   )
 
   return (
-    <div className="space-y-3 py-2 max-w-6xl mx-auto">
+    <div className="space-y-3 py-2">
       <ul className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed list-disc pl-5 space-y-1.5 marker:text-indigo-500">
         <li>
           <span className="font-semibold text-slate-800 dark:text-slate-200">Nominal curve:</span>

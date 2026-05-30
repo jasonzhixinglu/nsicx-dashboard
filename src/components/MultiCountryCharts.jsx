@@ -1023,7 +1023,7 @@ export default function MultiCountryCharts() {
   )
 
   return (
-    <div className="space-y-4 py-2 max-w-6xl mx-auto">
+    <div className="space-y-4 py-2">
 
       <nav className="flex gap-1.5 border-b border-slate-200 dark:border-slate-800 pb-2">
         {SUB_TABS.map(t => (

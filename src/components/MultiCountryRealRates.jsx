@@ -463,6 +463,12 @@ function TimeSeriesSection({ allData }) {
       })
   }, [country, mode])
 
+  // Explicit January ticks every 4 years, so X axis labels actually render.
+  const xTicks = useMemo(() =>
+    rows.filter(r => r.d.endsWith('-01') && +r.d.slice(0, 4) % 4 === 0).map(r => r.d),
+    [rows]
+  )
+
   if (!allData) return <div className="text-xs text-slate-500">Loading…</div>
 
   return (
@@ -501,11 +507,11 @@ function TimeSeriesSection({ allData }) {
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={rows} margin={{ top: 8, right: 24, bottom: 8, left: 8 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={theme.ui.grid} />
-          <XAxis dataKey="d"
+          <XAxis dataKey="d" type="category"
+                 ticks={xTicks}
+                 tickFormatter={d => d.slice(0, 4)}
                  tick={{ fontSize: theme.ui.tickFontSize, fill: theme.ui.tickLabel }}
-                 axisLine={{ stroke: theme.ui.axis }} tickLine={false}
-                 tickFormatter={d => (d?.endsWith?.('-01') ? d.split('-')[0] : '')}
-                 interval={11} />
+                 axisLine={{ stroke: theme.ui.axis }} tickLine={false} />
           <YAxis tick={{ fontSize: theme.ui.tickFontSize, fill: theme.ui.tickLabel }}
                  axisLine={false} tickLine={false}
                  tickFormatter={v => `${v.toFixed(1)}%`} />
@@ -612,7 +618,7 @@ function TermStructureSection({ allData }) {
       <p className="text-xs text-slate-500">
         {country?.name} at {formatMonthYear(safeVintage)}. Nominal avg-annualized yield from Svensson, expected inflation from NSICX, real = nominal − inflation. Dots: observed sovereign yields (≤10Y) at the selected vintage. Curves clipped at 10Y where NSICX is identified.
       </p>
-      <div className="h-[260px] lg:h-[380px] max-w-4xl mx-auto w-full">
+      <div className="h-[260px] lg:h-[380px]">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={data} margin={{ top: 8, right: 24, bottom: 8, left: 8 }}>
           <CartesianGrid strokeDasharray="3 3" stroke={theme.ui.grid} />

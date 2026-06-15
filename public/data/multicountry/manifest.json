@@ -1,141 +1,141 @@
 {
   "schema_version": 1,
   "pipeline_variant": "calendar_mode_no_strip",
-  "generated_at": "2026-05-29T19:03:09+00:00",
+  "generated_at": "2026-06-15T15:50:59+00:00",
   "survey_periods": [
-    "2026-01",
     "2026-02",
     "2026-03",
     "2026-04",
-    "2026-05"
+    "2026-05",
+    "2026-06"
   ],
   "countries": [
     {
       "slug": "japan",
       "name": "Japan",
-      "last_vintage": "2026-05",
-      "T": 305,
+      "last_vintage": "2026-06",
+      "T": 306,
       "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa",
       "has_svensson": true,
       "svensson_start": "2006-03",
-      "svensson_T": 243,
-      "n_yield_obs": 2332
+      "svensson_T": 244,
+      "n_yield_obs": 2342
     },
     {
       "slug": "canada",
       "name": "Canada",
-      "last_vintage": "2026-05",
-      "T": 305,
+      "last_vintage": "2026-06",
+      "T": 306,
       "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa",
       "has_svensson": true,
       "svensson_start": "2006-03",
-      "svensson_T": 243,
-      "n_yield_obs": 2038
+      "svensson_T": 244,
+      "n_yield_obs": 2047
     },
     {
       "slug": "france",
       "name": "France",
-      "last_vintage": "2026-05",
-      "T": 305,
+      "last_vintage": "2026-06",
+      "T": 306,
       "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa",
       "has_svensson": true,
       "svensson_start": "2006-03",
-      "svensson_T": 243,
-      "n_yield_obs": 2575
+      "svensson_T": 244,
+      "n_yield_obs": 2586
     },
     {
       "slug": "germany",
       "name": "Germany",
-      "last_vintage": "2026-05",
-      "T": 305,
+      "last_vintage": "2026-06",
+      "T": 306,
       "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa",
       "has_svensson": true,
       "svensson_start": "2006-03",
-      "svensson_T": 243,
-      "n_yield_obs": 2541
+      "svensson_T": 244,
+      "n_yield_obs": 2552
     },
     {
       "slug": "italy",
       "name": "Italy",
-      "last_vintage": "2026-05",
-      "T": 305,
+      "last_vintage": "2026-06",
+      "T": 306,
       "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa",
       "has_svensson": true,
       "svensson_start": "2006-03",
-      "svensson_T": 243,
-      "n_yield_obs": 2575
+      "svensson_T": 244,
+      "n_yield_obs": 2586
     },
     {
       "slug": "uk",
       "name": "UK",
-      "last_vintage": "2026-05",
-      "T": 305,
+      "last_vintage": "2026-06",
+      "T": 306,
       "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa",
       "has_svensson": true,
       "svensson_start": "2006-03",
-      "svensson_T": 243,
-      "n_yield_obs": 2186
+      "svensson_T": 244,
+      "n_yield_obs": 2195
     },
     {
       "slug": "usa",
       "name": "USA",
-      "last_vintage": "2026-05",
-      "T": 305,
-      "n_surveys": 7,
+      "last_vintage": "2026-06",
+      "T": 306,
+      "n_surveys": 6,
       "realized_cpi_source": "haver_monthly_sa",
       "has_svensson": true,
       "svensson_start": "2006-03",
-      "svensson_T": 243,
-      "n_yield_obs": 2167
+      "svensson_T": 244,
+      "n_yield_obs": 2177
     },
     {
       "slug": "south_korea",
       "name": "South Korea",
-      "last_vintage": "2026-05",
-      "T": 305,
+      "last_vintage": "2026-06",
+      "T": 306,
       "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa",
       "has_svensson": true,
       "svensson_start": "2013-04",
-      "svensson_T": 158,
-      "n_yield_obs": 1106
+      "svensson_T": 159,
+      "n_yield_obs": 1113
     },
     {
       "slug": "china",
       "name": "China",
-      "last_vintage": "2026-05",
-      "T": 305,
+      "last_vintage": "2026-06",
+      "T": 306,
       "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa",
       "has_svensson": true,
       "svensson_start": "2011-11",
-      "svensson_T": 175,
-      "n_yield_obs": 1574
+      "svensson_T": 176,
+      "n_yield_obs": 1583
     },
     {
       "slug": "india",
       "name": "India",
-      "last_vintage": "2026-05",
-      "T": 305,
+      "last_vintage": "2026-06",
+      "T": 306,
       "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa",
       "has_svensson": true,
       "svensson_start": "2010-01",
-      "svensson_T": 197,
-      "n_yield_obs": 1576
+      "svensson_T": 198,
+      "n_yield_obs": 1584
     },
     {
       "slug": "brazil",
       "name": "Brazil",
       "last_vintage": "2026-05",
       "T": 302,
-      "n_surveys": 5,
+      "n_surveys": 4,
       "realized_cpi_source": "haver_monthly_sa",
       "has_svensson": false,
       "svensson_start": null,
@@ -147,7 +147,7 @@
       "name": "Mexico",
       "last_vintage": "2026-05",
       "T": 302,
-      "n_surveys": 5,
+      "n_surveys": 4,
       "realized_cpi_source": "haver_monthly_sa",
       "has_svensson": false,
       "svensson_start": null,
@@ -157,21 +157,21 @@
     {
       "slug": "indonesia",
       "name": "Indonesia",
-      "last_vintage": "2026-05",
-      "T": 305,
+      "last_vintage": "2026-06",
+      "T": 306,
       "n_surveys": 5,
       "realized_cpi_source": "haver_monthly_sa",
       "has_svensson": true,
       "svensson_start": "2010-09",
-      "svensson_T": 189,
-      "n_yield_obs": 1597
+      "svensson_T": 190,
+      "n_yield_obs": 1606
     },
     {
       "slug": "russia",
       "name": "Russia",
       "last_vintage": "2026-05",
       "T": 305,
-      "n_surveys": 5,
+      "n_surveys": 4,
       "realized_cpi_source": "haver_monthly_sa",
       "has_svensson": false,
       "svensson_start": null,
@@ -183,7 +183,7 @@
       "name": "Turkey",
       "last_vintage": "2026-05",
       "T": 305,
-      "n_surveys": 5,
+      "n_surveys": 4,
       "realized_cpi_source": "haver_monthly_sa",
       "has_svensson": false,
       "svensson_start": null,
@@ -193,26 +193,26 @@
     {
       "slug": "australia",
       "name": "Australia",
-      "last_vintage": "2026-05",
-      "T": 305,
+      "last_vintage": "2026-06",
+      "T": 306,
       "n_surveys": 5,
       "realized_cpi_source": "interpolated_quarterly",
       "has_svensson": true,
       "svensson_start": "2006-03",
-      "svensson_T": 243,
-      "n_yield_obs": 1927
+      "svensson_T": 244,
+      "n_yield_obs": 1936
     },
     {
       "slug": "new_zealand",
       "name": "New Zealand",
-      "last_vintage": "2026-05",
-      "T": 305,
+      "last_vintage": "2026-06",
+      "T": 306,
       "n_surveys": 5,
       "realized_cpi_source": "interpolated_quarterly",
       "has_svensson": true,
       "svensson_start": "2001-01",
-      "svensson_T": 305,
-      "n_yield_obs": 1591
+      "svensson_T": 306,
+      "n_yield_obs": 1598
     }
   ],
   "methodology_pdf": "methodology.pdf"

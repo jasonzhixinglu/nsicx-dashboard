@@ -32,8 +32,8 @@ const FORWARD_WINDOWS = [
   { key: '5y5y', label: '5y5y', a: 60, b: 120 },
 ]
 
-const SURVEY_PERIODS = ['2026-01', '2026-02', '2026-03', '2026-04', '2026-05']
-const TO_VINTAGE = '2026-05'
+const SURVEY_PERIODS = ['2026-02', '2026-03', '2026-04', '2026-05', '2026-06']
+const TO_VINTAGE = '2026-06'
 
 // High-inflation regimes that distort the bar-chart scale on the Cross-country
 // views. Forwards and Levels filter these out and anchor their X axes to the
@@ -291,7 +291,7 @@ function LevelChangePanel({ year, allStates, fromVintage, toVintage, isDark, the
 
 function LevelsView({ manifest }) {
   const [allStates, setAllStates] = useState(null)
-  const [fromVintage, setFromVintage] = useSessionState('nsicx-levels-from', '2026-01')
+  const [fromVintage, setFromVintage] = useSessionState('nsicx-levels-from', '2026-02')
   const [toVintage,   setToVintage]   = useSessionState('nsicx-levels-to',   TO_VINTAGE)
   const { isDark } = useDarkMode()
   const theme = getTheme(isDark)
@@ -438,32 +438,23 @@ function downloadChangesCSV(allStates) {
 function downloadAnchoringCSV(allSurveys, anchoring) {
   const header = [
     'country', 'slug', 'target',
-    'jan_t25', 'apr_t25', 'jan_dev', 'apr_dev',
+    'apr_t25', 'apr_dev',
     'main_delta_ST_beta', 'main_delta_ST_p', 'main_delta_ST_r2', 'main_delta_ST_T',
-    'raw_pi_sur_beta',    'raw_pi_sur_p',    'raw_pi_sur_r2',    'raw_pi_sur_T',
   ]
   const rows = [header.join(',')]
 
   for (const c of allSurveys) {
     const target = INFLATION_TARGETS[c.slug] ?? 2
-    const jan = c.surveys.rows.find(r => r.survey_period === '2026-01' && r.source === 'LT')
     const apr = c.surveys.rows.find(r => r.survey_period === '2026-04' && r.source === 'LT')
     const m = anchoring.main[c.name]?.delta_ST
-    const r = anchoring.raw_revisions[c.name]?.pi_sur
     rows.push([
       c.name, c.slug, target,
-      jan?.t25 != null ? jan.t25.toFixed(4) : '',
       apr?.t25 != null ? apr.t25.toFixed(4) : '',
-      jan?.t25 != null ? (jan.t25 - target).toFixed(4) : '',
       apr?.t25 != null ? (apr.t25 - target).toFixed(4) : '',
       m?.beta != null   ? m.beta.toFixed(4)   : '',
       m?.p_beta != null ? m.p_beta.toFixed(4) : '',
       m?.r2 != null     ? m.r2.toFixed(4)     : '',
       m?.T ?? '',
-      r?.beta != null   ? r.beta.toFixed(4)   : '',
-      r?.p_beta != null ? r.p_beta.toFixed(4) : '',
-      r?.r2 != null     ? r.r2.toFixed(4)     : '',
-      r?.T ?? '',
     ].join(','))
   }
 
@@ -473,7 +464,7 @@ function downloadAnchoringCSV(allSurveys, anchoring) {
 function ForwardRatesView({ manifest }) {
   const [allStates, setAllStates] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [fromVintage, setFromVintage] = useSessionState('nsicx-forwards-from',   '2026-01')
+  const [fromVintage, setFromVintage] = useSessionState('nsicx-forwards-from',   '2026-02')
   const [toVintage,   setToVintage]   = useSessionState('nsicx-forwards-to',     TO_VINTAGE)
   const [windowKey,   setWindowKey]   = useSessionState('nsicx-forwards-window', '5y5y')
   const { isDark } = useDarkMode()
@@ -711,8 +702,6 @@ function AnchoringView({ manifest }) {
   const [anchoring, setAnchoring] = useState(null)
   const [allSurveys, setAllSurveys] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [showJan, setShowJan] = useSessionState('nsicx-anchoring-show-jan', false)
-  const [showRaw, setShowRaw] = useSessionState('nsicx-anchoring-show-raw', false)
   const { isDark } = useDarkMode()
   const theme = getTheme(isDark)
 
@@ -733,43 +722,35 @@ function AnchoringView({ manifest }) {
     })
   }, [manifest])
 
-  // Long-term anchoring data: Jan and Apr LT t25 vs target.
+  // Long-term anchoring: Apr LT t25 vs target.
   const ltData = useMemo(() => {
     if (!allSurveys) return []
     return allSurveys.map(c => {
-      const jan = c.surveys.rows.find(r => r.survey_period === '2026-01' && r.source === 'LT')
       const apr = c.surveys.rows.find(r => r.survey_period === '2026-04' && r.source === 'LT')
       const target = INFLATION_TARGETS[c.slug] ?? 2
       return {
         slug: c.slug,
         name: c.name,
         target,
-        jan: jan?.t25 ?? null,
         apr: apr?.t25 ?? null,
-        janDev: jan?.t25 != null ? +(jan.t25 - target).toFixed(4) : null,
         aprDev: apr?.t25 != null ? +(apr.t25 - target).toFixed(4) : null,
       }
     })
   }, [allSurveys])
 
-  // Sort countries by April deviation (most below target → most above) for the chart.
-  // Country order is fixed by the main (Apr) spec — toggling robustness swaps
-  // the values shown but does not reshuffle rows.
+  // Sort countries by April deviation (most below target → most above).
   const ltSorted = useMemo(() =>
     [...ltData].filter(d => d.aprDev != null).sort((a, b) => a.aprDev - b.aprDev),
     [ltData]
   )
 
-  // Sensitivity data: two specs per country.
-  //  - mainBeta  = main.delta_ST    (filter-implied long-end on short-horizon survey revision)
-  //  - rawBeta   = raw_revisions.pi_sur (raw long-end on same-CY survey-based surprise)
-  const sensData = useMemo(() => {
+  // Sensitivity: main spec only — β from delta_ST regression.
+  const sensSorted = useMemo(() => {
     if (!anchoring || !manifest) return []
     const slugByName = Object.fromEntries(manifest.countries.map(c => [c.name, c.slug]))
     const names = Object.keys(anchoring.main)
     return names.map(name => {
       const m = anchoring.main[name]?.delta_ST
-      const r = anchoring.raw_revisions[name]?.pi_sur
       return {
         name,
         slug: slugByName[name],
@@ -777,21 +758,10 @@ function AnchoringView({ manifest }) {
         mainP:    m?.p_beta ?? null,
         mainR2:   m?.r2 ?? null,
         mainT:    m?.T ?? null,
-        rawBeta:  r ? +r.beta.toFixed(4) : null,
-        rawP:     r?.p_beta ?? null,
-        rawR2:    r?.r2 ?? null,
-        rawT:     r?.T ?? null,
       }
-    }).filter(d => d.mainBeta != null || d.rawBeta != null)
-      .sort((a, b) => (a.mainBeta ?? 0) - (b.mainBeta ?? 0))
+    }).filter(d => d.mainBeta != null)
+      .sort((a, b) => a.mainBeta - b.mainBeta)
   }, [anchoring, manifest])
-
-  // Country order is fixed by the main spec — toggling robustness swaps the
-  // values shown but does not reshuffle rows.
-  const sensSorted = useMemo(() =>
-    [...sensData].sort((a, b) => (a.mainBeta ?? 0) - (b.mainBeta ?? 0)),
-    [sensData]
-  )
 
   if (loading || !ltData.length) {
     return (
@@ -802,60 +772,12 @@ function AnchoringView({ manifest }) {
   return (
     <div className="space-y-3">
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="flex items-center">
-          {[
-            { id: false, label: 'Apr 2026' },
-            { id: true,  label: 'Jan 2026 (robustness)' },
-          ].map((opt, i, arr) => (
-            <button
-              key={String(opt.id)}
-              onClick={() => setShowJan(opt.id)}
-              className={`text-xs px-3 py-1 transition-colors ${
-                i === 0 ? 'rounded-l' : ''
-              } ${
-                i === arr.length - 1 ? 'rounded-r' : 'border-r border-slate-200 dark:border-slate-700'
-              } ${
-                showJan === opt.id
-                  ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center">
-            {[
-              { id: false, label: 'ST NSICX revision' },
-              { id: true,  label: 'Raw revisions (robustness)' },
-            ].map((opt, i, arr) => (
-              <button
-                key={String(opt.id)}
-                onClick={() => setShowRaw(opt.id)}
-                className={`text-xs px-3 py-1 transition-colors ${
-                  i === 0 ? 'rounded-l' : ''
-                } ${
-                  i === arr.length - 1 ? 'rounded-r' : 'border-r border-slate-200 dark:border-slate-700'
-                } ${
-                  showRaw === opt.id
-                    ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-medium'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700'
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-          <div className="ml-auto">
-            <DownloadButton
-              onClick={() => allSurveys && anchoring && downloadAnchoringCSV(allSurveys, anchoring)}
-              disabled={!allSurveys || !anchoring}
-              label="anchoring.csv"
-            />
-          </div>
-        </div>
+      <div className="flex justify-end">
+        <DownloadButton
+          onClick={() => allSurveys && anchoring && downloadAnchoringCSV(allSurveys, anchoring)}
+          disabled={!allSurveys || !anchoring}
+          label="anchoring.csv"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -865,7 +787,7 @@ function AnchoringView({ manifest }) {
         <div>
           <div className="label">Trend level vs target</div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Consensus <em>trend</em> inflation forecast — the 6–10y average (t25 in the LT survey), even longer-run than typical long-horizon expectations — shown as deviation from each country's target for the {showJan ? 'Jan' : 'Apr'} 2026 LT survey. Color encodes the deviation: green at target, red above, blue below. Sorted ascending.
+            Consensus <em>trend</em> inflation forecast — the 6–10y average (t25 in the LT survey), even longer-run than typical long-horizon expectations — shown as deviation from each country's target for the Apr 2026 LT survey. Color encodes the deviation: green at target, red above, blue below. Sorted ascending.
           </p>
         </div>
         <ResponsiveContainer width="100%" height={480}>
@@ -893,26 +815,17 @@ function AnchoringView({ manifest }) {
             />
             <Tooltip
               contentStyle={getTooltipStyle(isDark)}
-              formatter={(v, name, ctx) => {
+              formatter={(v, _name, ctx) => {
                 const d = ctx?.payload
-                if (!d) return [`${(+v).toFixed(2)}pp`, name]
-                if (name === 'janDev') return [`${v >= 0 ? '+' : ''}${v.toFixed(2)}pp  (LT t25 = ${d.jan?.toFixed(2) ?? '—'}, target ${d.target}%)`, 'Jan 2026']
-                if (name === 'aprDev') return [`${v >= 0 ? '+' : ''}${v.toFixed(2)}pp  (LT t25 = ${d.apr?.toFixed(2) ?? '—'}, target ${d.target}%)`, 'Apr 2026']
-                return [`${(+v).toFixed(2)}pp`, name]
+                if (!d) return [`${(+v).toFixed(2)}pp`, 'Apr 2026']
+                return [`${v >= 0 ? '+' : ''}${v.toFixed(2)}pp  (LT t25 = ${d.apr?.toFixed(2) ?? '—'}, target ${d.target}%)`, 'Apr 2026']
               }}
               labelFormatter={n => n}
             />
-            <Legend
-              verticalAlign="top"
-              height={20}
-              iconSize={8}
-              wrapperStyle={{ fontSize: 11 }}
-              formatter={n => n === 'janDev' ? 'Jan 2026' : 'Apr 2026'}
-            />
             <ReferenceLine x={0} stroke={theme.ui.axis} strokeWidth={1} />
-            <Bar dataKey={showJan ? 'janDev' : 'aprDev'} name={showJan ? 'janDev' : 'aprDev'} fill="#9ca3af" isAnimationActive={false} barSize={18}>
+            <Bar dataKey="aprDev" fill="#9ca3af" isAnimationActive={false} barSize={18}>
               {ltSorted.map(d => (
-                <Cell key={d.slug} fill={levelDeviationColor(showJan ? d.janDev : d.aprDev, isDark)} />
+                <Cell key={d.slug} fill={levelDeviationColor(d.aprDev, isDark)} />
               ))}
             </Bar>
           </BarChart>
@@ -924,7 +837,7 @@ function AnchoringView({ manifest }) {
         <div>
           <div className="label">Trend sensitivity to surprises</div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Slope coefficient β from {showRaw ? 'the raw-revisions anchoring regression (raw long-end on same-CY survey-based surprise)' : 'the anchoring regression of the trend NSICX change (filter-implied) on the short-horizon survey revision (main spec)'}. Color encodes |β|: green near zero (trend well anchored), red as |β| grows. Solid bars: p &lt; 0.05. Sorted ascending.
+            Slope coefficient β from the anchoring regression of the trend NSICX change (filter-implied) on the short-horizon survey revision. Color encodes |β|: green near zero (trend well anchored), red as |β| grows. Solid bars: p &lt; 0.05. Sorted ascending.
           </p>
         </div>
 
@@ -953,37 +866,20 @@ function AnchoringView({ manifest }) {
             />
             <Tooltip
               contentStyle={getTooltipStyle(isDark)}
-              formatter={(v, name, ctx) => {
+              formatter={(v, _name, ctx) => {
                 const d = ctx?.payload
-                if (!d) return [v?.toFixed(3), name]
-                if (name === 'mainBeta') {
-                  return [`β = ${v.toFixed(4)}  (p=${d.mainP?.toFixed(3) ?? '—'}, R²=${d.mainR2?.toFixed(3) ?? '—'}, T=${d.mainT ?? '—'})`, 'ST NSICX revision']
-                }
-                if (name === 'rawBeta') {
-                  return [`β = ${v.toFixed(4)}  (p=${d.rawP?.toFixed(3) ?? '—'}, R²=${d.rawR2?.toFixed(3) ?? '—'}, T=${d.rawT ?? '—'})`, 'Raw revisions (robustness)']
-                }
-                return [v?.toFixed(3), name]
+                if (!d) return [v?.toFixed(3), 'β']
+                return [`β = ${v.toFixed(4)}  (p=${d.mainP?.toFixed(3) ?? '—'}, R²=${d.mainR2?.toFixed(3) ?? '—'}, T=${d.mainT ?? '—'})`, 'ST NSICX revision']
               }}
               labelFormatter={n => n}
             />
-            <Legend
-              verticalAlign="top"
-              height={20}
-              iconSize={8}
-              wrapperStyle={{ fontSize: 11 }}
-              formatter={n => n === 'mainBeta' ? 'ST NSICX revision' : 'Raw revisions (robustness)'}
-            />
             <ReferenceLine x={0} stroke={theme.ui.axis} strokeWidth={1} />
-            <Bar dataKey={showRaw ? 'rawBeta' : 'mainBeta'} name={showRaw ? 'rawBeta' : 'mainBeta'} fill="#9ca3af" isAnimationActive={false} barSize={18}>
-              {sensSorted.map(d => {
-                const beta = showRaw ? d.rawBeta : d.mainBeta
-                const p    = showRaw ? d.rawP    : d.mainP
-                return (
-                  <Cell key={d.slug}
-                    fill={sensitivityColor(beta, isDark)}
-                    fillOpacity={p != null && p < 0.05 ? 1 : 0.4} />
-                )
-              })}
+            <Bar dataKey="mainBeta" fill="#9ca3af" isAnimationActive={false} barSize={18}>
+              {sensSorted.map(d => (
+                <Cell key={d.slug}
+                  fill={sensitivityColor(d.mainBeta, isDark)}
+                  fillOpacity={d.mainP != null && d.mainP < 0.05 ? 1 : 0.4} />
+              ))}
             </Bar>
           </BarChart>
         </ResponsiveContainer>

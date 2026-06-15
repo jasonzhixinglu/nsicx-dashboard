@@ -287,7 +287,7 @@ function CountrySelector({ countries, value, onChange }) {
 // ── § 1 — Snapshot across countries ─────────────────────────────────────────
 
 function SnapshotSection({ allData }) {
-  const [vintage, setVintage] = useSessionState('nsicx-real-snap-vintage', '2026-05')
+  const [vintage, setVintage] = useSessionState('nsicx-real-snap-vintage', '2026-06')
   const [horizon, setHorizon] = useSessionState('nsicx-real-snap-horizon', 10)
   const mode = 'avg'
   const { isDark } = useDarkMode()
@@ -536,7 +536,7 @@ function TimeSeriesSection({ allData }) {
 
 function TermStructureSection({ allData }) {
   const [countrySlug, setCountrySlug] = useSessionState('nsicx-real-term-country', 'usa')
-  const [vintage, setVintage]         = useSessionState('nsicx-real-term-vintage', '2026-05')
+  const [vintage, setVintage]         = useSessionState('nsicx-real-term-vintage', '2026-06')
   const mode = 'avg'
   const { isDark } = useDarkMode()
   const theme = getTheme(isDark)

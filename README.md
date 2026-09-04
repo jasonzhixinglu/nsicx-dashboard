@@ -2,7 +2,7 @@
 
 **Live dashboard:** https://jasonzhixinglu.github.io/nsicx-dashboard/
 
-An interactive companion to the working paper *A Composite Term Structure of Japan's Inflation Expectations* (Lu & Teoh, forthcoming IMF Working Paper). The dashboard hosts two views, switched via a link in the header:
+An interactive companion to the working paper *A Flexible Composite Term Structure of Inflation Expectations* (Carrière-Swallow, Lu & Teoh, forthcoming IMF Working Paper). The dashboard hosts two views, switched via a link in the header:
 
 - **Japan composite** (default landing) — the six-source composite from the paper.
 - **Multi-country** — the same Nelson–Siegel internally consistent expectations (NSICX) framework applied to 17 economies using a single source (Consensus Economics) for cross-country comparability. Within-CY Consensus forecasts are mapped directly into the NSICX measurement equation via the deterministic no-arbitrage transition F — we do not strip out realized YTD inflation. See `public/data/multicountry/methodology.pdf` for the derivation. Australia and New Zealand publish CPI quarterly; their realized-CPI line is interpolated to monthly steps for display. The Real rates tab combines the NSICX expected-inflation curve with monthly Nelson-Siegel-Svensson fits to sovereign bond yields (estimated out to 30Y, displayed to 10Y where NSICX is identified) — available for the 13 countries with sovereign-yield coverage in haver-data.

@@ -5,7 +5,7 @@ export default function AboutPanel() {
       <div className="panel p-6 space-y-4">
         <div>
           <h2 className="text-xl font-semibold text-slate-900 dark:text-white leading-snug">
-            A Composite Term Structure of Japan's Inflation Expectations
+            A Flexible Composite Term Structure of Inflation Expectations
           </h2>
           <p className="text-sm text-slate-500 mt-1">
             Application of the NSICX model to Japan's inflation expectations across six sources
@@ -14,6 +14,12 @@ export default function AboutPanel() {
 
         <div className="border-t border-slate-200 dark:border-slate-800 pt-4 space-y-3">
           <div className="flex flex-col sm:flex-row sm:gap-8 gap-2">
+            <div>
+              <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Yan Carrière-Swallow</div>
+              <div className="text-xs text-slate-500 mt-0.5">Asia and Pacific Department</div>
+              <div className="text-xs text-slate-500">International Monetary Fund</div>
+              <a href="mailto:ycswallow@imf.org" className="text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 mt-0.5 inline-block">ycswallow@imf.org</a>
+            </div>
             <div>
               <div className="text-sm font-medium text-slate-800 dark:text-slate-100">Jason Lu</div>
               <div className="text-xs text-slate-500 mt-0.5">Research Department</div>
@@ -37,20 +43,17 @@ export default function AboutPanel() {
       <div className="panel p-6 space-y-3">
         <div className="label">Abstract</div>
         <p className="text-sm text-slate-900 dark:text-white leading-relaxed">
-          We construct real-time monthly term structures of Japan's inflation expectations from 2002
-          to early 2026 by synthesizing information from household surveys, firm surveys, professional
-          forecasters, and market-implied breakeven inflation rates. To do so, we develop a dynamic
-          Nelson-Siegel model with transition dynamics specified to be internally consistent with
-          expectations that follow a Nelson-Siegel loading structure. Our estimates indicate that
-          medium- and long-term inflation expectations have risen toward the Bank of Japan's
-          2-percent target since 2022, with the target falling within the 95 percent confidence band
-          for long-term expectations by late 2024.
-        </p>
-        <p className="text-sm text-slate-900 dark:text-white leading-relaxed">
-          Using our composite, we compare long-term inflation expectations in Japan with those in
-          the US and find substantially stronger sensitivity to short-term inflation surprises. We
-          also construct term structures of ex-ante real interest rates and decompose movements in
-          nominal yields into real and inflation expectation changes around monetary policy events.
+          We develop a flexible methodology for estimating a real-time term structure of inflation
+          expectations from heterogeneous survey- and market-based sources. Our Nelson-Siegel
+          Internally Consistent Expectations model extends the standard dynamic Nelson-Siegel
+          state-space model by imposing a restriction that forecasts of any fixed-horizon event are
+          revised only in response to new information, and by calibrating measurement-error
+          variances to each source's historical forecast accuracy. The resulting composite
+          summarizes expectations at all horizons in a single internally-consistent term structure
+          that can be applied in a variety of contexts, including when data sources are reported at
+          irregular intervals and horizons. To illustrate our framework, we apply the model to
+          Japanese inflation expectations data, and document a gradual alignment of long-run
+          inflation expectations with the Bank of Japan's 2-percent target from below.
         </p>
       </div>
 

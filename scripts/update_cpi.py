@@ -24,6 +24,10 @@ def main():
         '--start', default=None,
         help='Trim CPI series to this start date YYYY-MM (default: match first whisker origin)'
     )
+    parser.add_argument(
+        '--end', default=None,
+        help='Trim CPI series to this end date YYYY-MM (default: latest NSICX state, i.e. the data vintage)'
+    )
     args = parser.parse_args()
 
     parquet_path = Path(args.haver_data) / 'data' / 'data.parquet'
@@ -54,7 +58,8 @@ def main():
 
     # Determine start date: explicit arg, or match first whisker origin
     start = args.start or data['whiskers'][0]['origin']
-    cpi_yoy = cpi_yoy[cpi_yoy.index >= pd.Timestamp(start)]
+    end = args.end or data['states'][-1]['d']
+    cpi_yoy = cpi_yoy[(cpi_yoy.index >= pd.Timestamp(start)) & (cpi_yoy.index <= pd.Timestamp(end))]
 
     cpi_series = [
         {'d': d.strftime('%Y-%m'), 'v': round(float(v), 4)}

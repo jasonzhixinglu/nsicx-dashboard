@@ -61,22 +61,15 @@ function nearestOriginToDate(dateStr, whiskers) {
   return best
 }
 
-// One-time "drag me" hint, dismissed on first interaction and remembered per browser.
-const HINT_STORAGE_KEY = 'nsicx-drag-hint-seen'
-
-function hintAlreadySeen() {
-  try { return localStorage.getItem(HINT_STORAGE_KEY) === '1' } catch { return false }
-}
-
-function markHintSeen() {
-  try { localStorage.setItem(HINT_STORAGE_KEY, '1') } catch {}
-}
+// "Drag me" hint, shown on every page load until the first interaction.
+// Module-level so it stays dismissed when switching tabs within a visit.
+let hintDismissed = false
 
 export default function WhiskerChart({ data, selectedDate, onSelectDate, target = 2 }) {
   const svgRef = useRef(null)
   const [dims, setDims] = useState({ width: 600, height: 220 })
   const [hoverCpi, setHoverCpi] = useState(null)
-  const [showHint, setShowHint] = useState(() => !hintAlreadySeen())
+  const [showHint, setShowHint] = useState(() => !hintDismissed)
   const dragging = useRef(false)
   const { isDark } = useDarkMode()
   const theme = getTheme(isDark)
@@ -151,7 +144,7 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate, target 
 
   const handleMouseDown = useCallback((e) => {
     dragging.current = true
-    if (showHint) { setShowHint(false); markHintSeen() }
+    if (showHint) { setShowHint(false); hintDismissed = true }
     const px = getSvgX(e)
     const date = nearestStateDate(px, data.states, xMin, xMax, innerW)
     if (date) onSelectDate(date)

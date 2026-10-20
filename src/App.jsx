@@ -30,10 +30,13 @@ const DASHBOARDS = {
   },
 }
 
+// Multi-country view is shelved: hidden unless built with VITE_ENABLE_MULTI=true.
+const ENABLE_MULTI = import.meta.env.VITE_ENABLE_MULTI === 'true'
+
 function getDashboardFromUrl() {
   const params = new URLSearchParams(window.location.search)
   const v = params.get('dashboard')
-  return v === 'multi' ? 'multi' : 'japan'
+  return ENABLE_MULTI && v === 'multi' ? 'multi' : 'japan'
 }
 
 function setDashboardInUrl(value) {
@@ -134,12 +137,14 @@ function AppShell() {
               {cfg.title}
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">{cfg.subtitle}</p>
-            <button
-              onClick={() => switchDashboard(switchTo)}
-              className="text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 mt-1 inline-flex items-center gap-1"
-            >
-              {switchLabel}
-            </button>
+            {ENABLE_MULTI && (
+              <button
+                onClick={() => switchDashboard(switchTo)}
+                className="text-xs text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 mt-1 inline-flex items-center gap-1"
+              >
+                {switchLabel}
+              </button>
+            )}
           </div>
           <div className="flex items-start gap-2 flex-shrink-0">
             <nav className={`grid gap-1.5 sm:flex sm:flex-wrap`} style={{ gridTemplateColumns: `repeat(${cfg.tabs.length}, minmax(0, 1fr))` }}>

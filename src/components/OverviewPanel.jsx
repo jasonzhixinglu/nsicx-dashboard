@@ -4,6 +4,29 @@ import TermStructureChart from './charts/TermStructureChart.jsx'
 import KeyResults from './KeyResults.jsx'
 import { MONTH_NAMES, formatVintage, formatMonthYear } from '../lib/dateFormat.js'
 
+const monthIndex = (d) => { const [y, m] = d.split('-').map(Number); return y * 12 + (m - 1) }
+const fromMonthIndex = (i) => `${Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`
+
+// Rebuild whiskers (instantaneous forwards) from the filtered states, every
+// `step` months counting back from the latest vintage, so the last whisker
+// always starts at the most recent state rather than the exported quarterly grid.
+function buildWhiskers(states, lam, horizons, step = 3) {
+  if (!states.length) return []
+  const lastIdx = monthIndex(states[states.length - 1].d)
+  return states
+    .filter(s => (lastIdx - monthIndex(s.d)) % step === 0)
+    .map(s => {
+      const o = monthIndex(s.d)
+      return {
+        origin: s.d,
+        pts: horizons.map(h => {
+          const eL = Math.exp(-lam * h)
+          return { d: fromMonthIndex(o + h), v: s.L + eL * s.S + lam * h * eL * s.C }
+        }),
+      }
+    })
+}
+
 function buildAndDownloadCSV(whiskerData) {
   const lam = whiskerData.lam ?? 0.15
 
@@ -76,8 +99,9 @@ export default function OverviewPanel() {
     fetch(`${import.meta.env.BASE_URL}data/whisker_data.json`)
       .then(r => r.json())
       .then(d => {
-        setWhiskerData(d)
-        const last = d.whiskers[d.whiskers.length - 1]?.origin
+        const horizons = d.whisker_horizons ?? [3, 6, 9, 12, 15, 18, 21, 24]
+        setWhiskerData({ ...d, whiskers: buildWhiskers(d.states, d.lam ?? 0.15, horizons) })
+        const last = d.states[d.states.length - 1]?.d
         setSelectedDate(last ?? null)
         setLoading(false)
       })

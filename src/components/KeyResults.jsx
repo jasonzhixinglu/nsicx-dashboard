@@ -36,6 +36,8 @@ export default function KeyResults({ state, date, lam, target = 2, cpiMonth = nu
   ]
 
   const color = (v) => deviationColor(v, target, isDark)
+  // Survey and CPI share a month in the Japan data; only split them when CPI lags.
+  const splitVintage = cpiMonth != null && cpiMonth !== date
 
   return (
     <>
@@ -44,13 +46,15 @@ export default function KeyResults({ state, date, lam, target = 2, cpiMonth = nu
         <div className="card p-3">
           <div className="pb-2 mb-2 border-b border-slate-200 dark:border-slate-800 space-y-0.5">
             <div className="flex items-baseline justify-between">
-              <span className="text-xs text-slate-500">Survey</span>
+              <span className="text-xs text-slate-500">{splitVintage ? 'Survey' : 'Data vintage'}</span>
               <span className="text-xs font-medium text-indigo-600 dark:text-indigo-300">{formatMonthYear(date)}</span>
             </div>
-            <div className="flex items-baseline justify-between">
-              <span className="text-xs text-slate-500">CPI</span>
-              <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{formatMonthYear(cpiMonth)}</span>
-            </div>
+            {splitVintage && (
+              <div className="flex items-baseline justify-between">
+                <span className="text-xs text-slate-500">CPI</span>
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{formatMonthYear(cpiMonth)}</span>
+              </div>
+            )}
           </div>
           <div className="text-xs text-slate-500 mb-1.5">Avg annualized (%)</div>
           <div className="grid grid-cols-6 gap-x-2">
@@ -77,13 +81,15 @@ export default function KeyResults({ state, date, lam, target = 2, cpiMonth = nu
         <div className="card p-4">
           <div className="pb-2.5 mb-3 border-b border-slate-200 dark:border-slate-800 space-y-0.5">
             <div className="flex items-baseline justify-between">
-              <span className="text-xs text-slate-500">Survey</span>
+              <span className="text-xs text-slate-500">{splitVintage ? 'Survey' : 'Data vintage'}</span>
               <span className="text-sm font-medium text-indigo-600 dark:text-indigo-300">{formatMonthYear(date)}</span>
             </div>
-            <div className="flex items-baseline justify-between">
-              <span className="text-xs text-slate-500">CPI</span>
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{formatMonthYear(cpiMonth)}</span>
-            </div>
+            {splitVintage && (
+              <div className="flex items-baseline justify-between">
+                <span className="text-xs text-slate-500">CPI</span>
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{formatMonthYear(cpiMonth)}</span>
+              </div>
+            )}
           </div>
           <div className="text-xs text-slate-500 mb-2">Avg annualized (%)</div>
           <div className="space-y-2">

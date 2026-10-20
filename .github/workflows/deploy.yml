@@ -30,6 +30,9 @@ jobs:
         env:
           GITHUB_ACTIONS: true
 
+      # Multi-country dashboard is shelved; don't publish its data.
+      - run: rm -rf dist/data/multicountry
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/

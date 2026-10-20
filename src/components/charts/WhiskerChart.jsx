@@ -61,10 +61,22 @@ function nearestOriginToDate(dateStr, whiskers) {
   return best
 }
 
+// One-time "drag me" hint, dismissed on first interaction and remembered per browser.
+const HINT_STORAGE_KEY = 'nsicx-drag-hint-seen'
+
+function hintAlreadySeen() {
+  try { return localStorage.getItem(HINT_STORAGE_KEY) === '1' } catch { return false }
+}
+
+function markHintSeen() {
+  try { localStorage.setItem(HINT_STORAGE_KEY, '1') } catch {}
+}
+
 export default function WhiskerChart({ data, selectedDate, onSelectDate, target = 2 }) {
   const svgRef = useRef(null)
   const [dims, setDims] = useState({ width: 600, height: 220 })
   const [hoverCpi, setHoverCpi] = useState(null)
+  const [showHint, setShowHint] = useState(() => !hintAlreadySeen())
   const dragging = useRef(false)
   const { isDark } = useDarkMode()
   const theme = getTheme(isDark)
@@ -139,10 +151,11 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate, target 
 
   const handleMouseDown = useCallback((e) => {
     dragging.current = true
+    if (showHint) { setShowHint(false); markHintSeen() }
     const px = getSvgX(e)
     const date = nearestStateDate(px, data.states, xMin, xMax, innerW)
     if (date) onSelectDate(date)
-  }, [data, xMin, xMax, innerW, onSelectDate, getSvgX])
+  }, [data, xMin, xMax, innerW, onSelectDate, getSvgX, showHint])
 
   const handleMouseMove = useCallback((e) => {
     const px = getSvgX(e)
@@ -220,6 +233,26 @@ export default function WhiskerChart({ data, selectedDate, onSelectDate, target 
             stroke={theme.colors.whiskerSelected} strokeWidth={sw.whiskerSelected} strokeDasharray="5 3"
           />
         )}
+
+        {/* Drag hint: pill beside the selected line, nudging toward the open side */}
+        {showHint && selectedX !== null && (() => {
+          const HW = 150, HH = 20
+          const onLeft = selectedX > innerW / 2
+          const hx = onLeft ? selectedX - HW - 8 : selectedX + 8
+          const hy = Math.min(innerH * 0.1, innerH - HH)
+          return (
+            <g className="drag-hint" pointerEvents="none">
+              <g className={onLeft ? 'drag-hint-nudge-left' : 'drag-hint-nudge-right'}>
+                <rect x={hx} y={hy} width={HW} height={HH} rx={HH / 2}
+                  fill={theme.colors.whiskerSelected} opacity={0.95} />
+                <text x={hx + HW / 2} y={hy + 13.5} fontSize={10} fontWeight={500}
+                  fill="#ffffff" textAnchor="middle">
+                  {onLeft ? '← Drag to explore vintages' : 'Drag to explore vintages →'}
+                </text>
+              </g>
+            </g>
+          )
+        })()}
 
         {/* Y axis ticks */}
         {yTicks.map(t => (

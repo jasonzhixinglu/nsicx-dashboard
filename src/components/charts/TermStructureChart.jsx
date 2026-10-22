@@ -21,7 +21,7 @@ function nsFwdInstant(h, lam) {
 export function computeCurve(state, lam, mode, maxH = 120) {
   const fn = mode === 'avg' ? nsAvg : nsFwdInstant
   const pts = []
-  for (let h = 0; h <= maxH; h++) {
+  for (let h = 1; h <= maxH; h++) {
     const [l1, l2, l3] = fn(h, lam)
     const v = l1 * state.L + l2 * state.S + l3 * state.C
     pts.push({ h, v: +v.toFixed(4) })
@@ -70,8 +70,8 @@ export default function TermStructureChart({ state, lam, target = 2, targetLabel
         <XAxis
           dataKey="h"
           type="number"
-          domain={[0, 120]}
-          ticks={[0, 12, 24, 36, 60, 84, 120]}
+          domain={[1, 120]}
+          ticks={[12, 24, 36, 60, 84, 120]}
           tickFormatter={h => `${h}m`}
           tick={{ fontSize: theme.ui.tickFontSize, fill: theme.ui.tickLabel }}
           axisLine={{ stroke: theme.ui.axis }}

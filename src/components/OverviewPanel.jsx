@@ -99,9 +99,9 @@ export default function OverviewPanel() {
     fetch(`${import.meta.env.BASE_URL}data/whisker_data.json`)
       .then(r => r.json())
       .then(d => {
-        const horizons = d.whisker_horizons ?? [3, 6, 9, 12, 15, 18, 21, 24]
-        // Start each whisker at h = 0 (the nowcast) so it connects to its origin.
-        setWhiskerData({ ...d, whiskers: buildWhiskers(d.states, d.lam ?? 0.15, [0, ...horizons.filter(h => h > 0)]) })
+        // Monthly instantaneous forwards, 1 to 24 months ahead of each origin.
+        const horizons = Array.from({ length: 24 }, (_, i) => i + 1)
+        setWhiskerData({ ...d, whiskers: buildWhiskers(d.states, d.lam ?? 0.15, horizons) })
         const last = d.states[d.states.length - 1]?.d
         setSelectedDate(last ?? null)
         setLoading(false)

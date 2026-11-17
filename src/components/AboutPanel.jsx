@@ -1,3 +1,5 @@
+import { PAPER_URL, PAPER_LABEL } from '../lib/paper.js'
+
 export default function AboutPanel() {
   return (
     <div className="max-w-3xl mx-auto py-6 space-y-6">
@@ -34,9 +36,17 @@ export default function AboutPanel() {
             </div>
           </div>
 
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-50 border border-indigo-200/80 text-xs text-indigo-700 font-medium dark:bg-indigo-950/60 dark:border-indigo-700/40 dark:text-indigo-300">
-            Forthcoming IMF Working Paper
-          </div>
+          <a
+            href={PAPER_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-indigo-50 border border-indigo-200/80 text-xs text-indigo-700 font-medium hover:bg-indigo-100 dark:bg-indigo-950/60 dark:border-indigo-700/40 dark:text-indigo-300 dark:hover:bg-indigo-900/60 transition-all"
+          >
+            {PAPER_LABEL}
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none" className="shrink-0">
+              <path d="M4.5 2H10v5.5M10 2 3 9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </a>
         </div>
       </div>
 

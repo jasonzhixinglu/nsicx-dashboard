@@ -7,12 +7,13 @@ import MultiCountryCharts from './components/MultiCountryCharts.jsx'
 import MultiCountryRealRates from './components/MultiCountryRealRates.jsx'
 import MultiCountryAbout from './components/MultiCountryAbout.jsx'
 import { useDarkMode } from './lib/useDarkMode.jsx'
+import { PAPER_URL, PAPER_LABEL } from './lib/paper.js'
 import { JAPAN_RELEASES, japanRelease, japanReleaseInfo, switchJapanRelease } from './lib/japanRelease.js'
 
 const DASHBOARDS = {
   japan: {
     title: "A Flexible Composite Term Structure of Inflation Expectations",
-    subtitle: 'Carrière-Swallow, Lu & Teoh · forthcoming IMF Working Paper · Japan composite (six sources)',
+    subtitle: 'Japan composite (six sources)',
     tabs: [
       { id: 'overview', label: 'Overview', sub: 'Hero chart · Controls', fullHeight: true,  render: () => <OverviewPanel /> },
       { id: 'charts',   label: 'Charts',   sub: 'Key figures',           fullHeight: false, render: () => <ChartsPanel /> },
@@ -21,7 +22,7 @@ const DASHBOARDS = {
   },
   multi: {
     title: 'Multi-Country Inflation Expectations',
-    subtitle: 'Carrière-Swallow, Lu & Teoh · forthcoming IMF Working Paper · Multi-country companion (Consensus only)',
+    subtitle: 'Multi-country companion (Consensus only)',
     tabs: [
       { id: 'country', label: 'Country view', sub: 'Per-country charts',     fullHeight: true,  render: () => <MultiCountryPanel /> },
       { id: 'charts',  label: 'Cross country', sub: 'Forwards · Levels · Anchoring', fullHeight: false, render: () => <MultiCountryCharts /> },
@@ -137,7 +138,14 @@ function AppShell() {
             <h1 className="text-base font-semibold text-slate-900 dark:text-white leading-tight">
               {cfg.title}
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">{cfg.subtitle}</p>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Carrière-Swallow, Lu & Teoh ·{' '}
+              <a href={PAPER_URL} target="_blank" rel="noopener noreferrer"
+                 className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300">
+                {PAPER_LABEL}
+              </a>
+              {' '}· {cfg.subtitle}
+            </p>
             {dashboard === 'japan' && (
               <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1">
                 <label htmlFor="japan-release" className="label">Estimation release</label>

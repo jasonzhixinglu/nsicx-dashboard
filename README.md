@@ -2,14 +2,14 @@
 
 **Live dashboard:** https://jasonzhixinglu.github.io/nsicx-dashboard/
 
-An interactive companion to the working paper *A Flexible Composite Term Structure of Inflation Expectations* (Carrière-Swallow, Lu & Teoh, forthcoming IMF Working Paper). The dashboard hosts two views, switched via a link in the header:
+An interactive companion to the working paper *A Flexible Composite Term Structure of Inflation Expectations* (Carrière-Swallow, Lu & Teoh, [IMF Working Paper, November 2026](https://www.imf.org/en/publications/wp/issues/2026/11/06/a-flexible-composite-term-structure-of-inflation-expectations-580104)). The dashboard hosts two views, switched via a link in the header:
 
 - **Japan composite** (default landing) — the six-source composite from the paper.
 - **Multi-country** — the same Nelson–Siegel internally consistent expectations (NSICX) framework applied to 17 economies using a single source (Consensus Economics) for cross-country comparability. Within-CY Consensus forecasts are mapped directly into the NSICX measurement equation via the deterministic no-arbitrage transition F — we do not strip out realized YTD inflation. See `public/data/multicountry/methodology.pdf` for the derivation. Australia and New Zealand publish CPI quarterly; their realized-CPI line is interpolated to monthly steps for display. The Real rates tab combines the NSICX expected-inflation curve with monthly Nelson-Siegel-Svensson fits to sovereign bond yields (estimated out to 30Y, displayed to 10Y where NSICX is identified) — available for the 13 countries with sovereign-yield coverage in haver-data.
 
 The header toggle switches between dark and light mode; preference is persisted in `localStorage`. Active dashboard, active tab, and selector state (vintage, view mode, etc.) are persisted within a session via `sessionStorage`.
 
-> IMF Working Paper forthcoming. [PAPER LINK]
+> Paper: [IMF Working Paper, November 2026](https://www.imf.org/en/publications/wp/issues/2026/11/06/a-flexible-composite-term-structure-of-inflation-expectations-580104)
 
 ## Dashboards and tabs
 

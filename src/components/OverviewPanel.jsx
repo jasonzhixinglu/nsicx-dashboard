@@ -1,3 +1,4 @@
+import { japanDataUrl } from '../lib/japanRelease.js'
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import WhiskerChart from './charts/WhiskerChart.jsx'
 import TermStructureChart from './charts/TermStructureChart.jsx'
@@ -96,7 +97,7 @@ export default function OverviewPanel() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}data/whisker_data.json`)
+    fetch(japanDataUrl("whisker_data.json"))
       .then(r => r.json())
       .then(d => {
         // Monthly instantaneous forwards, 1 to 24 months ahead of each origin.
@@ -270,7 +271,7 @@ export default function OverviewPanel() {
         {/* Upper: whisker chart */}
         <div className="panel p-3 flex flex-col gap-1 overflow-hidden md:flex-3 md:min-h-[180px]">
           <div className="flex items-baseline justify-between">
-            <span className="label">Chart A: Realized CPI YoY vs real-time forward rate inflation expectations</span>
+            <span className="label">Chart A: Realized CPI YoY vs filtered forward inflation expectations</span>
             <span className="text-xs text-slate-400 dark:text-slate-600">Click or drag to select snapshot</span>
           </div>
           <div className="flex-1 min-h-0">

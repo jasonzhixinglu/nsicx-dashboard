@@ -1,3 +1,4 @@
+import { japanDataUrl } from '../lib/japanRelease.js'
 import { useState, useEffect } from 'react'
 import NSFactorsChart from './charts/NSFactorsChart.jsx'
 import RealRatesChart from './charts/RealRatesChart.jsx'
@@ -38,9 +39,9 @@ function useChartData() {
   useEffect(() => {
     const base = import.meta.env.BASE_URL
     Promise.all([
-      fetch(`${base}data/ns_factors_data.json`).then(r => r.json()),
-      fetch(`${base}data/real_rates_data.json`).then(r => r.json()),
-      fetch(`${base}data/bei_data.json`).then(r => r.json()),
+      fetch(japanDataUrl("ns_factors_data.json")).then(r => r.json()),
+      fetch(japanDataUrl("real_rates_data.json")).then(r => r.json()),
+      fetch(japanDataUrl("bei_data.json")).then(r => r.json()),
     ]).then(([ns, rr, b]) => {
       setNsFactors(ns)
       setRealRates(rr)

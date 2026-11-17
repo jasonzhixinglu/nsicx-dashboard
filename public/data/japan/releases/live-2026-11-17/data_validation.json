@@ -1,0 +1,24 @@
+{
+  "paper_panel_rows": 3390,
+  "live_panel_rows": 3467,
+  "new_post_june_rows": 76,
+  "historical_revised_values": 0,
+  "duplicates": 0,
+  "source_endpoints": {
+    "BEI": "2026-09-30",
+    "Consensus": "2026-10-31",
+    "ESPA": "2026-10-31",
+    "ESPQ": "2026-10-31",
+    "Household": "2026-09-30",
+    "Tankan": "2026-09-30"
+  },
+  "parameter_covariance_eigenvalues": [
+    6.637985141727295e-06,
+    0.004978357665701767,
+    0.005677744470804705,
+    0.11090845852370959
+  ],
+  "paper_hashes_unchanged": true,
+  "dashboard_build_passed": true,
+  "browser_latest_and_paper_passed": true
+}

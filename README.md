@@ -111,3 +111,7 @@ npm run dev
 ## Deploy
 
 Pushes to `main` automatically build the app and deploy it to GitHub Pages via the workflow in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
+
+## Japan estimation releases
+
+The Japan composite defaults to the November 17, 2026 release, estimated through October with realized CPI through September. Full-sample parameters are re-estimated; historical observations are not real-time vintage estimates. The header switches to `?dashboard=japan&release=paper-2026-06` for the frozen working-paper results. Each release has separate feeds and CSV downloads in `public/data/japan/releases/`. Frozen CSV downloads are based on rounded paper dashboard JSON; original full-precision paper outputs are preserved by the upstream paper Git tag. `dashboard-legacy` archives the prior dashboard feed. No multi-country data or settings were changed.

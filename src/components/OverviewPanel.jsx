@@ -272,7 +272,7 @@ export default function OverviewPanel() {
 
       {/* Right sidebar — key results */}
       <div className="lg:w-[180px] xl:w-[200px] lg:shrink-0 flex flex-col gap-3">
-        <KeyResults state={selectedState} date={selectedDate} lam={lam} cpiMonth={cpiMonth} dataVintage={dataVintage} header={<ReleaseInfo />} />
+        <KeyResults state={selectedState} date={selectedDate} lam={lam} cpiMonth={cpiMonth} dataVintage={dataVintage} footer={<ReleaseInfo />} />
       </div>
 
     </div>

@@ -13,7 +13,7 @@ function deviationColor(v, target, isDark) {
   return `hsl(${hue.toFixed(1)}, 72%, ${lightness}%)`
 }
 
-export default function KeyResults({ state, date, lam, target = 2, cpiMonth = null, dataVintage = null, header = null }) {
+export default function KeyResults({ state, date, lam, target = 2, cpiMonth = null, dataVintage = null, footer = null }) {
   const { isDark } = useDarkMode()
   if (!state) return (
     <div className="card p-4 text-xs text-slate-500 dark:text-slate-600">Select a date to see key readings.</div>
@@ -44,7 +44,6 @@ export default function KeyResults({ state, date, lam, target = 2, cpiMonth = nu
       {/* Mobile: single merged card */}
       <div className="lg:hidden">
         <div className="card p-3">
-          {header && <div className="pb-2 mb-2 border-b border-slate-200 dark:border-slate-800">{header}</div>}
           <div className="pb-2 mb-2 border-b border-slate-200 dark:border-slate-800 space-y-0.5">
             {dataVintage && (
               <div className="flex items-baseline justify-between">
@@ -80,13 +79,13 @@ export default function KeyResults({ state, date, lam, target = 2, cpiMonth = nu
               </div>
             </div>
           </div>
+          {footer && <div className="pt-2 mt-2 border-t border-slate-200 dark:border-slate-800">{footer}</div>}
         </div>
       </div>
 
       {/* Desktop: single merged card */}
       <div className="hidden lg:block">
         <div className="card p-4">
-          {header && <div className="pb-3 mb-2.5 border-b border-slate-200 dark:border-slate-800">{header}</div>}
           <div className="pb-2.5 mb-3 border-b border-slate-200 dark:border-slate-800 space-y-0.5">
             {dataVintage && (
               <div className="flex items-baseline justify-between">
@@ -122,6 +121,7 @@ export default function KeyResults({ state, date, lam, target = 2, cpiMonth = nu
               </span>
             </div>
           </div>
+          {footer && <div className="pt-2.5 mt-3 border-t border-slate-200 dark:border-slate-800">{footer}</div>}
         </div>
       </div>
     </>

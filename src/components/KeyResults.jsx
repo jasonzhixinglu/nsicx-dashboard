@@ -13,7 +13,7 @@ function deviationColor(v, target, isDark) {
   return `hsl(${hue.toFixed(1)}, 72%, ${lightness}%)`
 }
 
-export default function KeyResults({ state, date, lam, target = 2, cpiMonth = null }) {
+export default function KeyResults({ state, date, lam, target = 2, cpiMonth = null, dataVintage = null }) {
   const { isDark } = useDarkMode()
   if (!state) return (
     <div className="card p-4 text-xs text-slate-500 dark:text-slate-600">Select a date to see key readings.</div>
@@ -36,7 +36,7 @@ export default function KeyResults({ state, date, lam, target = 2, cpiMonth = nu
   ]
 
   const color = (v) => deviationColor(v, target, isDark)
-  // Survey and CPI share a month in the Japan data; only split them when CPI lags.
+  // Survey and CPI share a month in the Japan data; only show the CPI month when it lags.
   const splitVintage = cpiMonth != null && cpiMonth !== date
 
   return (
@@ -45,8 +45,14 @@ export default function KeyResults({ state, date, lam, target = 2, cpiMonth = nu
       <div className="lg:hidden">
         <div className="card p-3">
           <div className="pb-2 mb-2 border-b border-slate-200 dark:border-slate-800 space-y-0.5">
+            {dataVintage && (
+              <div className="flex items-baseline justify-between">
+                <span className="text-xs text-slate-500">Data vintage</span>
+                <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{formatVintage(dataVintage)}</span>
+              </div>
+            )}
             <div className="flex items-baseline justify-between">
-              <span className="text-xs text-slate-500">{splitVintage ? 'Survey' : 'Vintage'}</span>
+              <span className="text-xs text-slate-500">Snapshot</span>
               <span className="text-xs font-medium text-indigo-600 dark:text-indigo-300">{formatVintage(date)}</span>
             </div>
             {splitVintage && (
@@ -80,8 +86,14 @@ export default function KeyResults({ state, date, lam, target = 2, cpiMonth = nu
       <div className="hidden lg:block">
         <div className="card p-4">
           <div className="pb-2.5 mb-3 border-b border-slate-200 dark:border-slate-800 space-y-0.5">
+            {dataVintage && (
+              <div className="flex items-baseline justify-between">
+                <span className="text-xs text-slate-500">Data vintage</span>
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{formatVintage(dataVintage)}</span>
+              </div>
+            )}
             <div className="flex items-baseline justify-between">
-              <span className="text-xs text-slate-500">{splitVintage ? 'Survey' : 'Vintage'}</span>
+              <span className="text-xs text-slate-500">Snapshot</span>
               <span className="text-sm font-medium text-indigo-600 dark:text-indigo-300">{formatVintage(date)}</span>
             </div>
             {splitVintage && (

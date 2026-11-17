@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import WhiskerChart from './charts/WhiskerChart.jsx'
 import TermStructureChart from './charts/TermStructureChart.jsx'
 import KeyResults from './KeyResults.jsx'
-import { MONTH_NAMES, formatVintage } from '../lib/dateFormat.js'
+import { MONTH_NAMES } from '../lib/dateFormat.js'
 import { avgAnnualized, fwdInstant, addMonths } from '../lib/nsCurve.js'
 
 const MC_BASE = `${import.meta.env.BASE_URL}data/multicountry/`
@@ -348,12 +348,6 @@ export default function MultiCountryPanel() {
             </select>
           </div>
 
-          <div>
-            <div className="label mb-2">Data vintage</div>
-            <div className="text-sm font-medium text-indigo-600 dark:text-indigo-300">{formatVintage(dataVintage)}</div>
-          </div>
-
-          <div className="border-t border-slate-200 dark:border-slate-800" />
 
           <div>
             <div className="label mb-2">Download</div>
@@ -491,7 +485,7 @@ export default function MultiCountryPanel() {
 
       {/* Right sidebar — KeyResults */}
       <div className="lg:w-[180px] xl:w-[200px] lg:shrink-0 flex flex-col gap-3">
-        <KeyResults state={selectedState} date={selectedDate} lam={lam} target={targetCfg.value} cpiMonth={cpiMonth} />
+        <KeyResults state={selectedState} date={selectedDate} lam={lam} target={targetCfg.value} cpiMonth={cpiMonth} dataVintage={dataVintage} />
       </div>
 
     </div>

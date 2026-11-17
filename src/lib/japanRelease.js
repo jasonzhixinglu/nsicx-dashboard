@@ -4,7 +4,7 @@ export const JAPAN_RELEASES = [
   {
     id: 'live-2026-11-17',
     label: 'Oct 2026 (latest)',
-    note: 'Surveys through Oct 2026 · CPI through Sep 2026 · full-sample parameters · released 17 Nov 2026',
+    note: 'Balanced panel through Oct 2026 · CPI through Sep 2026 · released 17 Nov 2026',
   },
   {
     id: 'paper-2026-06',

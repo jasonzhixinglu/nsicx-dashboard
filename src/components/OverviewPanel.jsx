@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import WhiskerChart from './charts/WhiskerChart.jsx'
 import TermStructureChart from './charts/TermStructureChart.jsx'
 import KeyResults from './KeyResults.jsx'
-import { MONTH_NAMES, formatVintage, formatMonthYear } from '../lib/dateFormat.js'
+import { MONTH_NAMES, formatMonthYear } from '../lib/dateFormat.js'
 import { japanDataUrl } from '../lib/japanRelease.js'
 
 const monthIndex = (d) => { const [y, m] = d.split('-').map(Number); return y * 12 + (m - 1) }
@@ -30,9 +30,9 @@ function buildWhiskers(states, lam, horizons, step = 3) {
 
 // Downloads: the selected release's published CSVs (public/data/japan/releases/<id>/).
 const DOWNLOADS = [
-  { file: 'filtered_states.csv',  label: 'Filtered factors (L, S, C)' },
-  { file: 'dns_expectations.csv', label: 'Expected inflation, 1–10y' },
-  { file: 'real_rates.csv',       label: 'Ex-ante real rates, 1–10y' },
+  { file: 'states_and_parameters.csv',  label: 'States and parameters' },
+  { file: 'inflation_expectations.csv', label: 'Inflation expectations' },
+  { file: 'exante_real_rates.csv',      label: 'Ex-ante real rates' },
 ]
 
 export default function OverviewPanel() {
@@ -141,12 +141,6 @@ export default function OverviewPanel() {
         {/* Content: always visible on desktop, toggled on mobile */}
         <div className={`flex flex-col gap-4 p-4 ${sidebarOpen ? 'flex' : 'hidden'} lg:flex`}>
 
-        <div>
-          <div className="label mb-2">Data vintage</div>
-          <div className="text-sm font-medium text-indigo-600 dark:text-indigo-300">{formatVintage(dataVintage)}</div>
-        </div>
-
-        <div className="border-t border-slate-200 dark:border-slate-800" />
 
         <div>
           <div className="label mb-2">Download</div>
@@ -277,7 +271,7 @@ export default function OverviewPanel() {
 
       {/* Right sidebar — key results */}
       <div className="lg:w-[180px] xl:w-[200px] lg:shrink-0 flex flex-col gap-3">
-        <KeyResults state={selectedState} date={selectedDate} lam={lam} cpiMonth={cpiMonth} />
+        <KeyResults state={selectedState} date={selectedDate} lam={lam} cpiMonth={cpiMonth} dataVintage={dataVintage} />
       </div>
 
     </div>

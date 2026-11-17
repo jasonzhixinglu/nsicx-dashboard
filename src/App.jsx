@@ -148,7 +148,7 @@ function AppShell() {
             </p>
             {dashboard === 'japan' && (
               <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
-                <label htmlFor="japan-release" className="label">Estimation release</label>
+                <label htmlFor="japan-release" className="label">Vintage selector</label>
                 <select
                   id="japan-release"
                   value={japanRelease}

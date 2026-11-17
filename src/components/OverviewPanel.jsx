@@ -161,7 +161,7 @@ export default function OverviewPanel() {
             ))}
           </div>
           <p className="text-xs text-slate-500 dark:text-slate-600 mt-1.5 leading-relaxed">
-            CSV files for the selected estimation release.
+            CSV files for the selected vintage.
           </p>
         </div>
 

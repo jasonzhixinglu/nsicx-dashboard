@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react'
 import WhiskerChart from './charts/WhiskerChart.jsx'
 import TermStructureChart from './charts/TermStructureChart.jsx'
 import KeyResults from './KeyResults.jsx'
+import ReleasePicker from './ReleasePicker.jsx'
 import { MONTH_NAMES, formatMonthYear } from '../lib/dateFormat.js'
 import { japanDataUrl } from '../lib/japanRelease.js'
 
@@ -271,7 +272,7 @@ export default function OverviewPanel() {
 
       {/* Right sidebar — key results */}
       <div className="lg:w-[180px] xl:w-[200px] lg:shrink-0 flex flex-col gap-3">
-        <KeyResults state={selectedState} date={selectedDate} lam={lam} cpiMonth={cpiMonth} dataVintage={dataVintage} />
+        <KeyResults state={selectedState} date={selectedDate} lam={lam} cpiMonth={cpiMonth} dataVintage={dataVintage} header={<ReleasePicker />} />
       </div>
 
     </div>

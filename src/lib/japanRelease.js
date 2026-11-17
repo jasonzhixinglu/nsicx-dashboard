@@ -8,7 +8,7 @@ export const JAPAN_RELEASES = [
   },
   {
     id: 'paper-2026-06',
-    label: 'Jun 2026 (working paper)',
+    label: 'Jun 2026 (paper)',
     note: 'Frozen working paper estimates · downloads use rounded dashboard values',
   },
 ]

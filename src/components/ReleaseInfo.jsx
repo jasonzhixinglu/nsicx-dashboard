@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { japanReleaseInfo } from '../lib/japanRelease.js'
 
-// Collapsible details of the selected estimation release (closed by default).
+// Collapsible vintage details of the selected estimation release (closed by default).
 export default function ReleaseInfo() {
   const [open, setOpen] = useState(false)
   const { details, note } = japanReleaseInfo
@@ -13,7 +13,7 @@ export default function ReleaseInfo() {
         aria-expanded={open}
         className="w-full flex items-center justify-between text-left text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
       >
-        <span>Release details</span>
+        <span>Vintage details</span>
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
           className={`transition-transform shrink-0 text-slate-400 dark:text-slate-500 ${open ? 'rotate-180' : ''}`}>
           <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

@@ -8,6 +8,7 @@ import MultiCountryRealRates from './components/MultiCountryRealRates.jsx'
 import MultiCountryAbout from './components/MultiCountryAbout.jsx'
 import { useDarkMode } from './lib/useDarkMode.jsx'
 import { PAPER_URL, PAPER_LABEL } from './lib/paper.js'
+import { JAPAN_RELEASES, japanRelease, switchJapanRelease } from './lib/japanRelease.js'
 
 const DASHBOARDS = {
   japan: {
@@ -133,7 +134,7 @@ function AppShell() {
 
       <header className="border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 sm:py-4">
         <div className="max-w-screen-2xl mx-auto flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-6">
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h1 className="text-base font-semibold text-slate-900 dark:text-white leading-tight">
               {cfg.title}
             </h1>
@@ -145,6 +146,21 @@ function AppShell() {
               </a>
               {' '}· {cfg.subtitle}
             </p>
+            {dashboard === 'japan' && (
+              <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+                <label htmlFor="japan-release" className="label">Estimation release</label>
+                <select
+                  id="japan-release"
+                  value={japanRelease}
+                  onChange={(e) => switchJapanRelease(e.target.value)}
+                  className="text-xs rounded pl-1.5 pr-1 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 outline-none cursor-pointer"
+                >
+                  {JAPAN_RELEASES.map(r => (
+                    <option key={r.id} value={r.id}>{r.label}</option>
+                  ))}
+                </select>
+              </div>
+            )}
             {ENABLE_MULTI && (
               <button
                 onClick={() => switchDashboard(switchTo)}

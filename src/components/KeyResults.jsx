@@ -1,4 +1,5 @@
 import { useDarkMode } from '../lib/useDarkMode.jsx'
+import { formatVintage } from '../lib/dateFormat.js'
 
 // Continuous HSL gradient: emerald at target, hue → red as v rises above,
 // hue → blue as v falls below. Clamped at ±1 percentage point so moderate
@@ -46,12 +47,12 @@ export default function KeyResults({ state, date, lam, target = 2, cpiMonth = nu
           <div className="pb-2 mb-2 border-b border-slate-200 dark:border-slate-800 space-y-0.5">
             <div className="flex items-baseline justify-between">
               <span className="text-xs text-slate-500">{splitVintage ? 'Survey' : 'Vintage'}</span>
-              <span className="text-xs font-medium text-indigo-600 dark:text-indigo-300">{date}</span>
+              <span className="text-xs font-medium text-indigo-600 dark:text-indigo-300">{formatVintage(date)}</span>
             </div>
             {splitVintage && (
               <div className="flex items-baseline justify-between">
                 <span className="text-xs text-slate-500">CPI</span>
-                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{cpiMonth}</span>
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">{formatVintage(cpiMonth)}</span>
               </div>
             )}
           </div>
@@ -81,12 +82,12 @@ export default function KeyResults({ state, date, lam, target = 2, cpiMonth = nu
           <div className="pb-2.5 mb-3 border-b border-slate-200 dark:border-slate-800 space-y-0.5">
             <div className="flex items-baseline justify-between">
               <span className="text-xs text-slate-500">{splitVintage ? 'Survey' : 'Vintage'}</span>
-              <span className="text-sm font-medium text-indigo-600 dark:text-indigo-300">{date}</span>
+              <span className="text-sm font-medium text-indigo-600 dark:text-indigo-300">{formatVintage(date)}</span>
             </div>
             {splitVintage && (
               <div className="flex items-baseline justify-between">
                 <span className="text-xs text-slate-500">CPI</span>
-                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{cpiMonth}</span>
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">{formatVintage(cpiMonth)}</span>
               </div>
             )}
           </div>

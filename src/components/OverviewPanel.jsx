@@ -1,9 +1,9 @@
-import { japanDataUrl } from '../lib/japanRelease.js'
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import WhiskerChart from './charts/WhiskerChart.jsx'
 import TermStructureChart from './charts/TermStructureChart.jsx'
 import KeyResults from './KeyResults.jsx'
 import { MONTH_NAMES, formatVintage, formatMonthYear } from '../lib/dateFormat.js'
+import { japanDataUrl } from '../lib/japanRelease.js'
 
 const monthIndex = (d) => { const [y, m] = d.split('-').map(Number); return y * 12 + (m - 1) }
 const fromMonthIndex = (i) => `${Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, '0')}`
@@ -28,67 +28,12 @@ function buildWhiskers(states, lam, horizons, step = 3) {
     })
 }
 
-function buildAndDownloadCSV(whiskerData) {
-  const lam = whiskerData.lam ?? 0.15
-
-  const nsAvg = (h, L, S, C) => {
-    if (h < 1e-6) return L + S
-    const eL = Math.exp(-lam * h)
-    const L2 = (1 - eL) / (lam * h)
-    const L3 = L2 - eL
-    return L + L2 * S + L3 * C
-  }
-
-  const nsFwd = (h, L, S, C) => {
-    const eL = Math.exp(-lam * h)
-    return L + eL * S + lam * h * eL * C
-  }
-
-  const cpiMap = Object.fromEntries(whiskerData.cpi.map(p => [p.d, p.v]))
-  const stateMap = Object.fromEntries(whiskerData.states.map(s => [s.d, s]))
-
-  // Union of all dates, sorted, from 2002-01 onward
-  const dates = [...new Set([
-    ...whiskerData.cpi.map(p => p.d),
-    ...whiskerData.states.map(s => s.d),
-  ])].sort().filter(d => d >= '2002-01')
-
-  const AVG_HORIZONS = [3, 12, 24, 60, 120]
-  const FWD_HORIZONS = [3, 12, 24, 60, 120]
-
-  const header = [
-    'date', 'cpi_yoy',
-    'nsicx_L', 'nsicx_S', 'nsicx_C',
-    'avg_3M', 'avg_1Y', 'avg_2Y', 'avg_5Y', 'avg_10Y',
-    'fwd_3M', 'fwd_1Y', 'fwd_2Y', 'fwd_5Y', 'fwd_10Y',
-  ].join(',')
-
-  const rows = dates.map(d => {
-    const cpi = cpiMap[d]
-    const s   = stateMap[d]
-    const cols = [
-      d,
-      cpi != null ? cpi.toFixed(4) : '',
-      s ? s.L.toFixed(4) : '',
-      s ? s.S.toFixed(4) : '',
-      s ? s.C.toFixed(4) : '',
-      ...AVG_HORIZONS.map(h => s ? nsAvg(h, s.L, s.S, s.C).toFixed(4) : ''),
-      ...FWD_HORIZONS.map(h => s ? nsFwd(h, s.L, s.S, s.C).toFixed(4) : ''),
-    ]
-    return cols.join(',')
-  })
-
-  const csv = [header, ...rows].join('\n')
-  const blob = new Blob([csv], { type: 'text/csv' })
-  const url  = URL.createObjectURL(blob)
-  const a    = document.createElement('a')
-  a.href     = url
-  a.download = 'japan_inflation_expectations.csv'
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
-}
+// Downloads: the selected release's published CSVs (public/data/japan/releases/<id>/).
+const DOWNLOADS = [
+  { file: 'filtered_states.csv',  label: 'Filtered factors (L, S, C)' },
+  { file: 'dns_expectations.csv', label: 'Expected inflation, 1–10y' },
+  { file: 'real_rates.csv',       label: 'Ex-ante real rates, 1–10y' },
+]
 
 export default function OverviewPanel() {
   const [whiskerData, setWhiskerData] = useState(null)
@@ -97,7 +42,7 @@ export default function OverviewPanel() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
-    fetch(japanDataUrl("whisker_data.json"))
+    fetch(japanDataUrl('whisker_data.json'))
       .then(r => r.json())
       .then(d => {
         // Monthly instantaneous forwards, 1 to 24 months ahead of each origin.
@@ -168,9 +113,6 @@ export default function OverviewPanel() {
     return latest
   }, [whiskerData, selectedDate])
 
-  const handleDownload = useCallback(() => {
-    if (whiskerData) buildAndDownloadCSV(whiskerData)
-  }, [whiskerData])
 
   if (loading) return (
     <div className="flex items-center justify-center h-64 text-slate-500 text-sm">
@@ -207,18 +149,24 @@ export default function OverviewPanel() {
         <div className="border-t border-slate-200 dark:border-slate-800" />
 
         <div>
-          <div className="label mb-2">Model estimates</div>
-          <button
-            onClick={handleDownload}
-            className="w-full text-xs py-1.5 px-2 rounded-md font-medium text-left transition-all bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-700 flex items-center gap-1.5"
-          >
-            <svg width="11" height="11" viewBox="0 0 12 12" fill="none" className="shrink-0">
-              <path d="M6 1v7M3.5 5.5 6 8l2.5-2.5M2 10h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Download CSV
-          </button>
+          <div className="label mb-2">Download</div>
+          <div className="flex flex-col gap-1.5">
+            {DOWNLOADS.map(d => (
+              <a
+                key={d.file}
+                href={japanDataUrl(d.file)}
+                download
+                className="w-full text-xs py-1.5 px-2 rounded-md font-medium text-left transition-all bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-700 flex items-center gap-1.5"
+              >
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none" className="shrink-0">
+                  <path d="M6 1v7M3.5 5.5 6 8l2.5-2.5M2 10h8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                {d.label}
+              </a>
+            ))}
+          </div>
           <p className="text-xs text-slate-500 dark:text-slate-600 mt-1.5 leading-relaxed">
-            CPI, NSICX factors, avg annualized term structure.
+            CSV files for the selected estimation release.
           </p>
         </div>
 

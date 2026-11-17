@@ -1,4 +1,3 @@
-import { japanRelease, japanDataUrl } from './lib/japanRelease.js'
 import { useState, useEffect } from 'react'
 import OverviewPanel from './components/OverviewPanel.jsx'
 import ChartsPanel from './components/ChartsPanel.jsx'
@@ -8,6 +7,7 @@ import MultiCountryCharts from './components/MultiCountryCharts.jsx'
 import MultiCountryRealRates from './components/MultiCountryRealRates.jsx'
 import MultiCountryAbout from './components/MultiCountryAbout.jsx'
 import { useDarkMode } from './lib/useDarkMode.jsx'
+import { JAPAN_RELEASES, japanRelease, japanReleaseInfo, switchJapanRelease } from './lib/japanRelease.js'
 
 const DASHBOARDS = {
   japan: {
@@ -138,16 +138,22 @@ function AppShell() {
               {cfg.title}
             </h1>
             <p className="text-xs text-slate-500 mt-0.5">{cfg.subtitle}</p>
-            {dashboard === 'japan' && <div className="text-xs mt-2 flex flex-wrap gap-3 items-center">
-              <label>Estimation release: <select aria-label="Estimation release" className="text-slate-900 bg-white border rounded" value={japanRelease} onChange={e => { const u = new URL(window.location.href); u.searchParams.set('release', e.target.value); window.location.assign(u.href) }}>
-                <option value="live-2026-11-17">Latest — October 2026</option>
-                <option value="paper-2026-06">Working paper — June 2026 (frozen)</option>
-              </select></label>
-              <span>{japanRelease === 'paper-2026-06' ? 'Frozen paper estimates; CSV downloads use rounded dashboard values' : 'Released November 17, 2026; CPI through September; parameters fitted on full sample'}</span>
-              <a className="underline" href={japanDataUrl('filtered_states.csv')} download>Download filtered factors</a>
-              <a className="underline" href={japanDataUrl('dns_expectations.csv')} download>Download expectations</a>
-              <a className="underline" href={japanDataUrl('real_rates.csv')} download>Download real rates</a>
-            </div>}
+            {dashboard === 'japan' && (
+              <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                <label htmlFor="japan-release" className="label">Estimation release</label>
+                <select
+                  id="japan-release"
+                  value={japanRelease}
+                  onChange={(e) => switchJapanRelease(e.target.value)}
+                  className="text-xs rounded px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 outline-none cursor-pointer"
+                >
+                  {JAPAN_RELEASES.map(r => (
+                    <option key={r.id} value={r.id}>{r.label}</option>
+                  ))}
+                </select>
+                <span className="text-xs text-slate-500 dark:text-slate-600">{japanReleaseInfo.note}</span>
+              </div>
+            )}
             {ENABLE_MULTI && (
               <button
                 onClick={() => switchDashboard(switchTo)}
